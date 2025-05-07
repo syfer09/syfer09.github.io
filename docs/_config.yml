@@ -22,14 +22,14 @@ title: Sekretnyj' dom chuda juda
 email: your-email@example.com
 description: >- # this means to ignore newlines until "baseurl:"
   Rad chto vy nas nashli
-baseurl: "" # the subpath of your site, e.g. /blog
+#baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: go away elon 
 github_username: syfer 
 
 # Build settings
 theme: minima
-#remote_theme: pages-themes/leap-day@v0.2.0 
+remote_theme: pages-themes/leap-day@v0.2.0 
 plugins:
   - jekyll-feed
   - jekyll-remote-theme
