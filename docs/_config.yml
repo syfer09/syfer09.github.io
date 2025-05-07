@@ -28,7 +28,7 @@ twitter_username: go away elon
 github_username: syfer 
 
 # Build settings
-theme: minima
+theme: jekyll-theme-cayman 
 plugins:
   - jekyll-feed
 
