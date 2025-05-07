@@ -23,13 +23,13 @@ title: Sekretnyj' dom chuda juda
 description: >- # this means to ignore newlines until "baseurl:"
   Rad chto vy nas nashli
 #baseurl: "" # the subpath of your site, e.g. /blog
-#url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "" # the base hostname & protocol for your site, e.g. http://example.com
 #twitter_username: go away elon 
 #github_username: syfer 
 
 # Build settings
-theme: jekyll-theme-merlot 
-#remote_theme: pages-themes/merlot@v0.2.0 
+#theme: jekyll-theme-merlot 
+remote_theme: pages-themes/merlot@v0.2.0 
 plugins:
   - jekyll-feed
   - jekyll-remote-theme
