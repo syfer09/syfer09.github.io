@@ -7,4 +7,4 @@ layout: default
 
 This is a test.
 
-Here is my [Post](syfer09.github.io/test)
+Here is my [Post](/test)
