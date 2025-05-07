@@ -28,6 +28,7 @@ twitter_username: go away elon
 github_username: syfer 
 
 # Build settings
+theme: minima
 remote_theme: pages-themes/leap-day@v0.2.0 
 plugins:
   - jekyll-feed
