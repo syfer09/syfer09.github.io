@@ -6,7 +6,9 @@ categories: jekyll update
 permalink: /meow
 ---
 
-# Solving the box
+# The Meow Box and Other Woes 
+
+## Solving the box
 
 This box is one of the introductory labs that HTB has in order to get people started with pentesting. In fact the box is so simple it might almost not be worth doing a full writeup about it. It is however a good learning opprotunity on some of the peripherals of running a blog, like inserting images, the layout, and other such annoyances that seem to only work after 20 minutes of troubleshoting.
 
@@ -19,6 +21,8 @@ To start, a simple TCP scan on the most common ports was ran:
 Looking at the output we can see that there is an open Telnet service on port 23. By running `telnet $ip` we can connect remotely to the box. We do however need credentials to actually login. A quick google search suggests trying `admin` as the default, which ends up doing nothing. Next I tried `root` and that ended up logging me in as root without a password check. After that a simple `ls -la` shows that the root flag is in a text file in the home directory.
 
 ![Flag](/assets/img/meow/meow2)
+
+## Conclusion
 
 This exercise was more about familiarizing myself with github pages and what it takes to add blog posts. I still have a number of issues, such as page width, on which to work on. Add on that this is one of my first times working with github CLI and all of the sudden it makes sense why everything takes hours as opposed to minutes. Here's to smooth sailing ahead.
 
