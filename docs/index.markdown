@@ -4,7 +4,5 @@
 
 layout: default 
 ---
-
-This is a test.
-
+[About](/about)
 Here is my [Post](/test)
