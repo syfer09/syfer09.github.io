@@ -5,4 +5,5 @@
 layout: default 
 ---
 [About](/about)
-Here is my [Post](/test)
+
+[Post](/test)
