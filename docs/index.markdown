@@ -9,3 +9,5 @@ layout: default
 # HTB Boxes that I've solved
 
 [Meow (2025-05-21)](/meow)
+
+[First Track (2025-06-03)](/intro)
