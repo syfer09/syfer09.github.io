@@ -11,3 +11,5 @@ layout: default
 [Meow (2025-05-21)](/meow)
 
 [First Track (2025-06-03)](/intro)
+
+[Second Track (2025-06-20)](/intro2)
