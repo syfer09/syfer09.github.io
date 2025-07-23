@@ -585,6 +585,6 @@ int main(){
 ### Thoughts
 Again, pretty simple, lots of fun.
 
-#Conclusion
+# Conclusion
 
 Not much to say here, getting more comfortable with C. Excited to see where the next sections take me!
