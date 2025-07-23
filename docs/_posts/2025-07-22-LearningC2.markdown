@@ -1,0 +1,590 @@
+---
+layout: default
+title: Meow Box
+date: 2025-07-22 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc2
+---
+
+# Introduction
+
+My interest in low-level programming as well as UNIX-like systems led me to think that I should probably formally learn C. All of my current C knowledge comes from using Java and C++, and there's a lot of holes. Hence I decided to go through K. N Kings' "C Programming: A Modern Approach" and post the exercises here along with some of my thought process on the sections and work I did.
+
+The only issues could be that the book is fairly old. In particular, C99 seems to have just come out at the time of release and emphasis is done to adhere to C89 as well. We are currently on C23 with several new key-words and other changes that I'll have to be aware of and keep an eye out. 
+
+With that being said, I'm kind of excited.
+
+# Exercises
+
+## 2.1
+
+### Exercise statement
+Section 2.1 1. Create and run Kemighan and Ritchie's famous “hello, world" program: 
+
+```
+#include <stdio.h> 
+
+int main(void) 
+
+{ 
+
+    printf("hello, world\n"); 
+
+} 
+```
+
+Do you get a warning message from the compiler? If so, what’s needed to make it go away? 
+
+### Solution
+
+Might not bode well that the very first exercise is already looking at deprecated functionality. The compiler doesn't throw any exceptions to me since starting with C99, the main function will automatically return 0 if it reaches the end without a return statement. Luckily we can specify the standard with `-std=89`.
+
+``gcc -std=c89 -Wall -o helloworld helloworld.c`` throws an error while ``gcc -std=c99 -Wall -o helloworld helloworld.c`` does not.
+
+We can fix the warning by adding a `return 0;` at the end.
+
+## 2.2
+
+### Exercise Statement
+Consider the following program: 
+```
+#include <stdio.h> 
+
+int main(void) 
+
+{ 
+
+    printf("Parkinson's Law:\nWork expands so as to "); 
+
+    printf("fill the time\n"); 
+
+    printf("available for its completion.\n"); 
+
+    return 0; 
+
+} 
+
+```
+
+(a) Identify the directives and statements in this program. 
+
+(b) What output does the program produce? 
+
+
+### Solution
+
+(a) There is only one directive: `#include stdio.h`. The statements are everything else except for the curly braces and the `int main(void)`
+
+(b) The output is as follows:
+```
+Parkinson 1 s Law:
+Work expands so as to fill the time
+available for its completion.
+
+```
+## 2.3
+
+### Exercise Statement
+```
+/* Computes the dimensional weight of a 12" x 10" x 8" box */ 
+
+include <stdio.h> 
+
+int main(void) 
+
+{ 
+
+    int height, length, width, volume, weight; 
+
+    height = 8; 
+    length = 12; 
+    width = 10; 
+
+    volume = height * length * width; 
+    weight = (volume + 165) / 166; 
+
+    printf("Dimensions: %dx%dx%d\n", length, width, height); 
+    printf("Volume (cubic inches): %d\n", volume); 
+    printf("Dimensional weight (pounds): %d\n", weight); 
+
+    return 0; 
+
+} 
+
+```
+Condense the dweight.c program by (1) replacing the assignments to `height`,`length`, and `width` with initializers and (2) removing the weight variable, instead calculating `(volume + 165) / 166` within the last `printf`. 
+
+### Solution
+Modified code:
+
+```
+/* Computes the dimensional weight of a 12" x 10" x 8" box */ 
+
+include <stdio.h> 
+
+int main(void) 
+
+{ 
+
+    int height=8, length=12, width=10, volume; 
+
+    volume = height * length * width; 
+
+    printf("Dimensions: %dx%dx%d\n", length, width, height); 
+    printf("Volume (cubic inches): %d\n", volume); 
+    printf("Dimensional weight (pounds): %d\n", (volume + 165) / 166); 
+
+    return 0; 
+
+} 
+
+```
+## 2.4
+
+### Exercise Statement
+
+Write a program that declares several `int` and `float` variables—without initializing 
+them—and then prints their values. Is there any pattern to the values? (Usually there isn’t.) 
+
+### Solution
+
+Code:
+```
+//Computes the dimensional weight of a 12" by 10 by 8 box
+
+#include <stdio.h> 
+
+int main(void) { 
+    
+    int a,b,c,d,e,f,g,h,i,j;
+    float k,l,m,n,o,p,q,r,s;
+
+    printf("Integers: %d %d %d %d %d %d %d %d %d\n", a, b, c, d, e, f, g, h, i, j);
+    printf("Floats: %f %f %f %f %f %f %f %f\n", k, l, m, n, o, p, q, r, s);
+
+    return 0; 
+
+}
+```
+With results:
+
+```
+Integers: 151 0 0 0 0 0 0 0 0
+Floats: 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+```
+
+The exercise is over but I think I'm not too sure how to interpret these results, I expected a bunch of random values but we got 151 and then zeroed out...
+
+On second running I got
+```
+Integers: 151 0 0 0 0 0 0 0 0
+Floats: 0.000000 -1181.800781 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+```
+
+The spooky part was that I did not even recompile. On subsequent running all I got to change was the second float value... for some reason. This behavior was at least consistent after recompilation.
+
+## 2.5
+
+### Exercise Statement
+Which of the following are not legal C identifiers? 
+
+(a) `100_bottles` 
+
+(b) `_100_bottles` 
+
+(c) `one_hundred_bottles` 
+
+(d) `bottles_by_the_hundred_`
+
+### Solution
+(a) is not legal since it starts with a number
+(b) should be fine since we're starting with an underscore
+(c) perfectly fine
+(d) I was unsure about this one but my compiler did not yell at me for ending with an underscore in either standard.
+## 2.6
+
+### Exercise Statement
+Why is it not a good idea for an identifier to contain more than one adjacent underscore (as in `current__balance`, for example)? 
+
+### Solution
+
+I don't remember if this is referencing a particular section in the chapter, but intuitively it seems that it would be difficult to distinguish how many underscores are together since they turn into a line depending on the font.
+
+## 2.7
+
+### Exercise Statement
+Which of the following are keywords in C? 
+
+(a) `for` 
+
+(b) `In` 
+
+(c) `main` 
+
+(d) `printf` 
+
+(e) `while` 
+
+### Solution
+
+(a) keyword
+(b) nope
+(c) nope, a function named main is important(still not a keyword) but just main itself when not the name of a function does nothing
+(d) also close, but doesn't do anything unless `stdio.h` is included so not really a keyword. Even with the inclusion it is a function to call.
+(e) keyword
+
+## 2.8
+
+### Exercise Statement
+How many tokens are there in the following statement? `answer=(3*q-p*p)/3;`
+
+### Solution
+
+1. answer
+2. =
+3. ( 
+4. 3
+5. *
+6. q
+
+Upon writing this list I have realized that every single character after answer is its own token. Hence 1(answer)+13=14 tokens
+## 2.9
+
+### Exercise Statement
+Insert spaces between the tokens in Exercise 8 to make the statement easier to read.
+
+### Solution
+
+`answer = (3 * q - p * q) / 3;`
+
+## 2.10
+
+### Exercise Statement
+In the `dweight.c` program (Section 2.4). which spaces are essential? 
+
+### Solution
+```
+#include <stdio.h>
+int main(void){int height=8, length=12, width=10, volume;volume = height * length * width;printf("Dimensions: %dx%dx%d\n", length, width, height);printf("Volume (cubic inches): %d\n", volume);printf("Dimensional weight (pounds): %d\n", (volume + 165) / 166);return 0;}
+```
+
+With the exception of the directive, the entirety of the program can be written on one line.
+
+# Projects
+
+## 2.1
+
+### Statement
+
+Write a program that uses `printf` to display the following picture on the screen:
+       \*
+      \*
+     \*
+\*  \*
+ \*\*
+  \* 
+### Code
+```
+//Filename: p1.c
+//Purpose: Writes a checkmark out of asterisks on the screen
+//Author: syfer
+//Date: July 23rd, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    printf("       *\n");
+    printf("      *\n");
+    printf("     *\n");
+    printf("*   *\n");
+    printf(" * *\n");
+    printf("  *\n");
+
+    return 0;
+
+}
+```
+
+### Thoughts
+Nice and simple, worked first try.
+
+## 2.2
+
+### Statement
+Write a program that computes the volume of a sphere with a 10-meter radius, using the formula $v = 4/3pir^3$. Write the fraction 4/3 as `4.Of / 3.Of`. (Try writing it as 4/3. What happens?) Hint: C doesn't have an exponentiation operator, so you'll need to multiply r by itself twice to compute r^3 . 
+### Code
+```
+//Filename: p2.cpp
+//Purpose: Computes the volume of a sphere with a 10 meter radius.
+//Author: syfer
+//Date: July 23rd, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    const float pi = 3.1415;
+    float radius = 10.0f;
+
+    printf("%f\n", 4.0f / 3.0f * pi * radius * radius * radius);
+
+    return 0;
+
+}
+```
+
+### Thoughts
+If we set the fraction as `4/3` then the compiler will treat those as integers, and truncate where instead of 1.3 repeating we get 1.
+
+## 2.3
+
+### Statement
+Modify the program of Programming Project 2 so that it prompts the user to enter the radius of the sphere.
+### Code
+```
+//Filename: p3.cpp
+//Purpose: Computes the volume of a sphere with a 10 meter radius.
+//Author: syfer
+//Date: July 23rd, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    const float pi = 3.1415;
+    float radius;
+
+    printf("Enter radius: ");
+    scanf("%f",&radius);
+
+    printf("%f\n", 4.0f / 3.0f * pi * radius * radius * radius);
+
+    return 0;
+
+}
+```        
+
+### Thoughts
+
+Not much to say here, just added a `scanf`.
+## 2.4
+
+### Statement
+Write a program that asks the user to enter a dollars-and-cents amount, then displays the amount with 5% tax added: 
+
+Enter an amount: 100.00 
+With tax added: $105.00 
+
+### Code
+```
+//Filename: p4.c
+//Purpose: Calculates 5% tax on a user entered monetary amount
+//Author: syfer
+//Date July 23rd, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    float amount;
+    
+    printf("Enter an amount: ");
+    scanf("%f", &amount);
+
+    printf("Result with tax added: $%0.2f\n", 1.05f * amount);
+
+    return 0;
+
+}
+```
+### Thoughts
+Nothing here.
+
+## 2.5
+
+### Statement
+Write a program that asks the user to enter a value for x and then displays the value of the following polynomial: 
+
+$$3x^5+2x^4-5x^3-x^2+7x-6$$
+
+Hint: C doesn’t have an exponentiation operator, so you’ll need to multiply x by itself repeatedly in order to compute the powers of x. (For example, x * x * x is x cubed.)
+### Code
+```
+//Filename: p5.c
+//Purpose: Calculates the value of 3x^5+2x^4-5x^3-x^2+7x-6 for a user given x
+//Author: syfer
+//Date July 23rd, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    float x;
+
+    printf("Enter a value for x: ");
+    scanf("%f",&x);
+
+    printf("Result: %f\n", 3.0f * x * x * x * x * x //3x^5 
+            + 2.0f * x * x * x * x //+2x^4
+            - 5.0f * x * x * x //-5x^3
+            - x * x // -x^2
+            + 7.0f * x // +7x
+            - 6.0f // -6
+            );
+
+    return 0;
+
+}
+```
+
+### Thoughts
+Two things I learned:
+1. Inline comments are fine
+2. Even though I added `.0f` to the constants the compiler seems to be fine even if I left them off, i.e. `x+5.0f` and `x+5` produce the same result when x is a float.
+
+## 2.6
+
+### Statement
+Modify the program of Programming Project 5 so that the polynomial is evaluated using the following formula: 
+
+$$((((3x+2)x-5)x-1)x+7)x-6$$
+
+Note that the modified program performs fewer multiplications. This technique for evaluating polynomials is known as Horner's Rule. 
+### Code
+```
+//Filename: p6.c
+//Purpose: Calculates the value of 3x^5+2x^4-5x^3-x^2+7x-6 for a user given x
+//Author: syfer
+//Date July 23rd, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    float x;
+
+    printf("Enter a value for x: ");
+    scanf("%f",&x);
+
+    printf("Result: %f\n", ((((3 * x + 2) * x - 5) * x - 1) * x + 7) * x - 6);
+
+    return 0;
+
+}
+```
+### Thoughts
+Nothing much here, yes it is in fact less multiplication.
+
+## 2.7
+
+### Statement
+Write a program that asks the user to enter a U.S. dollar amount and then shows how to pay that amount using the smallest number of $20, $10, $5, and $1 bills: 
+
+Enter a dollar amount: 93 
+
+$20 bills: 4 
+$10 bills: 1 
+$5 bills: 0 
+$1 bills: 3 
+
+Hint: Divide the amount by 20 to determine the number of $20 bills needed, and then reduce the amount by the total value of the $20 bills. Repeat for the other bill sizes. Be sure to use integer values throughout, not floating-point numbers. 
+### Code
+```
+//Filename: p7.c
+//Purpose: Asks the user to enter a U.S. dollar amount and then shows how to pay that amount using the smallest number of $20, $10, $5, and $1 bills
+//Author: syfer
+//Date: July 23rd, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int amount, wholePart;
+
+    printf("Enter a dollar amount: ");
+    scanf("%d",&amount);
+
+    wholePart = amount / 20;
+    printf("$20 bills: %d\n", wholePart);
+    amount -= wholePart * 20; // Note that wholePart*20 = amount / 20 * 20 != amount
+
+    wholePart = amount / 10;
+    printf("$10 bills: %d\n", wholePart);
+    amount -= wholePart * 10;
+
+    wholePart = amount / 5;
+    printf("$5 bills: %d\n", wholePart);
+    amount -= wholePart * 5;
+
+    printf("$1 bills: %d\n", amount);
+    
+    return 0;
+
+}
+
+```
+### Thoughts
+
+Fun to write a slightly longer program. Trying to adhere to good standards here, for example making wholePart a variable instead of just recalculating it twice. Could probably make things even shorter but I like trying to write clean code.
+
+Side-note found out a bit early I guess that `+=` and the like are valid assignment operators.
+
+## 2.8
+
+### Statement
+Write a program that calculates the remaining balance on a loan after the first, second, and third monthly payments: 
+
+Enter amount of loan: 20000.00 
+Enter interest rate: 6.0 
+Enter monthly payment: 386.66 
+
+Balance remaining after first payment: $19713.34 
+Balance remaining after second payment: $19425.25 
+Balance remaining after third payment: $19135.71 
+
+Display each balance with two digits after the decimal point. Hint: Each month, the balance is decreased by the amount of the payment, but increased by the balance times the monthly interest rate. To find the monthly interest rate, convert the interest rate entered by the user to a percentage and divide it by 12. 
+### Code
+```
+//Filename: p8.c
+//Purpose: Calculates the remaining balance on a loan after the first, second, and third monthly payments 
+//Author: syfer
+//Date: July 23rd, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    float balance, interestRate, monthlyPayment;
+
+    printf("Enter amount of loan: ");
+    scanf("%f",&balance);
+   
+    printf("Enter interest rate: ");
+    scanf("%f",&interestRate);
+
+    printf("Enter monthly payment: ");
+    scanf("%f",&monthlyPayment);
+   
+    interestRate *= 0.01f / 12.0f; //Convert to monthly interest
+
+    balance = balance - monthlyPayment + balance * interestRate;
+    printf("Balance remaining after first payment: $%0.2f\n", balance);
+
+    balance = balance - monthlyPayment + balance * interestRate;
+    printf("Balance remaining after second payment: $%0.2f\n", balance);
+    
+    balance = balance - monthlyPayment + balance * interestRate;
+    printf("Balance remaining after third payment: $%0.2f\n", balance);
+
+    return 0;
+}
+
+
+```
+### Thoughts
+Again, pretty simple, lots of fun.
+
+#Conclusion
+
+Not much to say here, getting more comfortable with C. Excited to see where the next sections take me!
