@@ -13,3 +13,6 @@ layout: default
 [First Track (2025-06-03)](/intro)
 
 [Second Track (2025-06-20)](/intro2)
+
+# Learning C (King)
+[Chapter 2 (2025-07-22)](/learningc2)
