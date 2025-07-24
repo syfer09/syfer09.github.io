@@ -16,3 +16,5 @@ layout: default
 
 # Learning C (King)
 [Chapter 2 (2025-07-22)](/learningc2)
+
+[Chapter 3 (2025-07-23)](/learningc2)
