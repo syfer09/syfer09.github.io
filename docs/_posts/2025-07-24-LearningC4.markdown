@@ -1,0 +1,556 @@
+---
+layout: default
+title: Chapter 4
+date: 2025-07-24 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc4
+---
+#Introduction
+This chapter was on operands. I liked the more formal introduction to pre and postfix operands as well as the associativity rules. Luckily they follow the standard mathematical rules. 
+
+It was interesting to learn about undefined behavior as well, I had to idea that assignments could be in the middle of expressions, though it is bad practice. For that specifically, I think the most important part was to remember that at the end of the day, `=` is just an operand like every other one and not necessarily special. 
+
+# Exercises
+## E4.1
+### Statement
+Show the output produced by each of the following program fragments. Assume that `i`. `j`. 
+and `k` are `int` variables. 
+
+(a) `i = 5; j = 3; `
+
+`printf("%d %d", i / j, i % j);`
+
+(b) `i = 2; j = 3;` 
+
+`printf("%d", (i + 10) % j);` 
+
+(c)`i = 7; j = 8; k = 9;` 
+
+`printf("%d", (i + 10) % k / j);` 
+
+(d)`i = 1; j = 2; k = 3;` 
+
+`printf("%d", (i + 5) % (j + 2) / k) ;` 
+
+### Solution
+(a) `5/3` evaluates to 1 since both `i` and `j` are integers. `i%j` evaluates to 2. 
+
+(b) `(2+10) % 3` evaluates to 0 since 12 is divisible by 3.
+
+(c) `(7+10) % 9 / 8` evaluates to `8/8` which is 1.
+
+(d) `(1+5) % (2+2) / 3` evaluates to `6 % 4 / 3` which ends up being 0.
+
+## E4.2
+
+### Statement
+If `i` and `j` are positive integers, does `(- i)/j` always have the same value as `-(i/j)`? Justify your answer.
+### Solution
+## E4.3
+### Statement
+What is the value of each of the following expressions in C89? (Give all possible values if an expression may have more than one value.)
+
+(a) `8 / 5`
+
+(b) `-8 / 5`
+
+(c) `8 / -5`
+
+(d) `-8 / -5`
+
+### Solution
+(a) 1
+
+(b) -1 or -2 
+
+(c) -1 or -2
+
+(d) 1 or 2
+## E4.4
+### Statement
+Repeat Exercise 3 for C99.
+### Solution
+(a) 1
+
+(b) -1
+
+(c) -1
+
+(d) 1
+
+## E4.5
+### Statement
+What is the value of each of the following expressions in C89? (Give all possible values if an expression may have more than one value.) 
+
+(a) `8 % 5`
+
+(b) `-8 % 5` 
+
+(c) `8 % -5` 
+
+(d) `-8 % -5` 
+
+### Solution
+(a) 3
+
+(b) -3 or 5
+
+(c) 3 or -5
+
+(d) 3 or 5
+
+## E4.6
+### Statement
+Repeat Exercise 5 for C99
+### Solution
+(a) 1
+(b) -3
+(c) 3
+(d) -3
+
+## E4.7
+### Statement
+The algorithm for computing the UPC check digit ends with the following steps:
+
+1. Subtract 1 from the total.
+
+2. Compute the remainder when the adjusted total is divided by 10.
+
+3. Subtract the remainder from 9.
+
+It's tempting to try to simplify the algorithm by using these steps instead:
+
+1. Compute the remainder when the total is divided by 10.
+
+2. Subtract the remainder from 10.
+
+Why doesn't this technique work? 
+### Solution
+`9 - (total - 1) % 10` and `10 - total % 10` are not equivalent. For example if `total = 11` we are left with `9 - (10 - 1) % 10 = 0` and `10 - 10 % 10 = 10` 
+## E4.8
+### Statement
+Would the upc.c program still work if the expression `9 - ((total - 1) % 10)` were replaced by `(10 - (total % 10) ) % 10`? 
+### Solution
+Based on my testing the expressions seem to be equivalent. In particular `total=10` still works.:
+## E4.9
+### Statement
+Show the output produced by each of the following program fragments. Assume that `i`, `j` and `k` are `int` variables.
+
+(a)
+```i = 7; j = 8;
+i *= j + l;
+printf("%d %d", i, j);
+```
+
+(b)
+```
+i = j = k = 1;
+i += j += k;
+printf("%d %d %d", i, j, k);
+```
+
+(c)
+```
+i = 1; j = 2; k = 3;
+i -= j -= k;
+printf("%d %d %d", i, j, k);
+```
+
+(d)
+```
+i = 2; j = 1; k = 0;
+i *= j *= k;
+printf("%d %d %d", i, j, k);
+```
+### Solution
+(a) `i = 63, j = 8`
+
+(b) `i = 3, j = 2, k = 1`
+
+(c) `i = 2, j = -1, k = 3`
+
+(d) `i = j = k = 0`
+
+## E4.10
+### Statement
+Show the output produced by each of the following program fragments. Assume that `i` and `j` are `int` variables.
+
+(a)
+```
+i = 6;
+j = i += i
+printf("%d %d", i,j);
+```
+
+(b)
+```
+i = 5;
+j = (i -= 2) + 1;
+printf("%d %d", i, j);
+```
+
+(c)
+```
+i = 7;
+j = 6 +(i = 2.5);
+printf("%d %d", i,j);
+```
+
+(d)
+```
+i = 2;
+j = 8;
+j= (i = 6) + (j = 3);
+printf("%d %d", i, j); 
+```
+
+### Solution
+(a) `i = j = 12`
+
+(b) `i = 3, j = 4`
+
+(c) `i = 2, j = 8`
+
+(d) `i = 6, j = 9`
+
+## E4.11
+### Statement
+Show the output produced by each of the following program fragments. Assume that `i`. `j`. 
+and `k` are `int` variables. 
+
+(a)
+```
+i = 1; 
+printf("%d ", i++ - 1); 
+printf("%d", i) ; 
+```
+(b)
+```
+i = 10; j = 5; 
+printf("%d ", i++ - ++j) ; 
+printf("%d %d", i, j); 
+```
+(c)
+```
+i = 7; j = 8; 
+printf("%d ", i++ - --j); 
+printf("%d %d", i, j); 
+```
+(d)
+```
+i = 3; j = 4; k = 5; 
+printf("%d ", i++ - j++ + --k); 
+printf("%d %d %d", i, j, k); 
+```
+### Solution
+(a) 0 then 2
+
+(b) 4 then 11 and 6
+
+(c) 0 then 8 and 7
+
+(d) 3 then 4 5 and 4
+
+## E4.12
+### Statement
+Show the output produced by each of the following program fragments. Assume that `i` and `j` are `int` variables.
+
+(a)
+```
+i = 5;
+j = ++i * 3 - 2;
+printf("%d %d", i, j);
+```
+(b) 
+```
+i = 5;
+j = 3 - 2 * i++;
+printf("%d %d", i, j);
+```
+(c) 
+```
+i = 7;
+j = 3 * i-- + 2;
+printf("%d %d", i, j);
+```
+(d)
+```
+i = 7;
+j = 3 + --i * 2;
+printf("%d %d", i, j);
+```
+### Solution
+(a) `i = 6, j = 16`
+
+(b) `i = 6, j = -7`
+
+(c) `i = 6, j = 23`
+
+(d) `i = 6, j = 15`
+
+## E4.13
+### Statement
+Only one of the expressions `++i` and `i++` is exactly the same as `(i += l)`; which is it? Justify your answer.
+
+### Solution
+We can directly replace `++i` with `i += 1` in expressions since `i+=1` evaluates first and then uses the new value of `i` in place, while `x++` will apply the increment after something like `i+=1`.
+
+## E4.14
+### Statement
+Supply parentheses to show how a C compiler would interpret each of the following expressions.
+
+(a)`a * b - c * d + e`
+
+(b) `a / b % c / d`
+
+(c) `- a - b + c - + d`
+
+(d) `a * - b / c - d`
+
+### Solution
+(a) `((a * b) - (c * d)) + e` 
+
+(b) `((a /b) % c) / d`
+
+(c) `(((-a) - b) + c) - (+d)`
+
+(d) `((a * (-b)) / c) - d`
+
+## E4.15
+### Statement
+Give the values of `i` and `j` after each of the following expression statements has been executed. (Assume that `i` has the value 1 initially and `j` has the value 2.)
+
+(a) `i += j;`
+
+(b) `i--`
+
+(c) `i * j / i;`
+
+(d) `i % ++j;` 
+### Solution
+(a) `i = 3, j = 2`
+
+(b) `i = 0, j = 2`
+
+(c) `i = 1, j = 2`
+
+(d) `i = 1, j = 3`
+
+# Projects
+## P4.1
+### Statement
+Write a program that asks the user to enter a two-digit number, then prints the number with its digits reversed. A session with the program should have the following appearance:
+
+Enter a two-digit number: 28
+
+The reversal is: 82
+
+Read the number using `%d`, then break it into two digits. Hint: If `n` is an integer, then `n % 10`
+is the last digit in `n` and `n / 10` is `n` with the last digit removed.
+
+### Code
+```
+//Filename: p1.c
+//Purpose: Reverses a user entered 2 digit number
+//Author: syfer
+//Date: July 25th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int n;
+
+    printf("Enter a two-digit number: ");
+    scanf("%d", &n);
+
+    printf("The reversal is %d%d\n", n % 10, n / 10);
+
+    return 0;
+
+}
+
+```
+
+## P4.2
+### Statement
+Extend the program in Programming Project 1 to handle three-digit numbers.
+### Code
+```
+//Filename: p2.c
+//Purpose: Reverses a user entered 3 digit number
+//Author: syfer
+//Date: July 25th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int n;
+
+    printf("Enter a three-digit number: ");
+    scanf("%d", &n);
+
+    printf("The reversal is %d%d%d\n", n % 10, (n / 10) % 10, n / 100);
+
+    return 0;
+
+}
+
+```
+
+## P4.3
+### Statement
+Rewrite the program in Programming Project 2 so that it prints the reversal of a three-digit number without using arithmetic to split the number into digits. Him: See the `upc.c` program of Section 4.1. 
+### Code
+```
+//Filename: p3.c
+//Purpose: Reverses a user given 3 digit number without arithmetic operations
+//Author: syfer
+//Date: July 25th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int n1, n2, n3;
+
+    printf("Enter a three-digit number: ");
+    scanf("%1d%1d%1d", &n1, &n2, &n3);
+
+    printf("Reversed: %d%d%d\n", n3, n2 , n1);
+    
+    return 0;
+
+}
+
+```
+## P4.4
+### Statement
+Write a program that reads an integer entered by the user and displays it in octal (base 8):
+
+Enter a number between 0 and 32767: 1953
+
+In octal, your number is: 03641
+
+The output should be displayed using five digits, even if fewer digits are sufficient. Hint: To convert the number to octal, first divide it by 8; the remainder is the last digit of the octal number (1, in this case). Then divide the original number by 8 and repeat the process to arrive at the next-to-last digit, (`printf` is capable of displaying numbers in base 8, as we’ll see in Chapter 7, so there’s actually an easier way to write this program.)
+
+### Code
+```
+//Filename: p4.c
+//Purpose: Converts a 5 digit number to octal
+//Author: syfer
+//Date: July 25th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int n;
+    int res;
+
+    printf("Enter a number between 0 and 32767: ");
+    scanf("%d", &n);
+
+    res = n % 8;
+    n /= 8;
+
+    res+= n % 8 * 10;
+    n /= 8;
+
+    res+= n % 8 * 100;
+    n /= 8;
+    
+    res+= n % 8 * 1000;
+    n /= 8;
+
+    res+= n % 8 * 10000;
+
+    printf("In octal: %.5d\n", res);
+
+    return 0;
+
+}
+
+```
+## P4.5
+### Statement
+Rewrite the `upc.c` program of Section 4.1 so that the user enters 11 digits at one time,
+instead of entering one digit, then five digits, and then another five digits.
+
+Enter the first 11 digits of a UPC: 01380015173
+
+Check digit: 5 
+### Code
+```
+//Filename: p5.c
+//Purpose: Computes a Universal Product Code check digit
+//Author: syfer
+//Date: July 25th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int d, i1, i2, i3, i4, i5, j1, j2, j3, j4, j5, first_sum, second_sum, total; 
+
+    printf("Enter the first 11 digits of a UPC: "); 
+    scanf("%1d%1d%1d%1d%1d%1d%1d%1d%1d%1d%1d", &d, &i1, &i2, &i3, &i4, &i5, 
+            &j1, &j2, &j3, &j4, &j5); 
+
+    first_sum =d+i2+i4+j1+j3+j5; 
+    second_sum = i1 + i3 + i5 + j2 + j4; 
+    total = 3 * first_sum + second_sum; 
+
+    printf("Check digit: %d\n", 9 - ((total - 1) % 10)); 
+    
+    return 0;
+
+}
+```
+## P4.6
+### Statement
+European countries use a 13-digit code, known as a European Article Number (EAN) instead of the 12-digit Universal Product Code (UPC) found in North America. Each EAN ends with a check digit, just as a UPC does. The technique for calculating the check digit is also similar:
+
+1. Add the second, fourth, sixth, eighth, tenth, and twelfth digits.
+2. Add the first, third, fifth, seventh, ninth, and eleventh digits.
+3. Multiply the first sum by 3 and add it to the second sum.
+4. Subtract 1 from the total.
+5. Compute the remainder when the adjusted total is divided by 10.
+6. Subtract the remainder from 9.
+
+For example, consider Gulluoglu Turkish Delight Pistachio & Coconut, which has an EAN of 8691484260008. The first sum is `6 + 1 + 8 + 2 + 0 + 0 = 17`, and the second sum is `8 + 9 + 4 + 4 + 6 + 0 = 31`. Multiplying the first sum by 3 and adding the second yields 82. Subtracting 1 gives 81. The remainder upon dividing by 10 is 1. When the remainder is subtracted from 9 the result is 8, which matches the last digit of the original code. Your job is to modify the upc.c program of Section 4.1 so that it calculates the check digit for an EAN. The user will enter the first 12 digits of the EAN as a single number:
+
+Enter the first 12 digits of an EAN: 869148426000
+
+Check digit: 8
+
+### Code
+```
+//Filename: p6.c
+//Purpose: Calculates the check digit for an EAN
+//Author: syfer
+//Date: July 25th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12,
+        firstSum, secondSum;
+
+    printf("Enter the first 12 digits of an EAN: ");
+    scanf("%1d%1d%1d%1d%1d%1d%1d%1d%1d%1d%1d%1d", &n1, &n2, &n3, &n4, &n5, 
+            &n6, &n7, &n8, &n9, &n10, &n11, &n12);
+
+    firstSum = n2 + n4 + n6 + n8 + n10 + n12;
+    secondSum = n1 + n3 + n5 + n7 + n9 + n11;
+    secondSum += firstSum * 3;
+
+    printf("Check digit: %d\n", 9 - --secondSum % 10);
+
+    return 0;
+
+}
+
+```
