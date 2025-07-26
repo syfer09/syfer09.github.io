@@ -1,0 +1,838 @@
+---
+layout: default
+title: Chapter 5
+date: 2025-07-25 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc5
+---
+# Introduction
+# Exercises
+## E5.1
+### Statement
+The following program fragments illustrate the relational and equality operators. Show the output produced by each, assuming that `i`, `j`, and `k` are `int` variables.
+
+(a)
+```
+i = 2; j = 3;
+k = i * j == 6;
+printf("%d", k);
+```
+
+(b)
+```
+i = 5; j = 10; k = 1 ;
+printf("%d", k > i < j);
+```
+
+(c)
+```
+i = 3; j = 2; k = 1;
+printf("%d", i < j == j < k);
+```
+
+(d)
+```
+i = 3; j = 4; k = 5;
+printf("%d", i % j + i < k); 
+```
+
+### Solution
+(a) `1`
+
+(b) `1`
+
+(c) `1`
+
+(d) `0`
+
+## E5.2
+### Statement
+The following program fragments illustrate the logical operators. Show the output produced by each, assuming that `i`, `j`, and `k` are `int` variables.
+
+(a) 
+```
+i = 10; j = 5;
+printf("%d", !i < j ) ;
+```
+
+(b)
+```
+i = 2; j = 1;
+printf("%d", !!i + !j);
+```
+
+(c) 
+```
+i = 5; j = 0; k = - 5;
+printf("%d", i && j | | k) ;
+```
+
+(d)
+```
+i = 1; j = 2; k = 3;
+printf("%d", i < j || k) ;
+```
+
+### Solution
+(a) `1`
+
+(b) `1`
+
+(c) `1`
+
+(d) `1`
+
+## E5.3
+### Statement
+The following program fragments illustrate the short-circuit behavior of logical expressions. Show the output produced by each, assuming that `i`, `j`, and `k` are `int` variables.
+
+(a)
+```
+i = 3; j = 4; k = 5;
+printf("%d ", i < j || ++j < k) ;
+printf("%d %d %d", i, j, k);
+```
+
+(b)
+```
+i = 7; j = 8; k = 9;
+printf("%d ", i - 7 && j++ < k);
+printf("%d %d %d", i, j, k);
+```
+
+(c)
+```
+i = 7; j = 8; k = 9;
+printf("%d ", (i = j) || (j = k));
+printf("%d %d %d", i, j, k);
+```
+
+(d)
+```
+i = i; j = 1; k = 1;
+printf("%d ", ++i || ++j && ++k);
+printf("%d %d %d", i, j, k); 
+```
+### Solution
+(a) `1 3 4 5`
+
+(b) `0 7 8 9`
+
+(c) `1 8 8 9`
+
+(d) `1 2 1 1`
+
+## E5.4
+### Statement
+Write a single expression whose value is either `-1`, `0` , or `+1`, depending on whether `i` is less than, equal to, or greater than `j`, respectively.
+### Solution
+`j < i ? -1 : i != j && i > j` 
+
+## E5.5
+### Statement
+Is the following `if` statement legal?
+```
+if (n >= 1 <= 10)
+    printf("n is between 1 and 10\n");
+```
+If so, what does it do when `n` is equal to `0`?
+### Solution
+While legal, the GCC compiler does complain about the expression being always true i.e. the `if` statement will always be entered.
+
+## E5.6
+### Statement
+Is the following `if` statement legal?
+```
+if (n == 1 - 10)
+    printf("n is between 1 and 10\n");
+```
+If so, what does it do when n is equal to 5?
+### Solution
+Yep, legal without warnings. Essentially this code compares `n` to -9 to see if its equal. For `5` the expression would be false and the `if` statement wouldn't be entered.
+
+## E5.7
+### Statement
+What does the following statement print if `i` has the value `17`? What does it print if `i` has the
+value `-17`?
+
+`printf("%d\n", i >= 0 ? i : -i);`
+
+### Solution
+This code prints the positive part of `i`. If `i = 17` then the expression prints `17` while if `i = -17` the expression will also print 17.
+
+## E5.8
+### Statement
+The following `if` statement is unnecessarily complicated. Simplify it as much as possible. (Hint: The entire statement can be replaced by a single assignment.) 
+```
+if (age >= 13) 
+    if (age <= 19) 
+        teenager = true; 
+    else 
+        teenager = false; 
+else if (age < 13) 
+    teenager = false; 
+```
+### Solution
+`teenager = (age >= 13) && (age <= 19)`
+## E5.9
+### Statement
+Are the following `if` statements equivalent? If not, why not?
+#### 1
+```
+if (score >= 90)
+    printf("A");
+else if (score >= 80)
+    printf("B");
+else if (score >= 70)
+    printf("C") ;
+else if (score >= 60 )
+    printf("D");
+else
+    printf("F") ;
+```
+#### 2
+```
+if (score < 60)
+    printf( "F") ;
+else if (score < 70)
+    printf( "D" ) ;
+else if (score < 80)
+    printf( "C") ;
+else if (score < 90)
+    printf( "B" );
+else
+    printf("A");
+```
+### Solution
+The statements are equivalent
+
+## E5.10
+### Statement
+What output does the following program fragment produce? (Assume that `i` is an integer variable.)
+```
+i = 1;
+
+switch (i % 3) {
+    case 0: printf("zero");
+    case 1 : printf("one");
+    case 2: printf("two");
+}
+```
+### Solution
+The `switch` statements are missing `break`'s, meaning that the first case that works will then cascade throughout the rest of the cases under it. In our case, `case 0` is false but `case 1` is true, meaning `case 2` gets cascaded into due to the lack of a `break`.
+
+## E5.11
+### Statement
+The following table shows telephone area codes in the state of Georgia along with the largest city in each area:
+|Area Code | Major city |
+|----------|------------|
+|229|Albany|
+|404|Atlanta|
+|470|Atlanta|
+|478|Macon|
+|678|Atlanta|
+|706|Columbus|
+|762|Columbus|
+|770|Atlanta|
+|912|Savannah|
+
+Write a `switch` statement whose controlling expression is the variable area code. If the value of `area_code` is in the table, the switch statement will print the corresponding city name. Otherwise, the switch statement will display the message "Area code not recognized". Use the techniques discussed in Section 5.3 to make the switch statement as simple as possible.
+
+### Solution
+```
+switch(area_code){
+    case 229: printf("Albany"); break;
+    case 404: printf("Atlanta"); break;
+    case 470: printf("Atlanta"); break;
+    case 478: printf("Macon"); break;
+    case 678: printf("Atlanta"); break;
+    case 706: printf("Columbus"); break;
+    case 762: printf("Columbus"); break;
+    case 770: printf("Atlanta"); break;
+    case 912: printf("Savannah"); break;
+    case default: printf("Area code not recognized"); break;
+}
+```
+# Projects
+## P5.1
+### Statement
+Write a program that calculates how many digits a number contains:
+
+Enter a number: 374
+
+The number 374 has 3 digits
+
+You may assume that the number has no more than four digits. Hint: Use if statements to test the number. For example, if the number is between 0 and 9, it has one digit. If the number is between 10 and 99 it has two digits.
+
+### Code
+```
+//Filename: p1.c
+//Purpose: Calculates number of digits in a number
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int n;
+
+    printf("Enter a number: ");
+    scanf("%d", &n);
+
+    if (n < 10)
+        printf("The number %d has 1 digits\n", n);
+    else if (n < 100)
+        printf("The number %d has 2 digits\n", n);
+    else if (n < 1000)
+        printf("The number %d has 3 digits\n", n);
+    else 
+        printf("The number %d has 4 digits\n", n);
+
+    return 0;
+
+}
+
+```
+
+### Thoughts
+It pains me to write code that is extremely not scalable like this.
+
+## P5.2
+### Statement
+Write a program that asks the user for a 24-hour time, then displays the lime in 12-hour form:
+
+Enter a 24-hour time: 21:11
+
+Equivalent 12-hour time: 9:11 PM
+
+Be careful not to display 12:00 as 0:00. 
+
+### Code
+```
+//Filename: p2.c
+//Purpose: Displays a 24 hour format time in 12 hour format
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int hour, min;
+
+    printf("Enter a 24-hour time: ");
+    scanf("%2d:%2d", &hour, &min);
+
+    if (hour > 12)
+        printf("Equivalent 12-hour time: %d:%d\n", hour - 12, min);
+    else
+        printf("Equivalent 12-hour time: %d:%d\n", hour, min);
+    
+    return 0;
+
+}
+
+```
+## P5.3
+### Statement
+Modify the `broker.c` program of Section 5.2 by making both of the following changes:
+
+(a) Ask the user to enter the number of shares and the price per share, instead of the value of the trade.
+
+(b) Add statements that compute the commission charged by a rival broker ($33 plus $0.03 per share for fewer than 2000 shares; $33 plus $0.02 per share for 2000 shares or more). Display the rival’s commission as well as the commission charged by the original broker.
+
+### Code
+```
+//Filename: p3.c
+//Purpose: Calculates broker commissions 
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h> 
+
+int main() { 
+
+    float commission, value, pricePerShare, rivalCommission; 
+    int numShares;
+
+    printf("Enter number of shares sold: "); 
+    scanf("%d", &numShares); 
+
+    printf("Enter price per share: "); 
+    scanf("%f", &pricePerShare); 
+
+    value = numShares * pricePerShare;
+
+    if (value < 2500.00f) 
+        commission = 30.00f + .017f * value; 
+    else if (value < 6250.00f) 
+        commission = 56.00f + .0066f * value; 
+    else if (value < 20000.00f) 
+        commission = 76.00f + .0034f * value; 
+    else if (value < 50000.00f) 
+        commission = 100.00f + .0022f * value; 
+    else if (value < 500000.00f) 
+        commission = 155.00f + .0011f * value; 
+    else 
+        commission = 255.00f + .0009f * value; 
+
+    if (commission < 39.00f) 
+        commission = 39.00f; 
+
+    if (numShares < 200)
+        rivalCommission = 33.00f + 0.03 * numShares;
+    else 
+        rivalCommission = 33.00f + 0.02 * numShares;
+
+    printf("Commission: $%.2f\n", commission); 
+    printf("Rival commission: $%.2f\n", rivalCommission); 
+       
+    return 0; 
+
+} 
+```
+## P5.4
+### Statement
+Here's a simplified version of the Beaufort scale, which is used to estimate wind force:
+|Speed (knots) | Description|
+|-|-|
+|Less than 1|Calm|
+|1-3|Light air|
+|4-27|Breeze|
+|28-47|Gale|
+|48-63|Storm|
+|Above 63|Hurricane|
+
+Write a program that asks the user to enter a wind speed (in knots), then displays the corresponding description.
+
+### Code
+```
+//Filename: p4.c
+//Purpose: Displays the description of a particular wind speed in knots
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    float knots;
+    
+    printf("Enter the wind speed in knots: ");
+    scanf("%f", &knots);
+
+    if (knots < 1.0f)
+        printf("Calm\n");
+    else if(knots <= 3.0)
+        printf("Light air\n");
+    else if (knots <= 27.0f) 
+        printf("Breeze\n");
+    else if (knots <= 47.0f)
+        printf("Gale\n");
+    else if (knots <= 64)
+        printf("Storm");
+    else
+        printf("Hurricane");
+    
+    return 0;
+
+}
+```
+### Thoughts
+Less code to write to not explicitly check for ranges, and just let the fact that only one case of the `if` statement gets entered at a time take care of it.
+
+## P5.5
+### Statement
+In one state, single residents are subject to the following income tax:
+
+|Income|Amount of tax|
+|-|-|
+|Not over $750|1% of income|
+|$750-$2250|$7.50 plus 2% of amount over $750|
+|$2250-$3750|$37.50 plus 2% of amount over $2250|
+|$3750-$5250|$82.50 plus 2% of amount over $3750|
+|$5250-$7000|$142.50 plus 2% of amount over $5250|
+|Over $7000|$230.00 plus 2% of amount over $7000|
+
+Write a program that asks the user to enter the amount of taxable income, then displays the tax due.
+
+### Code
+```
+//Filename: p5.c
+//Purpose: Asks the user for taxable income, then displays the taxes due
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    float income;
+    
+    printf("Enter your taxable income: ");
+    scanf("%f",&income);
+
+    if (income < 750)
+        printf("Taxes due are: $%.2f\n", income * 0.01f);
+    else if (income <= 2250)
+        printf("Taxes due are: $%.2f\n", (income - 750.0f) * 0.02f + 7.5f);
+    else if (income <= 3750)
+        printf("Taxes due are: $%.2f\n", (income - 2250.0f) * 0.03f + 37.5f);
+    else if (income <= 5250)
+        printf("Taxes due are: $%.2f\n", (income - 3750.0f) * 0.04f + 82.5f);
+    else if (income <= 7000)
+        printf("Taxes due are: $%.2f\n", (income - 5250.0f) * 0.05f + 142.5f);
+    else
+        printf("Taxes due are: $%.2f\n", (income - 7000.0f) * 0.06f + 230.5f);
+
+    return 0;
+
+}
+```
+## P5.6
+### Statement
+Modify the `upc.c` program of Section 4.1 so that it checks whether a UPC is valid. After the user enters a UPC, the program will display either VALID or NOT VALID.
+### Code
+```
+//Filename: p6.c
+//Purpose: Computes the check digit of a UPC
+//Author: syfer
+//Date: July 26th, 2025
+
+
+#include <stdio.h> 
+
+int main() { 
+
+    int d, i1, i2, i3, i4, i5, j1, j2, j3, j4, j5, 
+        first_sum, second_sum, total, check; 
+
+    printf("Enter the first (single) digit: "); 
+    scanf("%1d", &d); 
+
+    printf("Enter first group of five digits: "); 
+    scanf("%1d%1d%1d%1d%1d", &i1, &i2, &i3, &i4, &i5); 
+    printf("Enter second group of five digits: "); 
+    scanf ("%1d%1d%1d%1d%1d", &j1, &j2, &j3, &j4, &j5); 
+
+    printf("Enter check digit: ");
+    scanf("%1d", &check);
+        
+    first_sum =d + i2 + i4 + j1 + j3 + j5; 
+    second_sum = i1 + i3 + i5 + j2 + j4; 
+    total = 3 * first_sum + second_sum; 
+
+    if (check == (9 - ((total - 1) % 10))) 
+        printf("VALID\n");
+    else
+        printf("NOT VALID\n");
+
+    return 0; 
+
+} 
+```
+## P5.7
+### Statement
+Write a program that finds the largest and smallest of four integers entered by the user:
+
+Enter four integers: 21 43 10 35
+
+Largest: 43
+
+Smallest: 10
+
+Use as few `if` statements as possible. Hint: Four `if` statements are sufficient.
+### Code
+```
+//Filename: p7.c
+//Purpose: Finds the largest and smallest of four integers entered by the user
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int i1, i2, i3, i4, max1, min1, max2, min2; 
+
+    printf("Enter four integers: ");
+    scanf("%d %d %d %d", &i1, &i2, &i3, &i4);
+
+    if (i1 >= i2){
+        max1 = i1;
+        min1 = i2;
+    } else {
+        min1 = i1;
+        max1 = i2;
+    } 
+
+    if (i3 >= i4){
+        max2 = i3;
+        min2 = i4;
+    } else {
+        min2 = i3;
+        max2 = i4;
+    }
+
+    if (max1 > max2)
+        printf("Largest: %d\n", max1);
+    else 
+        printf("Largest: %d\n", max2);
+
+    if (min1 > min2)
+        printf("Smallest: %d\n", min2);
+    else 
+        printf("Smallest: %d\n", min1);
+    
+    return 0;
+
+}
+
+```
+### Thoughts
+First project that actually took a little thought to put into 4 `if` statements. Needing two `max` and `mins` was the crucial realization to make this work.
+
+## P5.8
+### Statement
+The following table shows the daily flights from one city to another: 
+|Departure time|Arrival time|
+|-|-|
+|8:00 a.m.|10:16 a.m.|
+|9:43 a.m.|11:52 a.m.|
+|11:19 a.m.|1:31 p.m.|
+|12:47 p.m.|3:00 p.m.|
+|2:00 p.m.|4:08 p.m.|
+|3:45 p.m.|5:55 p.m.|
+|7:00 p.m.|9:20 p.m.|
+|9:45 p.m.|11:58 p.m.|
+
+Write a program that asks user to enter a time (expressed in hours and minutes, using the 24-hour clock). The program then displays the departure and arrival times for the flight whose departure time is closest to that entered by the user:
+
+Enter a 24-hour time: 13:15
+
+Closest departure time is 12:47 p.m., arriving at 3:00 p.m.
+
+Hint: Convert the input into a time expressed in minutes since midnight, and compare it to
+the departure times, also expressed in minutes since midnight. For example. 13:15 is 13 *
+60 + 15 = 795 minutes since midnight, which is closer to 12:47 p.m. (767 minutes since
+midnight) than to any of the other departure times.
+
+### Code
+```
+//Filename: p8.c
+//Purpose: Displays departure and arrival time that are closest to a user entered time
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int hour, min, time;
+
+    printf("Enter a 24-hour time: ");
+    scanf("%d:%d", &hour, &min);
+    
+    time = hour * 60 + min;
+    /*
+    |Departure time|Arrival time|Min since midnight
+    |-|-|
+    |8:00 a.m.|10:16 a.m.|480|
+    |9:43 a.m.|11:52 a.m.|583|
+    |11:19 a.m.|1:31 p.m.|679|
+    |12:47 p.m.|3:00 p.m.|767|
+    |2:00 p.m.|4:08 p.m.|840|
+    |3:45 p.m.|5:55 p.m.|945|
+    |7:00 p.m.|9:20 p.m.|1140| 
+    |9:45 p.m.|11:58 p.m.|1305|
+    */
+    int d1 = 480, d2 = 583, d3 = 679, d4 = 767, d5 = 840, d6 = 945, d7 = 1140, d8 = 1305;
+
+    if (time <= d1 + (d2 - d1) / 2)
+        if (time < d1 && d1 - time > time)
+            printf("Departing 9:45 p.m., arriving 11:58 p.m.\n");
+        else 
+            printf("Departing 8:00 a.m., arriving 10:16 a.m.\n");
+    else if (time <= d2 + (d3 - d2) / 2)
+        printf("Departing 9:43 a.m., arriving 11:52 a.m.\n");
+    else if (time <= d3 + (d4 - d3) / 2)
+        printf("Departing 11:19 a.m., arriving 1:31 p.m.\n");
+    else if (time <= d4 + (d5 - d4) / 2)
+        printf("Departing 12:47 p.m., arriving 3:00 p.m.\n");
+    else if (time <= d5 + (d6 - d5) / 2)
+        printf("Departing 2:00 p.m., arriving 4:08 p.m.\n");
+    else if (time <= d6 + (d7 - d6) / 2)
+        printf("Departing 3:45 p.m., arriving 5:55 p.m.\n");
+    else if (time <= d7 + (d8 - d7) / 2)
+        printf("Departing 7:00 p.m., arriving 9:20 p.m.\n");
+    else 
+        printf("Departing 9:45 p.m., arriving 11:58 p.m.\n");
+
+    return 0;
+
+}
+```
+### Thoughts
+Most complicated project yet, took me a bit of time to figure out what to put in the `if` statement. Additionally I added an extra `if else` for a wraparound since something like `00:14` is closer to `21:45` than `8:00`.
+
+## P5.9
+### Statement
+Write a program that prompts the user to enter two dates and then indicates which date comes earlier on the calendar:
+
+Enter first date (mm/dd/yy): 3/6/08
+
+Enter second date (mm/dd/yy): 5/17/07
+
+5/17/07 is earlier than 3/6/08
+ 
+### Code
+```
+//Filename: p9.c
+//Purpose: Calculates which of two user given dates is earlier on the calendar
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int m1, d1, y1, m2, d2, y2;
+
+    printf("Enter first date (mm/dd/yy): ");
+    scanf("%d/%d/%d", &m1, &d1, &y1);
+
+    printf("Enter second date (mm/dd/yy): ");
+    scanf("%d/%d/%d", &m2, &d2, &y2);
+
+    if (y1 > y2)
+        printf("%.2d/%.2d/%.2d is earlier than %.2d/%d.2/%.2d\n", m2, d2, y2, m1, d1, y1);
+    else if(y2 > y1)
+        printf("%.2d/%.2d/%.2d is earlier than %.2d/%.2d/%.2d\n", m1, d1, y1, m2, d2, y2);
+    else{
+        if (m1 > m2)
+            printf("%.2d/%.2d/%.2d is earlier than %.2d/%.2d/%.2d\n", m2, d2, y2, m1, d1, y1);
+        else if(m2 > m1)
+            printf("%.2d/%.2d/%.2d is earlier than %.2d/%.2d/%.2d\n", m1, d1, y1, m2, d2, y2);
+        else
+            if (d1 > d2)
+                printf("%.2d/%.2d/%.2d is earlier than %.2d/%.2d/%.2d\n", m2, d2, y2, m1, d1, y1);
+            else if(d2 > d1)
+                printf("%.2d/%.2d/%.2d is earlier than %.2d/%.2d/%.2d\n", m1, d1, y1, m2, d2, y2);
+    }
+    
+    return 0;
+
+}
+
+```
+## P5.10
+### Statement
+Using the `switch` statement, write a program that converts a numerical grade into a letter grade:
+
+Enter numerical grade: 84
+
+Letter grade: B
+
+Use the following grading scale: A = 90-100. B = 80-89, C = 70-79, D = 60-69. F = 0-59. Print an error message if the grade is larger than 100 or less than 0. Him: Break the grade into two digits, then use a switch statement to test the ten’s digit. 
+
+### Code
+```
+//Filename: p10.c
+//Purpose: Converts numerical grade into a letter grade
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int grade;
+
+    printf("Enter numerical grade: ");
+    scanf("%d", &grade);
+
+    switch (grade / 10) {
+        case 0 : case 1 : case 2 : case 3 : case 4 : case 5 : printf("Letter grade: F\n"); break;
+        case 6 : printf("Letter grade D\n"); break;
+        case 7 : printf("Letter grade C\n"); break;
+        case 8 : printf("Letter grade B\n"); break;
+        case 9 : case 10 : printf("Letter grade A\n"); break;
+        default : printf("Error illegal grade\n"); break;
+    }  
+    
+    return 0;
+}
+
+```
+## P5.11
+### Statement
+Write a program that asks the user for a two-digit number, then prints the English word for the number:
+
+Enter a two-digit number: 45
+
+You entered the number forty-five.
+
+Hint: Break the number into two digits. Use one `switch` statement to print the word for the first digit ("twenty" "thirty" and so forth). Use a second `switch` statement to print the word for the second digit. Don't forget that the numbers between 11 and 19 require special treatment.
+
+### Code
+```
+//Filename: p11.c
+//Purpose: Prints the English words for a 2 digit number
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int d1, d2, num;
+
+    printf("Enter a two-digit number: ");
+    scanf("%1d%1d", &d1, &d2);
+
+    num = d1 * 10 + d2;
+
+    if (num <= 19 && num >= 11){
+        switch (num){
+            case 11 : printf("You entered the number eleven\n"); break;
+            case 13 : printf("You entered the number twelve\n"); break;
+            case 14 : printf("You entered the number thirteen\n"); break;
+            case 15 : printf("You entered the number fourteen\n"); break;
+            case 16 : printf("You entered the number sixteen\n"); break;
+            case 17 : printf("You entered the number seventeen\n"); break;
+            case 18 : printf("You entered the number eighteen\n"); break;
+            case 19 : printf("You entered the number nineteen\n"); break;
+        }
+    } else{
+        switch (d1){
+            case 0 : printf("You entered the number "); break;
+            case 2 : printf("You entered the number twenty"); break;
+            case 3 : printf("You entered the number thirty"); break;
+            case 4 : printf("You entered the number forty"); break;
+            case 5 : printf("You entered the number fifty"); break;
+            case 6 : printf("You entered the number sixty"); break;
+            case 7 : printf("You entered the number seventy"); break;
+            case 8 : printf("You entered the number eighty"); break;
+            case 9 : printf("You entered the number ninety"); break;
+        }
+        switch (d2){
+            case 0: printf(".\n");break;
+            case 1: printf("-one.\n");break;
+            case 2: printf("-two.\n");break;
+            case 3: printf("-three.\n");break;
+            case 4: printf("-four.\n");break;
+            case 5: printf("-five.\n");break;
+            case 6: printf("-six.\n");break;
+            case 7: printf("-seven.\n");break;
+            case 8: printf("-eight.\n");break;
+            case 9: printf("-nine.\n");break;
+        }
+    }
+
+    return 0;
+}
+
+```
+#Conclusion
+Another chapter where I knew most of what was taught, but the projects were fun to figure out as they are getting more complex. Onward to 6!
