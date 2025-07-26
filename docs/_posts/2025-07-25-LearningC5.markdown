@@ -6,7 +6,6 @@ categories: jekyll update
 permalink: /learningc5
 ---
 # Chapter 5
-# Introduction
 # Exercises
 ## E5.1
 ### Statement
