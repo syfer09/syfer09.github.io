@@ -5,6 +5,7 @@ date: 2025-07-25 16:00:00 +0000
 categories: jekyll update
 permalink: /learningc5
 ---
+# Chapter 5
 # Introduction
 # Exercises
 ## E5.1
