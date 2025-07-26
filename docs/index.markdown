@@ -4,9 +4,9 @@
 
 layout: default 
 ---
-# [About](/about)
+# Technical Journal
 
-# HTB Boxes that I've solved
+## HTB Boxes that I've solved
 
 [Meow (2025-05-21)](/meow)
 
@@ -14,7 +14,11 @@ layout: default
 
 [Second Track (2025-06-20)](/intro2)
 
-# Learning C (King)
+## Learning C (King)
 [Chapter 2 (2025-07-22)](/learningc2)
 
 [Chapter 3 (2025-07-23)](/learningc3)
+
+[Chapter 4 (2025-07-25)](/learningc4)
+
+# [About](/about)
