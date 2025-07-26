@@ -224,8 +224,9 @@ The `switch` statements are missing `break`'s, meaning that the first case that 
 ## E5.11
 ### Statement
 The following table shows telephone area codes in the state of Georgia along with the largest city in each area:
-|Area Code | Major city |
-|----------|------------|
+
+|Area Code| Major city|
+|-|-|
 |229|Albany|
 |404|Atlanta|
 |470|Atlanta|
@@ -395,7 +396,8 @@ int main() {
 ## P5.4
 ### Statement
 Here's a simplified version of the Beaufort scale, which is used to estimate wind force:
-|Speed (knots) | Description|
+
+|Speed (knots)|Description|
 |-|-|
 |Less than 1|Calm|
 |1-3|Light air|
@@ -596,6 +598,7 @@ First project that actually took a little thought to put into 4 `if` statements.
 ## P5.8
 ### Statement
 The following table shows the daily flights from one city to another: 
+
 |Departure time|Arrival time|
 |-|-|
 |8:00 a.m.|10:16 a.m.|
