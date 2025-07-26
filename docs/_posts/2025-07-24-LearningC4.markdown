@@ -5,7 +5,7 @@ date: 2025-07-24 16:00:00 +0000
 categories: jekyll update
 permalink: /learningc4
 ---
-#Introduction
+# Introduction
 This chapter was on operands. I liked the more formal introduction to pre and postfix operands as well as the associativity rules. Luckily they follow the standard mathematical rules. 
 
 It was interesting to learn about undefined behavior as well, I had to idea that assignments could be in the middle of expressions, though it is bad practice. For that specifically, I think the most important part was to remember that at the end of the day, `=` is just an operand like every other one and not necessarily special. 
@@ -137,7 +137,8 @@ Based on my testing the expressions seem to be equivalent. In particular `total=
 Show the output produced by each of the following program fragments. Assume that `i`, `j` and `k` are `int` variables.
 
 (a)
-```i = 7; j = 8;
+```
+i = 7; j = 8;
 i *= j + l;
 printf("%d %d", i, j);
 ```
