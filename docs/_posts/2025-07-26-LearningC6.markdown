@@ -1,0 +1,722 @@
+---
+layout: default
+title: Chapter 6
+date: 2025-07-26 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc6
+---
+# Chapter 6
+# Exercises
+## E6.1
+### Statement
+What output does the following program fragment produce? 
+
+```
+i = 1; 
+while (i <= 128) { 
+    printf("%d ", i); 
+    i *= 2; 
+}
+``` 
+### Solution
+`1 2 4 8 16 32 64 128`
+
+## E6.2
+### Statement
+What output does the following program fragment produce?
+
+```
+i = 9384;
+do {
+    printf("%d ", i);
+    i /= 10;
+} while (i > 0);
+```
+### Solution
+`9384 938 93 9`
+
+## E6.3
+### Statement
+What output does the following for statement produce? 
+
+```
+for (i = 5, j = i - 1; i > 0, j > 0; --i, j=i - l) 
+    printf("%d ", i); 
+```
+### Solution
+`5 4 3 2 `
+## E6.4
+### Statement
+Which one of the following statements is not equivalent to the other two (assuming that the loop bodies are the same)?
+
+(a) `for (i = 0; i < 10; i++) ...`
+
+(b) `for (i = 0; i < 10; ++i) ...`
+
+(c) `for (i = 0; i++ < 10; ) ...`
+
+### Solution
+(a) and (b) are the same while (c) is not. Due to the operator being postfix, the loop will be entered once more for `i = 10`. To make it the same we would use `++i`.
+
+## E6.5
+### Statement
+Which one of the following statements is not equivalent to the other two (assuming that the loop bodies are the same)?
+
+(a) `while (i < 10) {...}`
+
+(b) `for (; i < 10;) {...}`
+
+(c) `do {...} while (i < 10);`
+
+### Solution
+(c) is once again not equivalent since for `i > 10` the `do` statement will still execute once while the `for` and `while` will not be entered.
+
+## E6.6
+### Statement
+Translate the program fragment of Exercise 1 into a single `for` statement.
+
+### Solution
+```
+for(i = 1; i <= 128; i *= 2)
+    printf("%d ", i);
+```
+
+## E6.7
+### Statement
+Translate the program fragment of Exercise 2 into a single `for` statement.
+
+### Solution
+```
+for (i = 9384; i > 0; i /= 10)
+    printf("%d ", i);
+```
+## E6.8
+### Statement
+What output does the following for statement produce?
+```
+for (i = 10; i >= 1; i /= 2)
+    printf("%d ", i++);
+```
+### Solution
+`10 5 3 2 1` followed by an endless stream of `1`'s. Due to the fact that `i` will always be incremented by `1` in the `printf`, even if `i/2 = 0` the condition will always be met, since division cannot result in a negative value.
+
+## E6.9
+### Statement
+Translate the `for` statement of Exercise 8 into an equivalent `while` statement. You will
+need one statement in addition to the `while` loop itself.
+
+### Solution
+```
+i = 10;
+while (i >= 1){
+    printf("%d ", i++);
+    i /= 2;
+}
+```
+
+## E6.10
+### Statement
+Show how to replace a `continue` statement by an equivalent `goto` statement.
+
+### Solution
+```
+for (...){
+   if (something) 
+       continue;
+   ...
+}
+```
+
+Becomes
+
+```
+for (...){
+   if (something) 
+       goto end;
+   ...
+   end:
+}
+```
+## E6.11
+### Statement
+What output does the following program fragment produce? 
+
+```
+sum = 0; 
+for (i = 0; i < 10; i++) { 
+    if (i % 2) 
+        continue; 
+    sum += i; 
+} 
+printf("%d\n", sum); 
+```
+
+### Solution
+Sums the even digits from `0` to `9`. `0 + 2 + 4 + 6 + 8 = 20`
+
+## E6.12
+### Statement
+The following "prime-testing” loop appeared in Section 6.4 as an example:
+
+```
+for (d = 2; d < n; d++)
+    if (n % d == 0)
+        break;
+```
+
+This loop isn't very efficient. It’s not necessary to divide `n` by all numbers between `2` and `n - 1` to determine whether it’s prime. In fact, we need only check divisors up to the square root of `n`. Modify the loop to take advantage of this fact. Hint: Don’t try to compute the square root of `n`; instead, compare `d * d` with `n`.
+
+### Solution
+```
+for (d = 2; d * d <= n; d++)
+    if (n % d == 0)
+        break;
+```
+
+## E6.13
+### Statement
+Rewrite the following loop so that its body is empty:
+
+```
+for (n = 0; m > 0; n++)
+    m /= 2;
+``` 
+
+### Solution
+`for (n = 0; m > 0; n++, m /= 2) ;`
+
+## E6.14
+### Statement
+Find the error in the following program fragment and fix it.
+
+```
+if (n % 2 == 0) ;
+    printf("n is even\n");
+```
+
+### Solution
+Extra semicolon after the `if`.
+
+```
+if (n % 2 == 0) 
+    printf("n is even\n");
+```
+
+# Projects
+## P6.1
+### Statement
+Write a program that finds the largest in a series of numbers entered by the user. The program must prompt the user to enter numbers one by one. When the user enters `0` or a negative number, the program must display the largest non-negative number entered:
+
+```
+Enter a number: 60
+
+Enter a number: 38.3
+
+Enter a number: 4.89
+
+Enter a number: 100.62
+
+Enter a number: 75.2295
+
+Enter a number: 0
+
+The largest number entered was 100.62
+```
+
+Notice that the numbers aren't necessarily integers.
+
+### Code
+
+```
+//Filename: p1.c
+//Purpose: Finds the largest in a series of numbers entered by the user
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int n, max = 0;
+
+    do{
+        printf("Enter a number: ");
+        scanf("%d", &n);
+        if (n > max)
+            max = n;
+    } while (n != 0);
+    
+    printf("The largest number entered was: %d\n", max);
+
+    return 0;
+}
+
+```
+
+## P6.2
+### Statement
+Write a program that asks the user to enter two integers, then calculates and displays their greatest common divisor (GCD):
+
+```
+Enter two integers: 12 28
+
+Greatest common divisor: 4
+```
+
+Hint: The classic algorithm for computing the GCD, known as Euclid’s algorithm, goes as follows: Let `m` and `n` be variables containing the two numbers. If `n` is `0`, then stop: `m` contains the GCD. Otherwise, compute the remainder when `m` is divided by `n`. Copy `n` into `m` and copy the remainder into `n`. Then repeat the process, starting with testing whether `n` is `0`.
+
+### Code
+```
+//Filename: p2.c
+//Purpose: Computes the GCD of two given integers
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int m, n, remainder;
+
+    printf("Enter two integers: ");
+    scanf("%d %d", &m, &n);
+
+    while (n > 0){
+        remainder = m % n;
+        m = n;
+        n = remainder;
+    }
+    printf("GCD is: %d\n", m);
+
+    return 0;
+}
+```
+
+## P6.3
+### Statement
+Write a program that asks the user to enter a fraction, then reduces the fraction to lowest terms:
+
+```
+Enter a fraction: 6/12
+In lowest terms: 1/2
+```
+
+Hint: To reduce a fraction to lowest terms, first compute the GCD of the numerator and denominator. Then divide both the numerator and denominator by the GCD.
+
+### Code
+```
+//Filename: p3.c
+//Purpose: Reduces a user given fraction to lowest terms
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int num, denom; 
+    int m, n, remainder;
+
+    printf("Enter a fraction: ");
+    scanf("%d/%d", &num, &denom);
+
+    m = num;
+    n = denom;
+
+    while (n > 0){
+        remainder = m % n;
+        m = n;
+        n = remainder;
+    }
+
+    printf("In lowest terms: %d/%d\n", num / m, denom / m);
+
+    return 0;
+}
+```
+
+## P6.4
+### Statement
+Add a loop to the `broker.c` program of Section 5.2 so that the user can enter more than one trade and the program will calculate the commission on each. The program should terminate when the user enters 0 as the trade value:
+
+```
+Enter value of trade: 30000
+Commission: $166.00
+
+Enter value of trade: 20000
+Commission: $144.00
+
+Enter value of trade: 0
+```
+
+### Code
+```
+//Filename: p4.c
+//Purpose: calculates broker commission
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    float commission, value; 
+    do{
+        printf("Enter value of trade: "); 
+        scanf("%f", &value); 
+        if (value == 0)
+            break;
+        if (value < 2500.00f) 
+            commission = 30.00f + .017f * value; 
+        else if (value < 6250.00f) 
+            commission = 56.00f + .0066f * value; 
+        else if (value < 20000.00f) 
+            commission = 76.00f + .0034f * value; 
+        else if (value < 50000.00f) 
+            commission = 100.00f + .0022f * value; 
+        else if (value < 500000.00f) 
+            commission = 155.00f + .0011f * value; 
+        else 
+            commission = 255.00f + .0009f * value; 
+        if (commission < 39.00f) 
+            commission = 39.00f; 
+        printf("Commission: $%.2f\n", commission); 
+    } while (value != 0);
+
+    return 0; 
+    
+}
+
+```
+### Thoughts
+Feel like there is no good solution to the redundancy here (`while` and an `if` statement both check if `value = 0`) besides something like an infinite loop.
+
+## P6.5
+### Statement
+Programming Project 1 in Chapter 4 asked you to write a program that displays a two-digit number with its digits reversed. Generalize the program so that the number can have one, two, three, or more digits. Hint: Use a `do` loop that repeatedly divides the number by `10`, stopping when it reaches `0`.
+
+### Code
+```
+//Filename: p5.c
+//Purpose: Reverses the digits a user entered number
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int n;
+    printf("Enter a number: ");
+    scanf("%d", &n);
+
+    printf("Reversed: ");
+    do {
+        printf("%d", n % 10);
+        n /= 10;
+    } while (n > 0);
+    
+    printf("\n");
+    return 0;
+}
+
+```
+### Thoughts
+## P6.6
+### Statement
+Write a program that prompts the user to enter a number `n`, then prints all even squares between `1` and `n`. For example, if the user enters `100`, the program should print the following:
+
+```
+4
+16
+36
+64
+100
+```
+
+### Code
+```
+//Filename: p6.c
+//Purpose: Prints all even squares between 1 and a user entered n
+//Author: syfer
+//Date:
+
+#include <stdio.h>
+
+int main(){
+
+    int n;
+    
+    printf("Enter a number: ");
+    scanf("%d", &n);
+
+    for (int i = 2; i * i <= n; i += 2)
+        printf("%d\n", i * i);
+    return 0;
+}
+
+```
+
+## P6.7
+### Statement
+Rearrange the `square3.c` program so that the `for` loop initializes `i`, tests `i`, and increments `i`. Don’t rewrite the program: in particular, don't use any multiplications.
+
+### Code
+```
+//Filename: p7.c
+//Purpose: Print a table of squares
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+
+    int n, odd; 
+
+    printf("This program prints a table of squares, \n") ; 
+    printf("Enter number of entries in table: "); 
+    scanf("%d", &n); 
+
+    odd = 3; 
+
+    for (int i = 1, square = 1; i <= n; odd += 2, ++i) { 
+        printf("%10d%10d\n", i, square); 
+        square += odd; 
+    }
+
+    return 0;     
+}
+```
+### Thoughts
+Not sure that this was the intended solution but just adding everything to the body of the `for` loop works.
+
+## P6.8
+### Statement
+Write a program that prints a one-month calendar. The user specifies the number of days in
+the month and the day of the week on which the month begins:
+```
+Enter number of days in month: 31
+
+Enter starting day of the week (l=Sun, 7=Sat) : 3
+
+       1  2  3  4  5
+ 6  7  8  9 10 11 12
+13 14 15 16 17 18 19
+20 21 22 23 24 25 26
+27 28 29 30 31
+```
+
+Hint: This program isn't as hard as it looks. The most important part is a `for` statement that uses a variable `i` to count from `1` to `n`, where `n` is the number of days in the month, printing each value of `i`. Inside the loop, an `if` statement tests whether `i` is the last day in a week; if so, it prints a new-line character.
+
+### Code
+```
+//Filename: p8.c
+//Purpose: Prints a one-month calendar based on user supplied start and number of days
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int numDays, whichDay;
+
+    printf("Enter number of days in month: ");
+    scanf("%d", &numDays);
+
+    printf("Enter starting day of the week: ");
+    scanf("%d", &whichDay);
+
+    for(int i = -whichDay + 1; i <= numDays; i++){
+        if (i < 0)
+            printf("   "); // pad the initial whitespace
+        else if (i > 0)
+            printf("%3d", i);
+        if (i % 7 == 8 - whichDay)
+            printf("\n");
+    }
+    printf("\n");
+    
+    return 0;
+}
+
+```
+
+## P6.9
+### Statement
+Programming Project 8 in Chapter 2 asked you to write a program that calculates the remaining balance on a loan after the first, second, and third monthly payments. Modify the program so that it also asks the user to enter the number of payments and then displays the balance remaining after each of these payments. 
+
+### Code
+```
+//Filename: p9.c
+//Purpose: Calculates loan repay balance after a set of user given n payments
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    float balance, interestRate, monthlyPayment;
+    int num;
+
+    printf("Enter amount of loan: ");
+    scanf("%f",&balance);
+   
+    printf("Enter interest rate: ");
+    scanf("%f",&interestRate);
+
+    printf("Enter monthly payment: ");
+    scanf("%f",&monthlyPayment);
+
+    printf("Enter number of payments: ");
+    scanf("%d",&num);
+   
+    interestRate *= 0.01f / 12.0f; //Convert to monthly interest
+
+    for (int i = 0; i < num; i++){
+        balance = balance - monthlyPayment + balance * interestRate;
+        if(balance <= 0){ 
+            printf("Balance remaining after payment no.%d: 0\n", i + 1);
+            continue;
+        }
+        printf("Balance remaining after payment no.%d: %0.2f\n", i + 1, balance);
+    }
+    
+    return 0;
+}
+
+```
+
+## P6.10
+### Statement
+Programming Project 9 in Chapter 5 asked you to write a program that determines which of two dates comes earlier on the calendar. Generalize the program so that the user may enter any number of dates. The user will enter 0/0/0 to indicate that no more dates will be entered:
+
+```
+Enter a date (mm/dd/yy): 3/6/08
+Enter a date (mm/dd/yy): 5/17/07
+Enter a date (mm/dd/yy): 6/3/07
+Enter a date (mm/dd/yy): 0/0/0
+
+5/17/07 is the earliest date
+```
+
+### Code
+
+```
+//Filename: p10.c
+//Purpose: Prints the earliest given date from a user-generated list
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int m, d, y, minM = 13, minD = 32, minY = 99;
+
+    for (;;){
+       printf("Enter a date (mm/dd/yy): ");
+       scanf("%d/%d/%d", &m, &d, &y);
+
+       if (y == 0 && m == 0 && d == 0)
+           break;
+       if (y < minY) {
+           minY = y;
+           minD = d;
+           minM = m;
+       } else if (m < minM && y == minY){
+           minY = y;
+           minD = d;
+           minM = m;
+       } else if (d < minD && minY == y && minM == m){
+           minY = y;
+           minD = d;
+           minM = m;
+       }
+    }
+    
+    printf("The earliest date entered was: %.2d/%.2d/%.2d\n", minM, minD, minY);
+    
+    return 0;
+}
+
+```
+## P6.11
+### Statement
+The value of the mathematical constant `e` can be expressed as an infinite series:
+
+`e=1 + 1/1! + 1/2! +1/3! + ...`
+
+Write a program that approximates `e` by computing the value of
+
+`1 + 1/1!+ 1/21 + 1/3! + ... + 1/n!`
+
+Where `n` is an integer entered by the user.
+
+### Code
+
+```
+//Filename: p11.c
+//Purpose: Approximates the mathematical constant e using a series
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int n;
+    float fact, res = 1;
+
+    printf("Enter the number of iterations: ");
+    scanf("%d", &n);
+
+    for(int i = 1; i <= n; i++){
+        fact = 1.0f;
+        for(int j = 1; j <= i; j++)
+            fact *= j;
+        res += 1.0f / fact;
+    }
+    printf("e is approximately: %f\n", res);
+    
+    return 0;
+}
+
+```
+
+## P6.12
+### Statement
+Modify Programming Project 11 so that the program continues adding terms until the current term becomes less than `e`, where `e` is a small (floating-point) number entered by the user.
+
+### Code
+
+```
+//Filename: p12.c
+//Purpose: Iterates the series for e until it is smaller than a user entered float
+//Author: syfer
+//Date: July 26th, 2025
+
+#include <stdio.h>
+
+int main(){
+    int i = 1;
+    float fact = 1.0f, res = 1.0f, n;
+
+    printf("Enter small float where every term less than it will be discarded: ");
+    scanf("%f", &n);
+
+    while(1.0f / fact >= n){
+        fact = 1.0f;
+        for(int j = 1; j <= i; j++)
+            fact *= j;
+        res += 1.0f / fact;
+        i++;
+    }
+    printf("e is approximately: %f\n", res);
+    
+    return 0;
+}
+```
