@@ -23,4 +23,6 @@ layout: default
 
 [Chapter 5 (2025-07-25)](/learningc5)
 
+[Chapter 6 (2025-07-26)](/learningc6)
+
 # [About](/about)
