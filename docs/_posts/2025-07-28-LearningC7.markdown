@@ -1,0 +1,1007 @@
+---
+layout: default
+title: Chapter 7
+date: 2025-07-28 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc7
+---
+# Chapter 
+# Exercises
+## E7.1
+### Statement
+Give the decimal value of each of the following integer constants.
+
+(a) `077`
+
+(b) `0x77`
+
+(c) `OXABC`
+
+### Solution
+(a) 63
+
+(b) 119
+
+(c) 2748
+
+## E7.2
+### Statement
+Which of the following are not legal constants in C? Classify each legal constant as either integer or floating-point.
+
+(a) `010E2`
+
+(b) `32.1E+5`
+
+(c) `0790`
+
+(d) `100_000`
+
+(e) `3.978e-2`
+
+### Solution
+(a) floating point
+
+(b) floating point
+
+(c) octal numbers cannot contain the number 9, making this one illegal
+
+(d) not legal due to the underscore
+
+(e) floating point
+
+## E7.3
+### Statement
+Which of the following are not legal types in C?
+
+(a) `short unsigned int`
+
+(b) `short float`
+
+(c) `long double`
+
+(d) `unsigned long`
+
+### Solution
+(b) is the only type that is not legal.
+
+## E7.4
+### Statement
+If `c` is a variable of type char, which one of the following statements is illegal?
+
+(a) `i += c; /* i has type int */`
+
+(b) `c = 2 * c - 1;`
+
+(c) `putchar(c);`
+
+(d) `printf(c);`
+
+### Solution
+(d) is illegal since there is no format specification string.
+
+## E7.5
+### Statement
+Which one of the following is not a legal way to write the number `65`? (Assume that the
+character set is ASCII.)
+
+(a) `'A'`
+
+(b) `OblOOOOOl`
+
+(c) `0101`
+
+(d) `0x41`
+
+### Solution
+(b) is illegal. While other languages may have built in binary support, C does not.
+
+## E7.6
+### Statement
+For each of the following items of data, specify which one of the types `char`, `short`, `int`, or `long` is the smallest one guaranteed to be large enough to store the item. 
+
+(a) Days in a month 
+
+(b) Days in a year 
+
+(c) Minutes in a day 
+
+(d) Seconds in a day 
+
+### Solution
+(a) Max is 31 meaning a `char` should be enough
+
+(b) 366 is still within range of a `short int`.
+
+(c) 1440 is still within range of the `short int`
+
+(d) 86400 is not large enough for a `short` meaning we branch out in to `long`.
+
+# E7.7
+### Statement
+For each of the following character escapes, give the equivalent octal escape. (Assume that the character set is ASCII.) You may wish to consult Appendix E, which lists the numerical codes for ASCII characters.
+
+(a) `\b`
+
+(b) `\n`
+
+(c) `\r`
+
+(d) `\t`
+
+### Solution
+(a) `\10` 
+
+(b) `\12`
+
+(c) `\15`
+
+(d) `\11`
+
+## E7.8
+### Statement
+Repeat Exercise 7, but give the equivalent hexadecimal escape.
+
+### Solution
+(a) `\x08`
+
+(b) `\x0a`
+
+(c) `\x0d`
+
+(d) `\x09`
+
+## E7.9
+### Statement
+Suppose that `i` and `j` are variables of type `int`. What is the type of the expression `i / j + 'a'`?
+
+### Solution
+`int` since the  `'a'` automatically promotes to an `int` in the expression.
+
+## E7.10
+### Statement
+Suppose that `i` is a variable of type `int`. `j` is a variable of type `long`, and `k` is a variable of type `unsigned int`. What is the type of the expression `i + (int) j * k`?
+
+### Solution
+`j` becomes an `int` then everything else becomes an `unsigned int` through `k`.
+
+## E7.11
+### Statement
+Suppose that `i` is a variable of type `int`, `f` is a variable of type `float`, and `d` is a variable of type `double`. What is the type of the expression `i * f / d`?
+
+### Solution
+`double` as `d` will automatically promote everything to a `double`
+## E7.12
+### Statement
+Suppose that `i` is a variable of type `int`. `f` is a variable of type `float`, and `d` is a variable of type `double`. Explain what conversions take place during the execution of the following statement: `d = i + f;`
+
+### Solution
+First `i` becomes a `float` for its calculation with `f`. Then the resultant value becomes a double to be assigned to `d`.
+
+## E7.13
+### Statement
+Assume that a program contains the following declarations:
+
+```
+char c = '\1';
+short s = 2;
+int i = -3;
+long m = 5;
+float f = 6.5f;
+double d = 7.5;
+```
+
+Give the value and the type of each expression listed below.
+
+(a) `c * i`
+
+(b) `s + m`
+
+(c) `f / c` 
+
+(d) `d / s` 
+
+(e) `f - d`
+
+(f) `(int) f`
+
+### Solution
+(a) value: -3 type: `int`
+
+(b) value: 7 type: `long`
+
+(c) value: 6.5 type: `float`
+
+(d) value: 3.75 type: `double`
+
+(e) value: -1.0 type: `double`
+
+(f) value: 6 type: `int`
+
+## E7.14
+### Statement
+Does the following statement always compute the fractional part of `f` correctly (assuming
+that `f` and `frac_part` are `float` variables)?
+
+`frac_part = f - (int) f;`
+
+If not, what’s the problem?
+
+### Solution
+Seems to work fine, however since `float` ranges and `int` ranges are different the program would fail if `f` is too large.
+
+## E7.15
+### Statement
+Use `typedef` to create types named `Int8`, `Intl6`, and `Int32`, Define the types so that they represent 8-bit, 16-bit, and 32-bit integers on your machine.
+
+### Solution
+```
+typedef char Int8
+typedef short Int16
+typedef int Int32
+```
+
+# Projects
+## P7.1
+### Statement
+The `square2.c` program of Section 6.3 will fail (usually by printing strange answers) if `i * i` exceeds the maximum `int` value. Run the program and determine the smallest value of `n` that causes failure. Try changing the type of `i` to `short` and running the program again. (Don’t forget to update the conversion specifications in the call of `printf`!) Then try `long`. From these experiments, what can you conclude about the number of bits used to store integer types on your machine?
+
+### Code
+```
+//Filename: p1.c
+//Purpose: Displays a table of squares whose size is determined by the user
+//Author: syfer
+//Date: July 28th, 2025
+
+#include <stdio.h>
+
+int main(){
+    
+    int i, n; 
+
+    printf("This program prints a table of squares. \n") ; 
+    printf("Enter number of entries in table: "); 
+    scanf("%d", &n); 
+
+    for (i = 1; i <= n; i++) 
+        printf("%10d%10d\n", i, i * i); 
+
+    return 0;
+}
+```
+
+### Solution
+The program overflows when `n = 46341` and prints a negative value for the square. This just happens to coincide with the square root of 2147483647 being 46340.
+
+Similarly for a `short` we overflow with `n = 182` which corresponds with the square root of 32767.
+
+For `long` the program takes a while to finish but overflows on `3037000500` which coincides with the sqrt of 9223372036854775807.
+
+I conclude my ranges are
+
+|Type|no. bits|
+|-|-|
+|short|16|
+|int|32|
+|long|64|
+
+## P7.2
+### Statement
+Modify the `square2.c` program of Section 6.3 so that it pauses after every 24 squares and
+displays the following message:
+
+`Press Enter to continue... `
+
+After displaying the message, the program should use `getchar` to read a character, `getchar` won't allow the program to continue until the user presses the Enter key.
+
+### Code
+```
+//Filename: p2.c
+//Purpose: Displays a table of squares whose size is determined by the user
+//Author: syfer
+//Date: July 28th, 2025
+
+#include <stdio.h>
+
+int main(){
+    
+    int n, i;
+
+    printf("This program prints a table of squares. \n") ; 
+    printf("Enter number of entries in table: "); 
+    scanf("%d", &n); 
+    getchar(); // grab the newline char created by entering n so we dont skip the first Enter
+
+    for (i = 1; i <= n; i++) {
+        if (i % 24 == 0){
+            printf("Press Enter to continue...");
+            while (getchar() != '\n')
+                ;
+            
+        }
+        printf("%d\t%d\n", i, i * i); 
+    }
+
+    return 0;
+}
+
+
+```
+
+### Thoughts
+Only complicated part was remembering to grab the extra new line character.
+
+## P7.3
+### Statement
+Modify the `sum2.c` program of Section 7.1 to sum a series of `double` values.
+
+### Code
+```
+//Filename: p3.c
+//Purpose: Sums a series of doubles entered by the user.
+//Author: syfer
+//Date: July 28th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    double n, sum = 0;
+
+    printf("This program sums a series of values.\n"); 
+    printf("Enter values  (0 to terminate): "); 
+
+    scanf("%lf", &n); 
+
+    while (n != 0) { 
+        sum += n; 
+        scanf("%lf", &n); 
+    } 
+
+    printf("The sum is: %lf\n", sum); 
+    
+    return 0;
+}
+
+```
+
+## P7.4
+### Statement
+Write a program that translates an alphabetic phone number into numeric form:
+
+```
+Enter phone number: CALLATT
+2255288
+```
+
+(In case you don't have a telephone nearby, here arc the letters on the keys: 2=ABC, 3=DEF, 4=GHI, 5=JKL, 6=MNO, 7=PRS, 8=TUV, 9=WXY.) If the original phone number contains non-alphabetic characters (digits or punctuation, for example), leave them unchanged:
+
+```
+Enter phone number: 1-800-CQL-LECT
+1-800-265-5328
+```
+
+You may assume that any letters entered by the user are upper case.
+
+### Code
+```
+//Filename: p4.c
+//Purpose: Converts a phone number with letters into numbers
+//Author: syfer
+//Date: July 28th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    char c;
+
+    printf("Enter phone number: ");
+    c = getchar();
+
+    do{
+        if (c == 'A' || c == 'B' || c == 'C')
+            printf("2");
+        else if (c == 'D' || c == 'E' || c == 'F')
+            printf("3");
+        else if (c == 'G' || c == 'H' || c == 'I')
+            printf("4");
+        else if (c == 'J' || c == 'K' || c == 'L')
+            printf("5");
+        else if (c == 'M' || c == 'N' || c == 'O')
+            printf("6");
+        else if (c == 'P' || c == 'R' || c == 'S')
+            printf("7");
+        else if (c == 'T' || c == 'U' || c == 'V')
+            printf("8");
+        else if (c == 'W' || c == 'X' || c == 'Y')
+            printf("9");
+        else
+            putchar(c);
+        c = getchar();
+
+    } while(c != '\n');
+
+    printf("\n");
+
+    return 0;
+}
+
+```
+
+## P7.5
+### Statement
+In the SCRABBLE Crossword Came, players form words using small tiles, each containing a letter and a face value. The face value varies from one letter to another, based on the letter’s rarity. (Here are the face values: 1: AEILNORSTU, 2: DG, 3: BCMP, 4: FHVWY, 5: K, 8: JX, 10: QZ.) Write a program that computes the value of a word by summing the values of its letters:
+
+```
+Enter a word: pitfall
+Scrabble value: 12
+```
+
+Your program should allow any mixture of lower-case and upper-case letters in the word. Hint: Use the `toupper` library function.
+
+### Code
+```
+//Filename: p5.c
+//Purpose: Computes the scrabble value of a word
+//Author: syfer
+//Date: July 28th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+
+int main(){
+
+    char ch;
+    int val = 0;
+
+    printf("Enter a word: ");
+
+    while ((ch = getchar()) != '\n'){
+        ch = toupper(ch);
+        if (ch == 'A' || ch == 'E' || ch == 'I' || ch == 'L' 
+                || ch == 'N' || ch == 'O' || ch == 'R' || ch == 'S' 
+                || ch == 'T' || ch == 'U'){
+            val += 1;
+        } else if (ch == 'D' || ch == 'G')
+            val += 2;
+        else if (ch == 'B' || ch == 'C' || ch == 'M' || ch == 'P')
+            val += 3;
+        else if (ch == 'F' || ch == 'H' || ch == 'V' || ch == 'W' || ch == 'Y')
+            val += 4;
+        else if (ch == 'K')
+            val += 5;
+        else if (ch == 'J' || ch == 'X')
+            val += 8;
+        else if (ch == 'Q' || ch == 'Z')
+            val += 10;
+        else{
+            printf("Bad character\n");
+            break;
+        }
+    }
+    printf("Scrabble value: %d\n", val);
+        
+    return 0;
+}
+```
+
+## P7.6
+### Statement
+Write a program that prints the values of `sizeof(int)`, `sizeof (short)`, `sizeof(long)`, `sizeof(float)`, `sizeof(double)` and `sizeof(long double)`. 
+
+### Code
+```
+//Filename: p6.c
+//Purpose: prints a bunch of different sizeof values
+//Author: syfer 
+//Date: July 28th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    printf("sizeof(int): %lu\n", sizeof(int));
+    printf("sizeof(short): %lu\n", sizeof(short));
+    printf("sizeof(long): %lu\n", sizeof(long));
+    printf("sizeof(float): %lu\n", sizeof(float));
+    printf("sizeof(double): %lu\n", sizeof(double));
+    printf("sizeof(long double): %lu\n", sizeof(long double));
+    
+    return 0;
+}
+
+```
+
+### Thoughts
+Output:
+
+```
+sizeof(int): 4
+sizeof(short): 2
+sizeof(long): 8
+sizeof(float): 4
+sizeof(double): 8
+sizeof(long double): 16
+```
+
+Assuming these are in bytes. They match up to the values found by using the `square2.c` program for overflows
+
+## P7.7
+### Statement
+Modify Programming Project 6 from Chapter 3 so that the user may add, subtract, multiply, or divide two fractions (by entering either +, -, *, or / between the fractions).
+
+### Code
+```
+//Filename: p7.c
+//Purpose: Adds, subtracts, multiplies and divides two fractions
+//Author: syfer
+//Date: July 29th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int n1, n2, d1, d2;
+    char operand;
+
+    printf("Enter a fractional expression: ");
+    scanf("%d/%d%c%d/%d", &n1, &d1, &operand, &n2, &d2);
+
+    if (operand == '+')
+        printf("%d/%d\n", n1 * d2 + n2 * d1, d1 * d2);
+    else if (operand == '-')
+        printf("%d/%d\n", n1 * d2 - n2 * d1, d1 * d2);
+    else if (operand == '*')
+        printf("%d/%d\n", n1 * n2, d1 * d2);
+    else if (operand == '/')
+        printf("%d/%d\n", n1 * d2, d1 * n2);
+
+    return 0;
+}
+
+```
+
+### Thoughts
+A lot simpler than I'd hoped for. I could add the GCD algorithm to the code to reduce the result to lowest terms, but that particular copy paste action wasn't required by the project.
+
+## P7.8
+### Statement
+Modify Programming Project 8 from Chapter 5 so that the user enters a time using the 12-hour clock. The input will have the form hours:minutes followed by either A, P, AM, or PM (either lower-case or upper-case). White space is allowed (but not required) between the numerical time and the AM/PM indicator. Examples of valid input:
+
+```
+1:15P
+1:15PM
+1:15p
+1:15pm
+1:15 P
+1:15 PM
+1:15 p
+1:15 pm
+```
+
+You may assume that the input has one of these forms; there is no need to test for errors.
+
+### Code
+```
+//Filename: p8.c
+//Purpose: Displays the flight which departs the closest to a user given time
+//Author: syfer
+//Date:
+
+#include <stdio.h>
+#include <ctype.h>
+
+int main(){
+
+    int hour, min, time;
+    char ch; //A.M. P.M. tester
+
+    printf("Enter a 12-hour time: ");
+    scanf("%d:%d", &hour, &min);
+
+    while ((ch=getchar()) == ' ')
+        ;
+
+    ch = toupper(ch);
+    if(ch == 'P')
+        time = hour * 60 + 12 * 60 + min;
+    else if (ch == 'A')
+        time = hour * 60 + min;
+
+    /*
+    |Departure time|Arrival time|Min since midnight
+    |-|-|
+    |8:00 a.m.|10:16 a.m.|480|
+    |9:43 a.m.|11:52 a.m.|583|
+    |11:19 a.m.|1:31 p.m.|679|
+    |12:47 p.m.|3:00 p.m.|767|
+    |2:00 p.m.|4:08 p.m.|840|
+    |3:45 p.m.|5:55 p.m.|945|
+    |7:00 p.m.|9:20 p.m.|1140| 
+    |9:45 p.m.|11:58 p.m.|1305|
+    */
+    int d1 = 480, d2 = 583, d3 = 679, d4 = 767, d5 = 840, d6 = 945, d7 = 1140, d8 = 1305;
+
+    if (time <= d1 + (d2 - d1) / 2)
+        if (time < d1 && d1 - time > time)
+            printf("Departing 9:45 p.m., arriving 11:58 p.m.\n");
+        else 
+            printf("Departing 8:00 a.m., arriving 10:16 a.m.\n");
+    else if (time <= d2 + (d3 - d2) / 2)
+        printf("Departing 9:43 a.m., arriving 11:52 a.m.\n");
+    else if (time <= d3 + (d4 - d3) / 2)
+        printf("Departing 11:19 a.m., arriving 1:31 p.m.\n");
+    else if (time <= d4 + (d5 - d4) / 2)
+        printf("Departing 12:47 p.m., arriving 3:00 p.m.\n");
+    else if (time <= d5 + (d6 - d5) / 2)
+        printf("Departing 2:00 p.m., arriving 4:08 p.m.\n");
+    else if (time <= d6 + (d7 - d6) / 2)
+        printf("Departing 3:45 p.m., arriving 5:55 p.m.\n");
+    else if (time <= d7 + (d8 - d7) / 2)
+        printf("Departing 7:00 p.m., arriving 9:20 p.m.\n");
+    else 
+        printf("Departing 9:45 p.m., arriving 11:58 p.m.\n");
+
+    return 0;
+
+}
+```
+
+## P7.9
+### Statement
+Write a program that asks the user for a 12-hour time, then displays the time in 24-hour form:
+
+```
+Enter a 12-hour time: 9:11 PM
+Equivalent 24-hour time: 21:11
+```
+
+See Programming Project 8 for a description of the input format.
+
+### Code
+```
+//Filename: p9.c
+//Purpose: Displays a 12 hour time  in 24 hour form
+//Author: syfer
+//Date: July 29th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+
+int main(){
+
+    int hour, min;
+    char ch; //A.M. P.M. tester
+
+    printf("Enter a 12-hour time: ");
+    scanf("%d:%d", &hour, &min);
+
+    while ((ch=getchar()) == ' ')
+        ;
+
+    ch = toupper(ch);
+    if(ch == 'P')
+        printf("Equivalent 24-hour time: %.2d:%.2d\n", hour + 12, min);
+    else if (ch == 'A')
+        printf("Equivalent 24-hour time: %.2d:%.2d\n", hour, min);
+    
+    return 0;
+}
+
+```
+
+### Thoughts
+Actually a little disappointed this one, literally a copy and paste of the changes made to the previous project. Seems like this could have been an exercise at best rather than a project.
+
+## P7.10
+### Statement
+Write a program that counts the number of vowels (a, e, i, o, and u) in a sentence:
+
+```
+Enter a sentence: And that's the way it is.
+Your sentence contains 6 vowels.
+```
+
+### Code
+```
+//Filename: p10.c
+//Purpose: Counts the number of vowels in a sentence
+//Author: syfer
+//Date: July 29th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+
+int main(){
+
+    int ret = 0;
+    char ch;
+
+    printf("Enter a sentence: ");
+    while ((ch=getchar())!= '\n'){
+        ch = toupper(ch);
+        if(ch == 'A' || ch == 'E' || ch == 'I' || ch == 'O' || ch == 'U')
+            ret++;
+    }
+
+    printf("Your sentence contained %d vowels.\n", ret);
+   
+    return 0;
+}
+```
+
+## P7.11
+### Statement
+Write a program that takes a first name and last name entered by the user and displays the last name, a comma, and the first initial, followed by a period:
+
+```
+Enter a first and last name: Lloyd Fosdick
+Fosdick, L.
+```
+
+The user’s input may contain extra spaces before the first name, between the first and last names, and after the last name.
+
+### Code
+```
+//Filename: p11.c
+//Purpose: Displays a user's name in a particular format
+//Author: syfer
+//Date: July 29th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    char ch, firstInitial;
+
+    while ((ch = getchar()) == ' ') // First whitespace
+        ;
+
+    firstInitial = ch; 
+
+    while ((ch = getchar()) != ' ') // skip the rest of the first name we dont need it 
+        ;
+    
+    while ((ch = getchar()) == ' ') //skip the whitespace leading up to last name
+        ;
+
+    do{ 
+        putchar(ch);
+    } while ((ch = getchar()) != '\n');
+
+    printf(", %c.\n", firstInitial); // easier to do this in one line instead of putcharring
+
+    return 0;
+}
+
+```
+
+## P7.12
+### Statement
+Write a program that evaluates an expression:
+
+```
+Enter an expression: 1+2.5*3
+Value of expression: 10.5
+```
+
+The operands in the expression are floating-point numbers; the operators are `+`, `*`, and  `/`. The expression is evaluated from left to right (no operator takes precedence over any other operator).
+
+### Code
+```
+//Filename: p12.c
+//Purpose: Evaluates simple expressions using right associativity without regards for operand precedence
+//Author: syfer
+//Date: July 29th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    float ret, nextVal;  
+    char ch;
+    printf("Enter an expression: ");
+    scanf("%f", &ret);
+
+    while ((ch = getchar()) != '\n'){
+        if (ch == '+'){
+            scanf("%f", &nextVal);
+            ret += nextVal;
+        } else if (ch == '-'){
+            scanf("%f", &nextVal);
+            ret -= nextVal;
+        } else if (ch == '*'){
+            scanf("%f", &nextVal);
+            ret *= nextVal;
+        } else if (ch == '/'){
+            scanf("%f", &nextVal);
+            ret /= nextVal;
+        }
+    }
+    printf("Value of expression is: %f\n", ret);
+    
+    return 0;
+}
+
+```
+
+### Thoughts
+Most fun project yet. I think the fundamental thing to realize here is how `scanf` and `getchar` interact. Based on my testing it seems a bit like there's two detectives but only one magnifying glass. In particular if something has been scanned already with either a `scanf` or a `getchar` the other one will already be advanced to that position to start its scan.
+ 
+## P7.13
+### Statement
+Write a program that calculates the average word length for a sentence:
+
+```
+Enter a sentence: It was deja vu all over again.
+Average word length: 3.4
+```
+
+For simplicity, your program should consider a punctuation mark to be part of the word to which it is attached. Display the average word length to one decimal place.
+
+### Code
+```
+//Filename: p13.c
+//Purpose: Calculates the average word length in a sentence
+//Author: syfer
+//Date: July 29th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    char ch;
+    // Since the last word is finished with a newline char it will not enter the while
+    // loop to increment numWords one last time. Hence start at 1
+    int numWords = 1; 
+    float avg = 0.0f;
+
+    printf("Enter a sentence: ");
+
+    while ((ch = getchar()) != '\n'){
+        if (ch == ' ')
+            numWords++; 
+        else  {
+            avg++;
+        }
+    }
+
+    avg /= numWords;
+
+    printf("Average word length: %.1f\n", avg);
+    
+    return 0;
+}
+
+```
+
+## P7.14
+### Statement
+Write a program that uses Newton's method to compute the square root of a positive floating-point number:
+
+```
+Enter a positive number: 3
+Square root: 1.73205
+```
+
+Let `x` be the number entered by the user. Newton’s method requires an initial guess `y` for the square root of `x` (we’ll use `y = 1`). Successive guesses are found by computing the average of `y` and `x/y`. The following table shows how the square root of 3 would be found:
+
+|x|y|x/y|Average of y and x/y|
+|-|-|-|-|
+|3|1|3|2|
+|3|2|1.5|1.75|
+|3|1.75|1.71429|1.73214|
+|3|1.73214|1.73196|1.73205|
+|3|1.73205|1.73205|1.73205|
+
+Note that the values of `y` get progressively closer to the true square root of `y`. For greater accuracy, your program should use variables of type `double` rather than `float`. Have the program terminate when the absolute value of the difference between the old value of `y` and the new value of `y` is less than the product of `.00001` and `y`. Hint: Call the `fabs` function to find the absolute value of a `double`. (You’ll need to include the `<math.h>` header at the beginning of your program in order to use `fabs`.)
+
+### Code
+```
+//Filename: p14.c
+//Purpose: Uses Newtons method to compute the square root of a positive float
+//Author: syfer
+//Date: July 29th, 2025
+
+#include <stdio.h>
+#include <math.h>
+
+int main(){
+
+    double x, y = 1.0, yOld = 2.0;
+
+    printf("Enter a positive number: ");
+    scanf("%lf", &x);
+
+    do{
+        yOld = y;
+        y = (y + x / y) / 2;
+        printf("%lf\n", 0.0001 * yOld);
+    } while  (fabs(y - yOld) > 0.0001 * yOld);
+
+    printf("Square root: %lf\n", y);
+    
+    return 0;
+}
+```
+
+## P7.15
+### Statement
+Write a program that computes the factorial of a positive integer:
+
+```
+Enter a positive integer: 6
+Factorial of 6: 720
+```
+
+(a) Use a `short` variable to store the value of the factorial. What is the largest value of `n` for which the program correctly prints the factorial of `n`?
+
+(b) Repeat part (a), using an `int` variable instead.
+
+(c) Repeat part (a), using a `long` variable instead.
+
+(d) Repeat part (a), using a `long long` variable instead (if your compiler supports the `long long` type).
+
+(e) Repeat part (a), using a `float` variable instead.
+
+(f) Repeat part (a), using a `double` variable instead.
+
+(g) Repeat part (a), using a `long double` variable instead.
+
+In cases (e)-(g), the program will display a close approximation of the factorial, not necessarily the exact value.
+
+### Code
+```
+//Filename: p15.c
+//Purpose: Computes the factorial of a number
+//Author: syfer
+//Date: July 29th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int n;
+    int ret;
+    do{
+        ret = 1;
+        printf("Enter a positive integer: ");
+        scanf("%d", &n);
+
+        //skip 1 since 1 * x = x
+        for(int i = 2; i < n + 1; i++){
+           ret *= i;
+        }
+        
+        printf("Factorial of %d: %hi\n", n, ret);
+    } while (n != 0);
+
+    return 0;
+}
+
+```
+### Solution
+I enclosed everything in a `do` so that I could test multiple values without reruns
+
+(a) Correct at 7, fail by 8
+
+(b) Correct at 12, fail by 13
+
+(c) Correct at 20, fail by 21
+
+(d) Correct at 20, fail by 21 (factorials are large!!).
+
+(e) Correct at 34, fail by 35 (says `inf`);
+
+(f) Correct at 170, fail by 171
+
+(g) Correct at 1754 (holy) fails by 1755
+
+# Conclusion
+More complexity makes things more fun. Throughout this chapter the main new thing was working with char scanning and the new format specifications. Had to constantly look up in a table which corresponds to what. 
+
+I like the char manipulation we talked about. Treating them as integers explicitly sounds extremely powerful and I wish more of the projects took advantage of that.
+
+I was also very surprised by how large the ranges are for `float`'s `double`'s and especially `long double`. 1741! factorial has almost 5k digits!!
+
+Onwards to Arrays!
