@@ -1,0 +1,1086 @@
+---
+layout: default
+title: Chapter 9
+date: 2025-07-31 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc9
+---
+# Chapter 9
+# Exercises
+## E9.1
+### Statement
+The following function, which computes the area of a triangle, contains two errors. Locate the errors and show how to fix them. (Hint: There are no errors in the formula.)
+
+```
+double triangle_area(double base, height)
+double product;
+{
+    product = base * height;
+    return product / 2;
+}
+```
+
+### Solution
+First error is that the declaration for the variable `product` falls outside the function body, solved by swapping it with the following curly brace.
+
+Second error is that height does not have a type specifier. Unlike variable declarations, parameters must have a type for each individual one.
+
+## E9.2
+### Statement
+Write a function check `(x, y, n)` that returns 1 if both `x` and `y` fall between `0` and `n - 1` inclusive. The function should return 0 otherwise. Assume that `x`, `y`, and `n` are all of type `int`.
+
+### Solution
+```
+int check(int x, int y, int n){
+    return ((x >= 0) && (y >= 0) && (x <= n - 1) && (x <= n - 1)) ? 1 : 0;
+}
+```
+
+## E9.3
+### Statement
+Write a function `gcd(m, n)` that calculates the greatest common divisor of the integers `m` and `n`. (Programming Project 2 in Chapter 6 describes Euclid's algorithm for computing the GCD.)
+
+### Solution
+```
+int gcd(int m, int n){
+    if (n == 0)
+        return m;
+    gcd(n, m % n);
+}
+```
+
+## E9.4
+### Statement
+Write a function `day_of_year(month, day, year)` that returns the day of the year (an integer between 1 and 366) specified by the three arguments. 
+
+### Solution
+```
+int day_of_year(int month, int day, int year){
+    for(int i = 0; i < month; i++){
+        if (i == 1 || i == 3 || i == 5 || i == 7 || i == 8 || i == 10)
+            day += 31;
+        else if (i == 4 || i == 6 || i == 9 || i == 11)
+            day += 30;
+        else if (year % 4 == 0 && year % 100 != 0 || year % 400 == 0)
+            day += 29;
+        else
+            day += 28;
+    }
+    return day;
+}
+```
+
+## E9.5
+### Statement
+Write a function `num_digits(n)` that returns the number of digits in `n` (a positive integer). Hint: To determine the number of digits in a number `n`, divide it by 10 repeatedly. When `n` reaches 0, the number of divisions indicates how many digits `n` originally had.
+
+### Solution
+```
+int num_digits(int n){
+    if (n / 10 == 0)
+        return 1;
+    return 1 + n / 10;
+}
+```
+
+## E9.6
+### Statement
+Write a function `digit (n, k)` that returns the `k`th digit (from the right) in `n` (a positive integer). For example, `digit (829, 1)` returns 9, `diqit (829, 2)` returns 2, and `digit (829, 3)` returns 8. If `k` is greater than the number of digits in `n`, have the function return 0.
+
+### Solution
+```
+int digit (int n, int k){
+    int div = 1;
+    for(int i = 0; i < k-1; i++)
+        div *= 10;
+    return (n / div) % 10;
+}
+```
+
+## E9.7
+### Statement
+Suppose that the function f has the following definition:
+
+```
+int f (int a, int b) { ... }
+```
+
+Which of the following statements are legal? (Assume that `i` has type `int` and `x` has type `double`.)
+
+(a) `i = f(83, 12);`
+
+(b) `x = f(83, 12);`
+
+(c) `i = f(3.15, 9.28);`
+
+(d) `x = f(3.15, 9.28);`
+
+(e) `f(83, 12);`
+
+### Solution
+All of the statements are legal.
+
+## E9.8
+### Statement
+Which of the following would be valid prototypes for a function that returns nothing and has one `double` parameter?
+
+(a) `void f (double x);`
+
+(b) `void f (double);`
+
+(c) `void f (x) ;`
+
+(d) `f(double x) ;`
+
+### Solution
+(a) and (b) are valid. (c) is missing type declaration and (d) implicitly assumes the return type is `int`.
+
+## E9.9
+### Statement
+What will be the output of the following program?
+
+```
+#include <stdio.h>
+
+void swap(int a, int b) ;
+
+int main(void)
+{
+    int i = 1 , j = 2;
+    swap(i, j) ;
+
+    printfC'i = %d, j = %d\n", i, j);
+    return 0 ;
+}
+
+void swap(int a, int b)
+{
+    int temp = a;
+    a = b;
+    b = temp;
+}
+```
+
+### Solution
+Although one might think that the values of `i` and `j` are swapped, that is not the case since functions get passed by value. Therefore the output would be `i = 1, j = 2`.
+
+## E9.10
+### Statement
+Write functions that return the following values. (Assume that `a` and `n` are parameters, where `a` is an array of `int` values and `n` is the length of the array.)
+
+(a) The largest element in `a`.
+
+(b) The average of all elements in `a`.
+
+(c) The number of positive elements in `a`.
+
+### Solution
+(a)
+
+```
+int largest (int a[], int n){
+    int max = a[0];
+    for(int i = 0; i < n;i++){
+        if(a[i] > max)
+            a[i] = max;
+    }
+    return max;
+}
+```
+
+(b)
+
+```
+int average (int a[], int n) { 
+    int avg = 0;
+    for(int i = 0; i < n;i++)
+        avg += a[i];    
+    return avg /= n;
+}
+```
+
+(c)
+
+```
+int numPos(int a[], int n){
+    int ret = 0;
+    for(int i = 0; i < n; i++){
+        if (a[i] >= 0)
+            ret++;
+    }
+}
+```
+
+## E9.11
+### Statement
+Write the following function:
+
+`float compute_GPA(char grades [], int n);`
+
+The grades array will contain letter grades (A, B, C, D, or F, either upper-case or lower-case); `n` is the length of the array. The function should return the average of the grades (assume that A = 4, B = 3, C = 2, D = 1, and F = 0).
+
+### Solution
+```
+float compute_GPA(char grades[], int n){
+    float avg = 0.0;
+    for (int i = 0; i < n; i++)
+        avg+= 'F' - grades[i];
+    return avg / n;
+}
+```
+
+## E9.12
+### Statement
+Write the following function:
+
+`double inner_product (double a[], double b[], int n);`
+
+The function should return `a[0] * b[0] + a[1] * b[1] + ... + a[n - 1] * b[n - 1]`.
+
+### Solution
+```
+double inner_product (double a[], double b[], int n){
+    double ret;
+    for (int i = 0; i < n;i++)
+        ret += a[i] * b[i];
+    return ret;
+}
+```
+
+## E9.13
+### Statement
+Write the following function, which evaluates a chess position:
+
+`int evaluate_position(char board[8][8]); `
+
+`board` represents a configuration of pieces on a chessboard, where the letters `K`, `Q`, `R`, `B`, `N`, `P` represent White pieces, and the letters `k`, `q`, `r`, `b`, `n`, and `p` represent Black pieces, evaluate position should sum the values of the White pieces (`Q` = 9, `R` = 5, `B` = 3,  `N` = 3, `P` = 1). It should also sum the values of the Black pieces (done in a similar way). The function will return the difference between the two numbers. This value will be positive if White has an advantage in material and negative if Black has an advantage.
+
+### Solution
+```
+int evaluate_position(char board[8][8]){
+    int white, black;
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+            char c = board[i][j];
+            if(toupper(c) == c){
+                if (c == 'Q')
+                    white += 9;
+                else if (c == 'R')
+                    white += 5;
+                else if (c == 'B')
+                    white += 3;
+                else if (c == 'N')
+                    white += 3;
+                else if (c == 'P')
+                    white++;
+            } else {
+                if (c == 'q')
+                    black += 9;
+                else if (c == 'r')
+                    black += 5;
+                else if (c == 'b')
+                    black += 3;
+                else if (c == 'n')
+                    black += 3;
+                else if (c == 'p')
+                    black++;
+            }
+        }
+    }
+}
+```
+
+## E9.14
+### Statement
+The following function is supposed to return `true` if any element of the array `a` has the value 0 and `false` if all elements are nonzero. Sadly, it contains an error. Find the error and show how to fix it:
+
+```
+bool has_zero(int a[], int n)
+{
+    int i;
+
+    for (i = 0; i < n; i++)
+        if (a[i] == 0 )
+            return true;
+        else
+            return false;
+}
+```
+
+### Solution
+Program immediately terminates, returning `false` upon reaching the first non-zero value. To fix we just move the `false` return after the loop since we'd have already hit `true` if there was a 0 value.
+
+```
+bool has_zero(int a[], int n)
+{
+    int i;
+
+    for (i = 0; i < n; i++)
+        if (a[i] == 0 )
+            return true;
+    return false;
+}
+```
+
+## E9.15
+### Statement
+The following (rather confusing) function finds the median of three numbers. Rewrite the function so that it has just one `return` statement.
+
+```
+double median(double x, double y, double z)
+{
+    if (x <= y)
+        if (y <= z) return y;
+        else if (x <= z) return z;
+        else return x;
+    if (z <= y) return y;
+    if (x <= z) return x;
+    return z;
+}
+```
+
+### Solution
+```
+double median(double x, double y, double z){
+    double m = 0;
+    if ((x>=z) && (x<=y) || (x>=y) && (x<=z))
+        m = x;
+    else if ((y>=z) && (y<=x) || (y>=x) && (y<=z))
+        m = y;
+    else 
+        m = z;
+    return m;
+}
+```
+
+## E9.16
+### Statement
+Condense the `fact` function in the same way we condensed `power`.
+
+### Solution
+The power function was condensed by removing the need for an external index and instead using one of the arguments as a counter. The `frac` program does not have a counter in  the first place and is written recursively. Therefore no changes:
+
+```
+int fact(int n){
+    if (n <= 1)
+        return 1;
+    else
+        return n * fact(n - 1);
+}
+```
+
+Since that probably was not the spirit of the exercise, here is a one-liner version that is also "condensed" but has nothing to do with what was done to `power`.
+
+```
+int fact (int n){
+    return n <=1 ? 1 : n * fact(n - 1);
+}
+```
+
+## E9.17
+### Statement
+Rewrite the `fact` function so that it’s no longer recursive.
+### Solution
+```
+int fact (int n){
+    int ret = 1;
+    for (; n > 0; n--)
+        ret *= n;
+    return ret;
+}
+```
+
+Yes I used a `for` loop. Since they're interchangeable in every scenario, I like it better here over a `while`.
+
+## E9.18
+### Statement
+Write a recursive version of the `gcd` function (see Exercise 3). Here's the strategy to use for computing `gcd(m, n)`: If `n` is 0, return `m`. Otherwise, call `gcd` recursively, passing `n` as the first argument and `m % n` as the second.
+
+### Solution
+My solution to 3 was already recursive. 
+
+## E9.19
+### Statement
+Consider the following "mystery" function: 
+
+```
+void pb(int n) 
+{ 
+    if (n ! = 0) { 
+        pb(n / 2); 
+        putchar('0' + n % 2); 
+    } 
+} 
+```
+
+Trace the execution of the function by hand. Then write a program that calls the function, passing it a number entered by the user. What does the function do? 
+
+### Solution
+Taking `n = 5` we get
+
+1. print 1 and run pb(2)
+
+2. print 0 and run pb(1)
+
+3. print 1 and run pb(0)
+
+Which coincidentally happens to be the binary value of 5. Running the program and testing various other values I see that `pb` prints the binary representation of `n`.
+
+# Projects
+## P9.1
+### Statement
+Write a program that asks the user to enter a series of integers (which it stores in an array), then sorts the integers by calling the function `selection_sort`. When given an array with `n` elements, `selection_sort` must do the following:
+
+1. Search the array to find the largest element, then move it to the last position in the array.
+
+2. Call itself recursively to sort the first `n - 1` elements of the array.
+
+### Code
+```
+//Filename: p1.c
+//Purpose: Sorts a series of integers
+//Author: syfer
+//Date: July 31st, 2025
+
+#include <stdio.h>
+
+#define MAX_LEN 20
+
+void selection_sort(int a[], int n);
+
+int main(){
+
+    int m[MAX_LEN] = {0}, i;
+
+    printf("Enter a series of integers (0 to terminate): ");
+
+    for (i = 0; i < MAX_LEN; i++){
+        scanf("%d", &m[i]);
+        if (m[i] == 0) 
+            break;
+    }
+    selection_sort(m, i); 
+
+    for(int j = 0; j < i; j++)
+        printf("%d ", m[j]);
+
+    printf("\n");
+
+    return 0;
+}
+
+void selection_sort(int a[], int n){
+    if (n == 0)
+        return;
+
+    int maxIndex = 0;
+    for(int i = 0; i < n; i++){
+        if (a[i] > a[maxIndex]){
+            maxIndex = i;
+        } 
+    }
+    int temp = a[maxIndex];
+    a[maxIndex] = a[n-1];
+    a[n-1] = temp;
+    selection_sort(a, n - 1);
+}
+```
+
+### Thoughts
+Fairly straightforward although I do not like the amount of temp variables that I end up using. Upon a second pass I ended up removing some of them.
+
+There is an issue with the way this project is presented though. Since the input can be of variable length, we have no way of checking when the user presses ENTER to terminate the list. If we were to `getchar` and check every time, we ... would end up converting each non-blank char to integer form. Unfortunately we have no way of knowing what power of 10 to multiply each digit by, meaning we will have to store everything in a char array and then go backwards again.
+
+The second solution would be using a new function such as `ungetc` which we have not covered yet. I chose a third solution by just specifying our standard 0 to term.
+
+Now that I think about it however, the first solution would work.
+
+### Extra solution
+Solution according to both problem specification and only using what we've learned up to this point.,This ended up being a lot more complicated than I realized and included me writing a helping `pow10` function as well. Overall the structure is quite similar to the word reversal program from chapter 8. 
+
+It ended up being a bit lazy since the code is practically unreadable with so many indices and nested loops, but I felt like this was extra credit already and did not spend the time to clean it up.
+
+More of a proof of concept, if I had used `unget` this whole thing would have been an extra one-liner in the above first solution.
+
+```
+//Filename: p1_1.c
+//Purpose: Sorts a series of integers
+//Author: syfer
+//Date: July 31st, 2025
+
+#include <stdio.h>
+
+#define MAX_LEN 99
+
+void selection_sort(int a[], int n);
+int pow10(int n);
+
+int main(){
+
+    int m[MAX_LEN] = {0}, numWords, k = 0;
+    char ch[MAX_LEN];
+
+    printf("Enter a series of integers: ");
+
+    while ((ch[k] = getchar()) != '\n')
+        k++;
+
+    //convert to ints
+    printf("%d\n", k);
+    numWords = 0;
+    int len = 0;
+    for(int j = k - 1; j >= 0; j--){
+        printf("j: %d len: %d\n",j, len);
+        if(ch[j] == ' '){
+           printf("len: %d\n", len);
+           for(int x = 1; x <= len; x++)
+               m[numWords] += (ch[j+x] - '0') * pow10(len - x);
+           len = 0;
+           numWords++;
+           continue;
+        }
+        len++;
+        if(j == 0) {
+           for(int x = 0; x < len; x++)
+               m[numWords] += (ch[j+x] - '0') * pow10(len - x - 1);
+            numWords++;
+        }
+    }
+
+    selection_sort(m, numWords); 
+
+    for(int j = 0; j < numWords; j++)
+        printf("%d ", m[j]);
+
+    printf("\n");
+
+    return 0;
+}
+
+void selection_sort(int a[], int n){
+    if (n == 0)
+        return;
+    int maxIndex = 0;
+    for(int i = 0; i < n; i++){
+        if (a[i] > a[maxIndex]){
+            maxIndex = i;
+        } 
+    }
+    int temp = a[maxIndex];
+    a[maxIndex] = a[n-1];
+    a[n-1] = temp;
+    selection_sort(a, n - 1);
+}
+
+int pow10(int n){
+    int ret = 1;
+    for(int i = 0; i < n; i++)
+        ret *= 10;
+    return ret;
+}
+```
+
+## P9.2
+### Statement
+Modify Programming Project 5 from Chapter 5 so that it uses a function to compute the amount of income tax. When passed an amount of taxable income, the function will return the tax due.
+
+### Code
+```
+//Filename: p2.c
+//Purpose: Computes income tax
+//Author: syfer
+//Date: July 31st, 2025
+
+#include <stdio.h>
+
+float getTax(float income);
+
+int main(){
+    float income;
+    
+    printf("Enter your taxable income: ");
+    scanf("%f",&income);
+
+    printf("Tax due: $%.2f\n", getTax(income));
+    
+    return 0;
+}
+
+float getTax(float income){
+    if (income < 750)
+        return income * 0.01f;
+    else if (income <= 2250)
+        return (income - 750.0f) * 0.02f + 7.5f;
+    else if (income <= 3750)
+        return (income - 2250.0f) * 0.03f + 37.5f;
+    else if (income <= 5250)
+        return (income - 3750.0f) * 0.04f + 82.5f;
+    else if (income <= 7000)
+        return (income - 5250.0f) * 0.05f + 142.5f;
+    else
+        return (income - 7000.0f) * 0.06f + 230.5f;
+}
+
+
+```
+
+### Thoughts
+Copy and paste, change `printf` to return.
+
+## P9.3
+### Statement
+Modify Programming Project 9 from Chapter 8 so that it includes the following functions:
+
+`void generate_random_walk(char walk[10][10]);`
+
+`void print_array(char walk[10][10]);`
+
+`main` first calls `generate_random_walk`, which initializes the array to contain `'.'` characters and then replaces some of these characters by the letters `A` through `Z`, as described in the original project, `main` then calls `print_array` to display the array on the screen.
+
+### Code
+
+```
+//Filename: p3.c
+//Purpose: Randomly walks through a SIZExSIZE array
+//Author: syfer
+//Date: July 31st, 2025
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define SIZE 10
+
+void generate_random_walk(char walk[SIZE][SIZE]);
+void print_array(char walk[SIZE][SIZE]);
+
+int main(){
+
+    char m[SIZE][SIZE];
+
+    generate_random_walk(m);
+    print_array(m);
+
+    return 0;
+}
+
+void generate_random_walk(char m[SIZE][SIZE]){
+
+    int cX = 0, cY = 0; //currentX, currentY
+    bool stuckUp, stuckDown, stuckLeft, stuckRight;
+
+    //Rand function initialize
+    srand((unsigned) time(NULL));
+
+    //Initialize the periods 
+    for(int i = 0; i < SIZE; i++)
+        for(int j = 0; j < SIZE; j++)
+            m[i][j] = '.';
+
+    m[0][0] = 'A'; //starting pos
+
+    for(char ch = 'B'; ch <= 'Z'; ch++){
+        stuckUp = stuckDown = stuckRight = stuckLeft = false;
+
+        // check for stuck, first part of if statement should prevent out of bounds checks
+        if (cX == 0 || m[cX - 1][cY] != '.')
+            stuckUp = true;
+        if (cX == SIZE - 1 || m[cX+1][cY] != '.')
+            stuckDown = true;
+        if (cY == 0 || m[cX][cY - 1] != '.')
+            stuckLeft = true;
+        if (cY == SIZE - 1 || m[cX][cY + 1] != '.')
+            stuckRight = true;
+        if (stuckUp && stuckDown && stuckRight && stuckLeft){
+            break;
+        }
+
+        int dir = rand() % 4;
+
+        //up
+        if(dir == 0 && !stuckUp){
+            cX -= 1;
+            m[cX][cY] = ch;
+        } else if (dir == 1 && !stuckDown){
+            cX += 1;
+            m[cX][cY] = ch;
+        } else if (dir == 2 && !stuckLeft){
+            cY -= 1;
+            m[cX][cY] = ch;
+        } else if (dir == 3 && !stuckRight){
+            cY += 1;
+            m[cX][cY] = ch;
+        } else {
+            //try again!
+            ch--;
+        }
+    }
+}
+
+void print_array(char walk[SIZE][SIZE]){
+    for(int i = 0; i < SIZE; i++){
+        for(int j = 0; j < SIZE; j++){
+            putchar(walk[i][j]);
+            putchar(' ');
+        }
+        printf("\n");
+    }
+}
+```
+
+### Thoughts
+The difficulty of these projects is such a swing, the first one if solved as written took me half an hour of thought, and I had to use a sheet of paper to organize,  while this was 30 seconds of a copy and paste action that really taught me nothing. Yes I can move some code inside of a function and call it there instead of directly having the code in main. That is also the basic functionality (ha) of a function.
+
+## P9.4
+### Statement
+Modify Programming Project 16 from Chapter 8 so that it includes the following functions: 
+
+`void read_word (int counts [26]);` 
+
+`bool equal_array(int countsl[26], int counts2 [26]);` 
+
+`main` will call `read_word` twice, once for each of the two words entered by the user. As it reads a word, `read_word` will use the letters in the word to update the counts array, as described in the original project, (`main` will declare two arrays, one for each word. These arrays are used to track how many times each letter occurs in the words.) `main` will then call `equal_array`, passing it the two arrays, `equal_array` will return `true` if the elements in the two arrays are identical (indicating that the words are anagrams) and `false` otherwise. 
+
+### Code
+```
+//Filename: p4.c
+//Purpose: Tests whether two words are anagrams
+//Author: syfer
+//Date: July 31th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+
+#define SIZE 26
+
+void read_word (int counts [26]); 
+bool equal_array(int counts1[26], int counts2 [26]);
+
+int main(){
+
+    int a[SIZE] = {0}, b[SIZE] = {0};
+
+    printf("Enter first word: ");
+    read_word(a);
+
+    printf("Enter second word: ");
+    read_word(b);
+        
+    if(!equal_array(a,b))
+        printf("The words are NOT anagrams.\n");
+    else
+        printf("The words ARE anagrams.\n");
+
+    return 0;
+}
+
+void read_word (int counts [26]){ 
+    char c;
+    while ((c = getchar()) != '\n'){
+        if(isalpha(c))
+            counts[toupper(c) - 'A']++;
+    }
+}
+
+bool equal_array(int counts1[26], int counts2 [26]){
+    for(int i = 0; i < SIZE; i++){
+        if(counts1[i] != counts2[i])
+            return false;
+    }
+    return true;
+}
+
+```
+
+## P9.5
+### Statement
+Modify Programming Project 17 from Chapter 8 so that it includes the following functions:
+
+`void create_magic_square(int n, char magic_square[n][n]);`
+
+`void print_magic_square(int n, char magic_square[n][n]);`
+
+After obtaining the number `n` from the user, main will call `create_magic_square`,  passing it an `n x n` array that is declared inside `main`. `create_magic_square` will fill the array with the numbers 1, 2,...,n^2 as described in the original project, `main` will then call `print_magic_square`, which will display the array in the format described in the original project. 
+
+Note: If your compiler doesn't support variable-length arrays, declare the array in `main` to be 99 x 99 instead of `n x n` and use the following prototypes instead:
+
+`void create_magic_square(int n, char magic_square[99][99]);`
+
+`void print_magic_square(int n, char magic_square[99] [99]);`
+
+### Code
+```
+//Filename: p5.c
+//Purpose: Prints a n x n magic square
+//Author: syfer
+//Date: July 31st, 2025
+
+#include <stdio.h>
+
+void create_magic_square(int n, int m[n][n]);
+void print_magic_square(int n, int m[n][n]);
+
+int main(){
+
+    int n1;
+
+    printf("This program creates a magic square of specified size.\n");
+    printf("The size must be an odd number between 1 and 99\n");
+    printf("Enter size of magic square: ");
+    scanf("%d", &n1);
+
+    int m[n1][n1];
+    
+    create_magic_square(n1,m);
+    print_magic_square(n1,m);
+
+    return 0;
+}
+
+void create_magic_square(int n, int m[n][n]){
+    //zero-out / initialize first
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            m[i][j] = 0;
+    int x, y, xo, yo; //x old y old
+    y = n / 2;
+    x = 0;
+
+    for(int i = 1; i <= n * n; i++){
+        m[x][y] = i;
+        xo = x;
+        yo = y;
+        if(--x == -1)
+            x = n - 1;
+        if (++y == n)
+            y = 0;
+        if (m[x][y] != 0){
+            x = xo + 1;
+            y = yo;
+        }
+    }
+}
+
+void print_magic_square(int n, int m[n][n]){
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < n; j++)
+            printf("%2d ", m[i][j]);
+        printf("\n");
+    }
+}
+```
+
+### Thoughts
+Yet another exercise in copy and paste. Except in this case there was the bizarre choice to make the function prototypes `char` arrays. Since `char` are basically just small integers this would not change anything about the implementation. All this does is force a restriction that the maximum size should be 11. I used `int` arrays anyway despite the problem statement because it would not only give a bigger range, but the program specifies that we can enter any number between 1-99. Really unsure why this was done this way.
+
+## P9.6
+### Statement
+Write a function that computes the value of the following polynomial:
+
+\[3x^5 + 2x^4 - 5x^3 - x^2 + 7x -6 \]
+
+$$3x^5 + 2x^4 - 5x^3 - x^2 + 7x -6 $$
+
+$3x^5 + 2x^4 - 5x^3 - x^2 + 7x -6$ 
+
+\(3x^5 + 2x^4 - 5x^3 - x^2 + 7x -6 \)
+
+```math
+3x^5 + 2x^4 - 5x^3 - x^2 + 7x -6 
+```
+
+Write a program that asks the user to enter a value for `x`, calls the function to compute the value of the polynomial, and then displays the value returned by the function.
+
+### Code
+```
+//Filename: p6.c
+//Purpose: Computes 3x^5 + 2x^4 - 5x^3 - x^2 + 7x - 6 for a user given x
+//Author: syfer
+//Date: July 31st, 2025
+
+#include <stdio.h>
+
+double foo(double x);
+
+int main(){
+
+    double x;
+
+    printf("Enter the value of x: ");
+    scanf("%lf", &x);
+
+    printf("%lf", foo(x));
+
+    return 0;
+}
+
+double foo(double x){
+    return 3 * x * x * x * x * x //3x^5  
+        + 2 * x * x * x * x //+2x^4
+        -5 * x * x * x //-5x^3
+        - x * x //-x^2
+        + 7 * x - 6;// + 7x-6
+}
+```
+
+## P9.7
+### Statement
+The `power` function of Section 9.6 can be made faster by having it calculate x^n in a different way. We first notice that if `n` is a power of 2, then `x^n` can be computed by squaring. For example, `x^4` is the square of `x^2`, so `x^4` can be computed using only two multiplications instead of three. As it happens, this technique can be used even when `n` is not a power of 2. If `n` is even, we use the formula `x^n = (x^(n/2))^2`. If `n` is odd then `x^n = x * x^(n-1)` . Write a recursive function that computes `x^n`. (The recursion ends when `n = 0`, in which case the function returns 1.) To test your function, write a program that asks the user to enter values for `x` and `n`, calls power to compute `x^n`, and then displays the value returned by the function.
+
+### Code
+```
+//Filename: p7.c
+//Purpose: power function
+//Author: syfer
+//Date: July 31st, 2025
+
+#include <stdio.h>
+
+int power(int x, int n);
+
+int main(){
+
+    int x,n;
+    printf("Enter a number: ");
+    scanf("%d", &x);
+    printf("What power would you like %d raised to? ", x);
+    scanf("%d", &n);
+    
+    printf("Answer: %d\n", power(x,n));
+    return 0;
+}
+
+int power(int x, int n){
+    if (n == 0)
+        return 1;
+    else if (n % 2 == 0)
+        return power(x,n/2) * power(x,n/2);
+    else 
+        return power(x,n-1) * x;
+}
+```
+
+## P9.8
+### Statement
+Write a program that simulates the game of craps, which is played with two dice. On the first roll, the player wins if the sum of the dice is 7 or 11. The player loses if the sum is 2, 3, or 12. Any other roll is called the "point" and the game continues. On each subsequent roll, the player wins if he or she rolls the point again. The player loses by rolling 7. Any other roll is ignored and the game continues. At the end of each game, the program will ask the user whether or not to play again. When the user enters a response other than `y` or `Y`, the program will display the number of wins and losses and then terminate. 
+
+```
+You rolled: 8 
+Your point is 8 
+You rolled: 3 
+You rolled: 10 
+You rolled: 8 
+You win! 
+
+Play again? y 
+
+You rolled: 6 
+Your point is 6 
+You rolled: 5 
+You rolled: 12 
+You rolled: 3 
+You rolled: 7 
+You lose! 
+
+Play again? y 
+
+You rolled: 11 
+You win! 
+
+Play again? n 
+
+Wins: 2 Losses: 1 
+```
+
+Write your program as three functions: `main`, `roll_dice`, and play game, Here are the prototypes for the latter two functions: 
+
+`int roll_dice(void);` 
+
+`bool play_game(void);` 
+
+`roll_dice` should generate two random numbers, each between 1 and 6, and return their sum. `play_game` should play one craps game (calling `roll_dice` to determine the outcome of each dice roll); it will return `true` if the player wins and `false` if the player loses. `play_game` is also responsible for displaying messages showing the results of the player’s dice rolls, main will call `play_game` repeatedly, keeping track of the number of wins and losses and displaying the “you win" and “you lose" messages. Hint: Use the `rand` function to generate random numbers. See the `deal.c` program in Section 8.2 for an example of how to call `rand` and the related `srand` function. 
+
+### Code
+```
+//Filename: p8.c
+//Purpose: Plays craps
+//Author: syfer
+//Date: July 31st, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+int rollDice();
+bool playGame();
+
+int main(){
+    int win, loss;
+    char c;
+    srand((unsigned) time(NULL));
+    win = loss = 0;
+    for(;;){
+       printf("\n");
+       bool res = playGame();
+       if(res){
+           printf("You win!\n");
+           win++;
+       } else{
+           printf("You lose!\n");
+           loss++;
+       }
+       printf("Play again? ");
+       c = getchar();
+       if (c != 'y' && c != 'Y')
+           break;
+       getchar(); //newline
+    }
+
+    printf("Wins: %d\tLosses: %d\n", win, loss);
+    return 0;
+}
+
+bool playGame(){
+    int roll = rollDice();
+    int point = 0;;
+    if(roll == 7 || roll == 11)
+        return true;
+    else if (roll == 2 || roll == 3 || roll == 12)
+        return false;
+    point = roll;
+    printf("Your point is: %d\n", point);
+    while ((roll = rollDice()) != 7){
+        if (roll == point)
+            return true;
+    }
+    return false;
+}
+
+int rollDice(){
+
+    int ret = rand() % 6 + rand() % 6 + 2;
+    printf("You rolled: %d\n", ret);
+    return ret;
+}
+
+```
+### Thoughts
+This last one was fun. Not too much here in terms of algorithmic difficulty and hence nothing in the way of bugs, but it was fun to think out how to organize this and where the print statements should go.
+
+I also still feel clever every time I use an assignment in the body of a `while` loop.
+
+The only bug that I discovered was when I put the `srand` initialization inside the `rollDice` function. For some reason this locked the rand function into only returning one value. I am unsure of why this is, because the initialization happens with a time variable which should be constantly changing. The only explanation I can think of is if time was somehow dependent on program execution, since although the number would stay the same for the entirety of a single game, on subsequent games that one number would be different.
+
+Odd...
+
+# Conclusion
+
+Functions are really important but honestly not too complicated. Once you've seen recursion once, you've pretty much seen it all.
+
+The hardest project was doing P1 the "intended" way, which was not even hard because of functions but rather the same difficulties as the previous chapter.
+
+There were also a lot of copy paste projects here which I did not enjoy, if anything I found the exercises more helpful.
+
+At least this chapter did not take as long as 8.
+
