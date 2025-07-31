@@ -1,0 +1,1238 @@
+---
+layout: default
+title: Chapter 8
+date: 2025-07-30 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc8
+---
+
+# Chapter 8
+# Introduction
+# Exercises
+## E8.1
+### Statement
+We discussed using the expression `sizeof(a) / sizeof(a[0])` to calculate the number of elements in an array. The expression `sizeof(a) / sizeof(t)`, where `t` is the type of `a`'s elements, would also work, but it’s considered an inferior technique. Why?
+
+### Solution
+The biggest issue I can see with this technique is that if `a`'s type changes then each instance of `sizeof(a) / sizeof(t)` will also have to change which could become cumbersome.
+
+## E8.2
+### Statement
+The Q&A section shows how to use a letter as an array subscript. Describe how to use a digit (in character form) as a subscript.
+
+### Solution
+Similarly to `a[ch - 'a']` we can use `a[digit - '0']` as a subscript provided digit is a `char` storing a digit.
+
+## E8.3
+### Statement
+Write a declaration of an array named `weekend` containing seven `bool` values. Include an initializer that makes the first and last values `true`; all other values should be `false`.
+
+### Solution
+
+`int weekend[7] = {1, 0, 0, 0, 0, 0, 1}`
+
+## E8.4
+### Statement
+(C99) Repeat Exercise 3, but this time use a designated initializer. Make the initializer as short as possible.
+
+### Solution
+`bool weekend[7] = {[0] = true, [6] = true};`
+
+## E8.5
+### Statement
+The Fibonacci numbers are 0, 1, 1, 2, 3, 5, 8, 13, where each number is the sum of the two preceding numbers. Write a program fragment that declares an array named `fib_numbers` of length 40 and fills the array with the first 40 Fibonacci numbers. Hint: Fill in the first two numbers individually, then use a loop to compute the remaining numbers.
+
+### Solution
+```
+int fib_numbers[40] = {0, 1};
+
+for(int i = 2; i < 40; i++)
+    fib[i] = fib[i - 1] + fib[i - 2];
+```
+
+## E8.6
+### Statement
+Calculators, watches, and other electronic devices often rely on seven-segment displays for numerical output. To form a digit, such devices "turn on’’ some of the seven segments while leaving others “off':
+
+Suppose that we want to set up an array that remembers which segments should be "on" for each digit. Let's number the segments as follows:
+
+```
+   0
+   _
+5 |6| 1
+   _ 
+4 |3| 2
+   _
+```
+
+Here’s what the array might look like, with each row representing one digit:
+
+`const int segments[10][7] = {{1, 1, 1, 1, 1, 1, 0}, ...};`
+
+I've given you the first row of the initializer; fill in the rest.
+
+### Solution
+
+```
+const int segments[10][7] = {{1, 1, 1, 1, 1, 1, 0}, 
+    {0, 1, 1, 0, 0, 0, 0},
+    {1, 1, 0, 1, 1, 0, 1},
+    {1, 1, 1, 1, 0, 0, 1},
+    {0, 1, 1, 0, 0, 1, 1},
+    {1, 0, 1, 1, 0, 1, 1},
+    {1, 1, 1, 0, 0, 0, 0},
+    {1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 0, 1, 1}};
+```
+
+## E8.7
+### Statement
+Using the shortcuts described in Section 8.2, shrink the initializer for the segments array (Exercise 6) as much as you can.
+
+### Solution
+```
+const int segments[10][7] = {{1, 1, 1, 1, 1, 1}, 
+    {0, 1, 1},
+    {1, 1, 0, 1, 1},
+    {1, 1, 1, 1, 0, 0, 1},
+    {0, 1, 1, 0, 0, 1, 1},
+    {1, 0, 1, 1, 0, 1, 1},
+    {1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 0, 1, 1}};
+```
+
+## E8.8
+### Statement
+Write a declaration for a two-dimensional array named `temperature_readings` that stores one month of hourly temperature readings. (For simplicity, assume that a month has 30 days.) The rows of the array should represent days of the month; the columns should represent hours of the day.
+
+### Solution
+```
+double temperature_readings[30][24];
+```
+
+## E8.9
+### Statement
+Using the array of Exercise 8, write a program fragment that computes the average temperature for a month (averaged over all days of the month and all hours of the day).
+
+### Solution
+
+```
+double avg = 0;
+for(int i = 0; i < 30; i++){
+    for(int j = 0; j < 24; j++){
+        avg += temperature_readings[i][j];
+    }
+}
+avg /= 30 * 24;
+```
+
+## E8.10
+### Statement
+Write a declaration for an 8 x 8 `char` array named `chess_board`. Include an initializer that puts the following data into the array (one character per array element):
+
+```
+rnbqkbnr
+pppppppp
+ . . . .
+. . . . 
+ . . . .
+. . . . 
+PPPPPPPP
+RNBQKBNR
+```
+
+### Solution
+```
+char chess_board = {{'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
+                    {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+                    {' ', '.', ' ', '.', ' ', '.', ' ', '.'},
+                    {'.', ' ', '.', ' ', '.', ' ', '.', ' '},
+                    {' ', '.', ' ', '.', ' ', '.', ' ', '.'},
+                    {'.', ' ', '.', ' ', '.', ' ', '.', ' '},
+                    {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
+                    {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'}};
+```
+
+## E8.11
+### Statement
+Write a program fragment that declares an 8 x 8 `char` array named `checker_board` and then uses a loop to store the following data into the array (one character per array element):
+
+```
+BRBRBRBR
+RBRBRBRB
+BRBRBRBR
+RBRBRBRB
+BRBRBRBR
+RBRBRBRB
+BRBRBRBR
+RBRBRBRB
+```
+
+Hint: The element in row `i`, column `j`, should be the letter `B` if `i + j` is an even number.
+
+### Solution
+```
+char checker_board[8][8];
+for (int i = 0; i < 8; i++){
+    for (int j = 0; j < 8; j++){
+        if((i + j) % 2 == 0)
+            checker_board[i][j] = 'B'
+        else
+            checker_board[i][j] = 'R'
+    }
+}
+```
+
+Saw this one-liner in solutions, annoyed I didn't think of this;
+
+`checker_board[i][j] = (i + j) % 2 == 0 ? 'B' : 'R';`
+
+# Projects
+## P8.1
+### Statement
+Modify the `repdigit.c` program of Section 8.1 so that it shows which digits (if any) were repeated:
+
+```
+Enter a number: 939577
+Repeated digit(s): 7 9
+```
+
+### Code
+```
+//Filename: p1.c
+//Purpose: Checks numbers for repeated digits
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+#include <stdbool.h>
+
+int main(){
+
+    bool digit_seen[10] = {false}, digit_repeated[10] = {false}; 
+    int digit; 
+    long n; 
+
+    printf("Enter a number: "); 
+    scanf("%ld", &n); 
+
+    while (n > 0) { 
+        digit = n % 10; 
+        if (digit_seen[digit])
+           digit_repeated[digit] = true;
+        digit_seen[digit] = true; 
+        n /= 10; 
+    } 
+
+    printf("Repeated digit(s): ");
+    for (int i = 0; i < 10; i++) {
+        if (digit_repeated[i])
+            printf("%d ", i);
+    }
+    printf("\n");
+
+    return 0; 
+}
+
+```
+
+## P8.2
+### Statement
+Modify the `repdigit.c` program of Section 8.1 so that it prints a table showing how many times each digit appears in the number: 
+
+```
+Enter a number: 41271092 
+Digit:       0 1 2 3 4 5 6 7 8 9 
+Occurrences: 1 2 2 0 1 0 0 1 0 1 
+```
+
+### Code
+```
+//Filename: p2.c
+//Purpose: Checks numbers for repeated digits, displays which digits were repeated and how many times
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+#include <stdbool.h>
+
+int main(){
+
+    int digit_repeated[10] = {0}; 
+    int digit; 
+    long n; 
+
+    printf("Enter a number: "); 
+    scanf("%ld", &n); 
+
+    while (n > 0) { 
+        digit = n % 10; 
+        digit_repeated[digit]++;
+        n /= 10; 
+    } 
+
+    printf("Digits:\t\t");
+    for(int i = 0; i < 10; i++){
+        printf("%2d", i);
+    }
+
+    printf("\nOccurences:\t");
+    for (int i = 0; i < 10; i++) {
+        printf("%2d", digit_repeated[i]);
+    }
+    printf("\n");
+
+    return 0; 
+}
+
+```
+### Thoughts
+## P8.3
+### Statement
+Modify the `repdigit.c` program of Section 8.1 so that the user can enter more than one number to be tested for repeated digits. The program should terminate when the user enters a number that’s less than or equal to 0.
+
+### Code
+```
+//Filename: p3.c
+//Purpose: Displays whether a number has repeated digits
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+
+int main(){
+    bool digit_seen[10] = {false}; 
+    int digit; 
+    long n; 
+
+    for (;;){
+        for (int i = 0; i < 10; i++)
+            digit_seen[i] = false;
+
+        printf("Enter a number: "); 
+        scanf("%ld", &n); 
+        if(n == 0)
+            break;
+
+        while (n > 0) { 
+            digit = n % 10; 
+            if (digit_seen[digit]) 
+                break; 
+            digit_seen[digit] = true; 
+            n /= 10; 
+        } 
+        if (n > 0) 
+            printf("Repeated digit\n"); 
+        else 
+            printf("No repeated digit\n"); 
+    }
+
+    return 0; 
+}
+```
+### Thoughts
+Learned that you cannot re-use the initializer to clear out an array i.e. `digit_seen = {false}` after the initialization. 
+
+Now that I think about it I could also shorten the program by removing the zero-ing `for` loop and just move the initialization into the infinite loop.
+
+## P8.4
+### Statement
+Modify the `reverse.c` program of Section 8.1 to use the expression `(int) (sizeof(a) / sizeof(a[0]))` (or a macro with this value) for the array length.
+
+### Code
+```
+//Filename: p4.c
+//Purpose: Displays whether a number has repeated digits
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+
+#define N 10
+#define SIZE (int) (sizeof(a)/ sizeof(a[0]))
+
+int main(){
+    int a[N], i; 
+
+    printf("Enter %d numbers: ", N); 
+    for (i = 0; i < SIZE; i++) 
+        scanf("%d", &a[i]); 
+
+    printf("In reverse order:"); 
+    for (i = SIZE - 1; i >= 0; i--) 
+        printf(" %d", a[i]); 
+
+    printf("\n"); 
+
+    return 0; 
+}
+```
+
+### Thoughts
+Once again something that could have been an exercise, all it needed was the macro and replacing `N` two times with the new macro.
+
+## P8.5
+### Statement
+Modify the `interest.c` program of Section 8.1 so that it compounds interest monthly instead of annually. The form of the output shouldn't change: the balance should still be shown at annual intervals.
+
+### Code
+```
+//Filename:
+//Purpose: Calculates compound interest
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+
+#define NUM_RATES ((int) (sizeof(value) / sizeof(value[0]))) 
+#define INITIAL_BALANCE 100.00 
+
+int main() { 
+
+    int i, low_rate, num_months, month; 
+    double value [5] ; 
+
+    printf("Enter interest rate: "); 
+    scanf("%d", &low_rate); 
+
+    printf("Enter number of years: "); 
+    scanf("%d", &num_months); 
+    num_months *= 12;
+
+    printf("\nYears"); 
+    for (i = 0; i < NUM_RATES; i++) { 
+        printf("%8d%%", low_rate + i); 
+        value[i] = INITIAL_BALANCE; 
+    } 
+
+    printf("\n"); 
+
+    for (month = 1; month <= num_months; month++) { 
+        if (month % 12 == 0)
+            printf("%3d ", month / 12); 
+
+        for (i = 0; i < NUM_RATES; i++) { 
+            value[i] += (low_rate + i) / 100.0 * value [i]; 
+            if (month % 12 == 0)
+                printf("%9.2f", value[i]); 
+        } 
+        if (month % 12 == 0)
+            printf("\n"); 
+    } 
+
+    return 0; 
+} 
+```
+
+### Thoughts
+Really tedious.
+
+## P8.6
+### Statement
+The prototypical Internet newbie is a fellow named BIFF, who has a unique way of writing messages. Here’s a typical BIFF communique.
+
+`H3Y DUD3, C 15 R1LLY C00L!!!!!!!!!`
+
+Write a "B1FF filter" that reads a message entered by the user and translates it into B1FF-speak:
+
+```
+Enter message: Hey dude, C is rilly cool
+In BIFF-speak: H3Y DUD3, C 15 RILLY CO0L tl1!!!I!!!
+```
+
+Your program should convert the message to upper-case letters, substitute digits for certain letters (A->4, B->8. E->3, I->1, O->0, S->5), and then append 10 or so exclamation marks.
+
+Hint: Store the original message in an array of characters, then go back through the array, translating and printing characters one by one.
+
+### Code
+```
+//Filename: p6.c
+//Purpose: Converts a message into BIFF-Speak
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+
+#define MAX_MESSAGE_SIZE 100
+int main(){
+
+    int i;
+    char ch, m[MAX_MESSAGE_SIZE] = {0};
+
+    printf("Enter message: ");
+    for (i = 0; (ch = getchar()) != '\n'; i++){
+        ch = toupper(ch);
+        if (ch == 'A')
+            ch = '4';
+        else if (ch == 'B')
+            ch = '8';
+        else if (ch == 'E')
+            ch = '3';
+        else if (ch == 'I')
+            ch = '1';
+        else if (ch == 'O')
+            ch = '0';
+        else if (ch == 'S')
+            ch = '5';
+        m[i] = ch;
+    }
+
+    //pad with exclamation marks
+    for(int j = i; j < i + 10; j++)
+        m[j] = '!';
+
+    printf("In BIFF-speak: ");
+    for(int j = 0; j < i + 10; j++)
+        putchar(m[j]);
+
+    printf("\n");
+    return 0;
+}
+
+```
+
+### Thoughts
+This one was a fun one. I know the suggestion was to go through the array twice but that's really unnecessary since we can just do the conversion during storage.
+
+Usually I like to use the C99 style `for` loops with the initialization of `i` happening in the body, however since I needed to see the length of the message outside of the initial loop, I chose to make `i` global.
+
+## P8.7
+### Statement
+Write a program that reads a 5 x 5 array of integers and then prints the row sums and the column sums:
+
+```
+Enter row 1: 8 3 9 0 10
+Enter row 2: 3 5 17 1 1
+Enter row 3 : 2 8 6 23 1
+Enter row 4 : 15 7 3 2 9
+Enter row 5: 6 14 2 6 0
+
+Row totals: 30 27 40 36 28
+Column totals: 34 37 37 32 21
+```
+
+### Code
+```
+//Filename: p7.c
+//Purpose: Reads in a 5 x 5 matrix and then does row and column sums
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+
+#define SIZE 5
+int main(){
+
+    int m[SIZE][SIZE] = {0}, columnSums[SIZE] = {0} , rowSums[SIZE] = {0};
+
+    for(int i = 0; i < SIZE; i++){
+        printf("Enter row %d: ", i + 1);
+        for(int j = 0; j < SIZE; j++){
+            scanf("%d", &m[i][j]);
+            rowSums[i] += m[i][j];
+            columnSums[j] += m[i][j];
+        }
+    }
+
+    printf("Row totals: ");
+    for(int i = 0; i < SIZE; i++){
+        printf("%d ", rowSums[i]);
+    }
+    printf("\n");
+
+    printf("Column totals: ");
+    for(int i = 0; i < SIZE; i++){
+        printf("%d ", columnSums[i]);
+    }
+    printf("\n");
+   
+    return 0;
+}
+```
+
+### Thoughts
+Quite happy with this solution. Originally I was going through `m` three times, one for scan, one for row and one for column but then I realized that if I just store my row and column sums in an array I ca n calculate everything at scantime and just have to iterate through each sum array afterwards.
+
+## P8.8
+### Statement
+Modify Programming Project 7 so that it prompts for five quiz grades for each of five students, then computes the total score and average score for each student, and the average score, high score, and low score for each quiz. 
+
+### Code
+```
+//Filename: p8.c
+//Purpose: Calculates stats for quiz grades of 5 students
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+
+#define SIZE 5
+#define MAX_SCORE 100
+
+int main(){
+
+    // S designates for student, Q for quiz
+    int totalS[SIZE] = {0} , avgQ[SIZE] = {0}, avgS[SIZE] = {0},
+        highQ[SIZE] = {0} , lowQ[SIZE];
+    
+    //intialize lowscore to max value
+    for (int i = 0; i < SIZE; i++)
+        lowQ[i] = MAX_SCORE + 1;
+
+    //i is student counter, j is quiz counter
+    for(int i = 0; i < SIZE; i++){
+        printf("Enter quiz grades for student %d: ", i + 1);
+        for(int j = 0; j < SIZE; j++){
+            int t;
+            scanf("%d", &t);
+            totalS[i] += t;
+            avgQ[j] += t;
+            avgS[i] += t;
+            if (t < lowQ[j])
+                lowQ[j] = t;
+
+            if (t > highQ[j])
+                highQ[j] = t;
+        }
+    }
+
+    for (int i = 0; i < SIZE; i++)
+        printf("Student %d total score: %d\n", i + 1, totalS[i]);
+
+    for (int i = 0; i < SIZE; i++)
+        printf("Student %d average score: %f\n", i + 1, (float) avgS[i] / SIZE);
+   
+    for (int i = 0; i < SIZE; i++)
+        printf("Quiz %d average score: %f\n", i + 1, (float) avgQ[i] / SIZE);
+
+    for (int i = 0; i < SIZE; i++)
+        printf("Quiz %d high score: %f\n", i + 1, highQ[i]);
+
+    for (int i = 0; i < SIZE; i++)
+        printf("Quiz %d low score: %f\n", i + 1, lowQ[i]);
+
+    return 0;
+}
+
+```
+
+### Thoughts
+Same trick as before, since we're not even printing the quiz scores we don't have to store them at all and can just do all calculations at scantime.
+
+The `float` casts can be removed by making the `avg` arrays floats originally but that would require an extra line to initialize.
+
+Additionally I made the concession that the maximum score on a quiz is 100. Technically I could store each score and then go back through to explicitly test which one is lowest relative to all the others ( cannot do this at scantime since the array would be uninitialized for a first comparison.) I however did not do this and just set a maximum score to start comparisons against.
+
+## P8.9
+### Statement
+Write a program that generates a “random walk” across a 10 x 10 array. The array will contain characters (all '.' initially). The program must randomly “walk” from element to element, always going up, down, left, or right by one element. The elements visited by the program will be labeled with the letters A through Z. in the order visited. Here's an example
+of the desired output:
+
+```
+A . . . . . . . . .
+B C D . . . . . . .
+. F E . . . . . . .
+H G . . . . . . . . 
+I . . . . . . . . .
+J . . . . . . . Z .
+K . . R S T U V Y .
+L M P Q . . . W X .
+. N O . . . . . . .
+. . . . . . . . . . 
+```
+
+Hint: Use the `srand` and `rand` functions (see `deal.c`) to generate random numbers. After generating a number, look at its remainder when divided by 4. There are four possible values for the remainder 0, 1, 2, and 3 -- indicating the direction of the next move. Before performing a move, cheek that (a) it won't go outside the array, and (b) it doesn't take us to an element that already has a letter assigned. If either condition is violated, try moving in another direction. If all four directions are blocked, the program must terminate. Here's an example of premature termination:
+
+```
+A B G H I . . . . . 
+. C F . J K . . . .
+. D E . M L . . . .
+. . . . N O . . . .
+. . W X Y P Q . . .
+. . V U T S R . . .
+. . . . . . . . . .
+. . . . . . . . . .
+. . . . . . . . . .
+. . . . . . . . . .
+```
+
+Y is blocked on all four sides, so there’s no place to put Z.
+
+### Code
+```
+//Filename: p9.c
+//Purpose: Randomly walks through a 10x10 array
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define SIZE 10
+
+int main(){
+
+    char m[SIZE][SIZE];
+
+    int cX = 0, cY = 0; //currentX, currentY
+    bool stuckUp, stuckDown, stuckLeft, stuckRight;
+
+    //Rand function initialize
+    srand((unsigned) time(NULL));
+
+    //Initialize the periods 
+    for(int i = 0; i < SIZE; i++)
+        for(int j = 0; j < SIZE; j++)
+            m[i][j] = '.';
+
+    m[0][0] = 'A'; //starting pos
+
+    for(char ch = 'B'; ch <= 'Z'; ch++){
+        stuckUp = stuckDown = stuckRight = stuckLeft = false;
+
+        // check for stuck, first part of if statement should prevent out of bounds checks
+        if (cX == 0 || m[cX - 1][cY] != '.')
+            stuckUp = true;
+        if (cX == SIZE - 1 || m[cX+1][cY] != '.')
+            stuckDown = true;
+        if (cY == 0 || m[cX][cY - 1] != '.')
+            stuckLeft = true;
+        if (cY == SIZE - 1 || m[cX][cY + 1] != '.')
+            stuckRight = true;
+        if (stuckUp && stuckDown && stuckRight && stuckLeft){
+            break;
+        }
+
+        int dir = rand() % 4;
+
+        //up
+        if(dir == 0 && !stuckUp){
+            cX -= 1;
+            m[cX][cY] = ch;
+        } else if (dir == 1 && !stuckDown){
+            cX += 1;
+            m[cX][cY] = ch;
+        } else if (dir == 2 && !stuckLeft){
+            cY -= 1;
+            m[cX][cY] = ch;
+        } else if (dir == 3 && !stuckRight){
+            cY += 1;
+            m[cX][cY] = ch;
+        } else {
+            //try again!
+            ch--;
+        }
+    }
+    
+    //print array
+    for(int i = 0; i < SIZE; i++){
+        for(int j = 0; j < SIZE; j++){
+            putchar(m[i][j]);
+            putchar(' ');
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
+
+```
+
+### Thoughts
+This project decided to take an hour to debug. There are a couple interesting things here that I had to figure out. The most important realization was that the stuck check is separate and does not depend on the random direction choice. Originally I was going to check the random direction to see if it was valid, however it is hard to implement removing that direction from the next checks. I could of course just run the loop again until I found a valid direction, but then I would still need to somehow keep track of when I have tried each direction and failed.
+
+Hence the solution of explicitly checking which directions do not work, and letting the rand function fail only when we know a valid direction exists (i.e. we made it past the if(stuck) then break statement).
+
+## P8.10
+### Statement
+Modify Programming Project 8 from Chapter 5 so that the departure times are stored in an array and the arrival times are stored in a second array. (The times are integers, representing 
+the number of minutes since midnight.) The program will use a loop to search the array of departure times for the one closest to the time entered by the user. 
+
+### Code
+```
+//Filename: p10.c
+//Purpose: Displays the closest flight to a user-given time 
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+#include <math.h>
+
+#define SIZE 8
+#define MIN_PER_DAY 24 * 60
+
+/*
+|Departure time|Arrival time|Min since midnight
+|-|-|
+|8:00 a.m.|10:16 a.m.|480|
+|9:43 a.m.|11:52 a.m.|583|
+|11:19 a.m.|1:31 p.m.|679|
+|12:47 p.m.|3:00 p.m.|767|
+|2:00 p.m.|4:08 p.m.|840|
+|3:45 p.m.|5:55 p.m.|945|
+|7:00 p.m.|9:20 p.m.|1140| 
+|9:45 p.m.|11:58 p.m.|1305|
+*/
+int main(){
+
+    int hour, min, time, interval = MIN_PER_DAY, index = 0;
+    int dep[SIZE] = {480, 583, 679, 767, 840, 945, 1140, 1305}, 
+        arr[SIZE] = {616, 712, 811, 900, 968, 1075, 1280, 1438};
+    
+    printf("Enter a 24-hour time: ");
+    scanf("%d:%d", &hour, &min);
+    
+    time = hour * 60 + min;
+
+    for(int i = 0; i < SIZE; i++){
+        if(fabs(time - dep[i]) <= interval){
+            interval = fabs(time - dep[i]);
+            index = i;
+        }
+    }
+    printf("Departing %d:%.2d %c.m., arriving %d:%.2d %c.m.\n", dep[index] / 60, dep[index] % 60,
+            index < 3 ? 'a' : 'p', arr[index] / 60, arr[index] % 60, index < 2 ? 'a' : 'p');
+
+    return 0;
+}
+
+```
+
+### Thoughts
+Much easier to check intervals this way with access to the absolute value function.
+
+Additionally I felt just a little clever at the print statement to also include checks to properly print "a.m." and "p.m.".
+
+## P8.11
+### Statement
+Modify Programming Project 4 from Chapter 7 so that the program labels its output:
+
+```
+Enter phone number: 1-800-CQL-LECT
+In numeric form: 1-800-265-5328
+```
+
+The program will need to store the phone number (either in its original form or in its numeric form) in an array of characters until it can be printed. You may assume that the phone number is no more than 15 characters long.
+
+### Code
+```
+//Filename: p11.c
+//Purpose: Converts alphabetic phone numbers into regular 
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+
+#define SIZE 15
+
+int main(){
+
+    char p[SIZE], c;
+    int i = 0;
+
+    printf("Enter phone number: ");
+    c = getchar();
+
+    do{
+        if (c == 'A' || c == 'B' || c == 'C')
+            p[i] = '2';
+        else if (c == 'D' || c == 'E' || c == 'F')
+            p[i] = '3';
+        else if (c == 'G' || c == 'H' || c == 'I')
+            p[i] = '4';
+        else if (c == 'J' || c == 'K' || c == 'L')
+            p[i] = '5';
+        else if (c == 'M' || c == 'N' || c == 'O')
+            p[i] = '6';
+        else if (c == 'P' || c == 'R' || c == 'S')
+            p[i] = '7';
+        else if (c == 'T' || c == 'U' || c == 'V')
+            p[i] = '8';
+        else if (c == 'W' || c == 'X' || c == 'Y')
+            p[i] = '9';
+        else
+            p[i] = c;
+
+        c = getchar();
+        i++;
+    } while(c != '\n');
+
+    printf("In numeric form: ");
+    for(int j = 0; j < i; j++)
+        putchar(p[j]);
+
+    printf("\n");
+
+    return 0;
+}
+
+```
+
+## P8.12
+### Statement
+Modify Programming Project 5 from Chapter 7 so that the SCRABBLE values of the letters are stored in an array. The array will have 26 elements, corresponding to the 26 letters of the alphabet. For example, element 0 of the array will store 1 (because the SCRABBLE value of the letter A is 1), element 1 of the array will store 3 (because the SCRABBLE value of the letter B is 3), and so forth. As each character of the input word is read, the program will use the array to determine the SCRABBLE value of that character. Use an array initializer to set up the array.
+
+### Code
+```
+//Filename: p12.c
+//Purpose: Calculates the Scrabble value of a word
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+
+int main(){
+
+    char ch;
+    int val, scrabble[26] = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 
+                        5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 
+                        1, 4, 4, 8, 4, 10};
+
+    printf("Enter a word: ");
+    while ((ch = getchar()) != '\n'){
+        ch = toupper(ch);
+        val += scrabble[ch - 'A'];
+    }
+
+    printf("Scrable value is: %d\n", val);
+    
+    return 0;
+}
+
+```
+
+### Thoughts
+Felt real clever writing `ch - 'A'`. 
+
+## P8.13
+### Statement
+Modify Programming Project 11 from Chapter 7 so that the program labels its output: 
+
+```
+Enter a first and last name: Lloyd Fosdick 
+You entered the name: Fosdick, L. 
+```
+
+The program will need to store the last name (but not the first name) in an array of characters until it can be printed. You may assume that the last name is no more than 20 characters long. 
+
+### Code
+```
+//Filename:
+//Purpose:
+//Author: syfer
+//Date:
+
+#include <stdio.h>
+
+#define SIZE 20
+
+int main(){
+
+    int len = 0;
+    char ch, firstInitial, last[SIZE];
+    
+    printf("Enter a first and last name: ");
+
+    while ((ch = getchar()) == ' ') // First whitespace
+        ;
+
+    firstInitial = ch; 
+
+    while ((ch = getchar()) != ' ') // skip the rest of the first name we dont need it 
+        ;
+    
+    while ((ch = getchar()) == ' ') //skip the whitespace leading up to last name
+        ;
+
+    do{ 
+        last[len] = ch;
+        len++;
+    } while ((ch = getchar()) != '\n');
+
+    printf("You entered the name: ");
+    for(int i = 0;i < len; i++)
+        putchar(last[i]);
+
+    printf(", %c.\n", firstInitial); // easier to do this in one line instead of putcharring
+
+    return 0;
+}
+```
+
+## P8.14
+### Statement
+Write a program that reverses the words in a sentence:
+
+```
+Enter a sentence: you can cage a swallow can't you?
+Reversal of sentence: you can't swallow a cage can you?
+```
+
+Hint: Use a loop to read the characters one by one and store them in a one-dimensional `char` array. Have the loop stop at a period, question mark, or exclamation point (the "terminating character"), which is saved in a separate `char` variable. Then use a second loop to search backward through the array for the beginning of the last word. Print the last word, then search backward for the next-to-last word. Repeat until the beginning of the array is reached. Finally, print the terminating character.
+
+### Code
+```
+//Filename: p14.c
+//Purpose: Reverses the words in a sentence
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+
+#define MAX_VALUE 100
+
+int main(){
+
+    int i = 0;
+    char m[MAX_VALUE] = {0}, ch;
+
+    printf("Enter a sentence: ");
+    
+    while ((ch = getchar()) != '\n'){ //just in case we check for enter termination as well
+        if (ch == '?' || ch == '!' || ch == '.')
+            break;
+        m[i] = ch;
+        i++;
+    }
+
+    printf("Reversal of sentence: ");
+    for(int j = i - 1; j >= 0; j--){
+        if(m[j] == ' '){
+           for(int k = 1; k + j < MAX_VALUE && m[k + j] != ' '; k++) {
+               putchar(m[k + j]);
+           }
+           putchar(' ');
+        }
+        if (j == 0){
+           for(int k = 0; k < MAX_VALUE && m[k + j] != ' '; k++) {
+               putchar(m[k + j]);
+           }
+        }
+    }
+
+    putchar(ch);
+    printf("\n");
+
+
+    return 0;
+}
+
+```
+
+### Thoughts
+This one took a while. Lots of debugging and printing. In the end the `putchar` `for` loops ended up a bit janky with the double stopping condition, as well as having a completely separate loop for the first word.
+
+Additionally the problem statement did not specify whether we would have a maximum character length, which I was unsure how to implement. If we use a variable length array then we wouldn't be able to store what we scanned since we were counting length at the time, and if we store things then we need an array identifier with a set length. Looking at other solutions they seem to have done what I did and just use a high enough max length.
+
+The big thing to realize here was that we should have a completely separate loop to print and step forwards. Originally I was trying to store the characters that I iterated through with the main `j` loop and then print them backwards, but it is much easier to simply create a new loop with a separate index (`k`).
+
+## P8.15
+### Statement
+One of the oldest known encryption techniques is the Caesar cipher, attributed to Julius Caesar. It involves replacing each letter in a message with another letter that is a fixed number of positions later in the alphabet. (If the replacement would go past the letter Z, the cipher “wraps around” to the beginning of the alphabet. For example, if each letter is replaced by the letter two positions after it, then Y would be replaced by A, and Z would be replaced by B.) Write a program that encrypts a message using a Caesar cipher. The user will enter the message to be encrypted and the shift amount (the number of positions by which letters should be shifted):
+
+```
+Enter message to be encrypted: Go ahead, make my day.
+Enter shift amount (1-25): 3
+Encrypted message: Jr dkhdg, pdnh pb gdb.
+```
+
+Notice that the program can decrypt a message if the user enters 26 minus the original key:
+
+```
+Enter message to be encrypted: Jr dkhdg, pdnh pb gdb.
+Enter shift amount (1-25) : 23
+Encrypted message: Go ahead, make my day.
+```
+
+You may assume that the message does not exceed 80 characters. Characters other than letters should be left unchanged. Lower-case letters remain lower-case when encrypted, and upper-case letters remain upper-case. Hint: To handle the wrap-around problem, use the expression `((ch - 'A') + n) % 26 + 'A'` to calculate the encrypted version of an upper-case letter, where `ch` stores the letter and `n` stores the shift amount. (You'll need a similar expression for lower-case letters.)
+
+### Code
+```
+//Filename: p15.c
+//Purpose: Encrypts messages using the Caesar cipher
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+
+#define SIZE 80
+
+int main(){
+
+    char m[SIZE];
+    int len = 0, shift;
+
+    printf("Enter message to be encrypted: ");
+    while ((m[len] = getchar()) != '\n')
+        len++;
+
+    printf("Enter shift amount (1-25): ");
+    scanf("%d", &shift);
+
+    printf("Encrypted message: ");
+    for(int i = 0; i < len; i++){
+        if (m[i] == ' ' || m[i] == '.' || m[i] == '!' || m[i] == ',' || m[i] == '?'){
+            putchar(m[i]);
+            continue;
+        }
+        if (toupper(m[i]) == m[i])
+            putchar(((m[i] - 'A') + shift) % 26 + 'A');
+        else
+            putchar(((m[i] - 'a') + shift) % 26 + 'a');
+    }
+    printf("\n");
+
+    return 0;
+}
+```
+
+## P8.16
+### Statement
+Write a program that tests whether two words are anagrams (permutations of the same letters):
+
+```
+Enter first word: smartest
+Enter second word: mattress
+The words are anagrams.
+
+Enter first word: dumbest
+Enter second word: stumble
+The words are not anagrams.
+```
+
+Write a loop that reads the first word, character by character, using an array of 26 integers to keep track of how many times each letter has been seen. (For example, after the word smartest has been read, the array should contain the values `1 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0 1 2 2 0 0 0 0 0 0`, reflecting the fact that smartest contains one "a", one "e", one "m", one "r" , two "s"'s and two "t"'s.) Use another loop to read the second word, except this time decrementing the corresponding array element as each letter is read. Both loops should ignore any characters that aren't letters, and both should treat upper-case letters in the same way as lower-case letters. After the second word has been read, use a third loop to check whether all the elements in the array are zero. If so, the words are anagrams. Hint: You may wish to use functions from `<ctype.h>`, such as `isalpha` and `tolower`.
+
+### Code
+```
+//Filename: p16.c
+//Purpose: Tests whether two words are anagrams
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+
+#define SIZE 26
+int main(){
+
+    bool ret = false;
+    int a[SIZE] = {0}, len = 0;
+    char c;
+
+    printf("Enter first word: ");
+    while ((c = getchar()) != '\n'){
+        len++;
+        if(isalpha(c))
+            a[toupper(c) - 'A']++;
+    }
+
+    printf("Enter second word: ");
+    while ((c = getchar()) != '\n'){
+        if(isalpha(c))
+            a[toupper(c) - 'A']--;
+    }
+        
+    for(int i = 0; i < len; i++) {
+        if(a[i] != 0)
+            ret = true;
+    }
+    if(ret)
+        printf("The words are NOT anagrams.\n");
+    else
+        printf("The words ARE anagrams.\n");
+
+    return 0;
+}
+```
+
+### Thoughts
+Would have been nice to know the `isalpha` function before this. I even did a search on a text version of the book and this was the first place that this function is mentioned.
+
+## P8.17
+### Statement
+Write a program that prints an `n x n` magic square (a square arrangement of the numbers `1, 2, ... , n^2` which the sums of the rows, columns, and diagonals are all the same). The user will specify the value of `n`:
+
+```
+This program creates a magic square of a specified size.
+The size must be an odd number between 1 and 99.
+Enter size of magic square: 5
+17 24  1  8 15
+23  5  7 14 16
+ 4  6 13 20 22
+10 12 19 21  3
+11 18 25  2  9
+```
+
+Store the magic square in a two-dimensional array. Start by placing the number 1 in the middle of row 0. Place each of the remaining numbers 2, 3, ... n^2 by moving up one row and over one column. Any attempt to go outside the bounds of the array should "wrap around" to the opposite side of the array. For example, instead of storing the next number in row -1, we would store it in row `n - 1` (the last row). Instead of storing the next number in column `n`,  we would store it in column 0. If a particular array element is already occupied, put the number directly below the previously stored number. If your compiler supports variable-length arrays, declare the array to have `n` rows and `n` columns. If not, declare the array to have 99 rows and 99 columns.
+
+### Code
+```
+//Filename: p17.c
+//Purpose: Prints a n x n magic square
+//Author: syfer
+//Date: July 30th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int n, x, y, xo, yo; //x old y old
+
+    printf("This program creates a magic square of specified size.\n");
+    printf("The size must be an odd number between 1 and 99\n");
+    printf("Enter size of magic square: ");
+    scanf("%d", &n);
+
+    int m[n][n];
+    
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            m[i][j] = 0;
+    
+    y = n / 2;
+    x = 0;
+
+    for(int i = 1; i <= n * n; i++){
+        m[x][y] = i;
+        xo = x;
+        yo = y;
+        if(--x == -1)
+            x = n - 1;
+        if (++y == n)
+            y = 0;
+        if (m[x][y] != 0){
+            x = xo + 1;
+            y = yo;
+        }
+    }
+
+    //prints
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < n; j++)
+            printf("%2d ", m[i][j]);
+        printf("\n");
+    }
+
+    return 0;
+}
+```
+
+### Thoughts
+This one was fun as well. I do not really like the `xold` and `yold` that I have to use but that's my own fault for assigning at the beginning of the loop. 
+
+I like the prefix checks though because they save me a line of decrementing/incrementing `x` and `y`. 
+
+I spent a little time trying to debug this for `n = 6` before realizing that the program specifies that in fact `n` must be odd for the algorithm to work.
+
+Additionally I'm a bit nervous to not check bounds when assigning underneath a previous element, but it seems that for all the `n` that I tested the algorithm guarantees there will be a valid free spot there.
+
+# Conclusion
+Although this chapter did not introduce anything new to me, the exercises and in particular the 17(!) projects took longer than everything before.
+
+Two of the projects took time to debug through `printf`s, and in general I had to think more before writing code.
