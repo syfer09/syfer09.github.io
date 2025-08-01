@@ -1,0 +1,1026 @@
+---
+layout: default
+title: Chapter 10
+date: 2025-08-01 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc10
+---
+# Chapter 10 
+# Exercises
+## E10.1
+### Statement
+The following program outline shows only function definitions and variable declarations,
+
+```
+int a;
+
+void f(int b) {
+    int c;
+}
+
+void g(void) {
+    int d; {
+        int e;
+    }
+}
+
+int main(void) {
+    int f;
+}
+```
+
+For each of the following scopes, list all variable and parameter names visible in that scope:
+
+(a) The `f` function
+
+(b) The `g` function
+
+(c) The block in which `e` is declared
+
+(d) The `main` function
+
+### Solution
+(a) `a`, `b` and `c` are all visible inside `f`
+
+(b) `a` and `d` with `e` only inside the block
+
+(c) `a`, `d` and `e`
+
+(d) `a` and `f`
+
+## E10.2
+### Statement
+The following program outline shows only function definitions and variable declarations:
+
+```
+int b, c;
+
+void f(void) {
+    int b, d;
+}
+
+void g(int a) {
+    int c; {
+        int a, d;
+    }
+}
+
+int main(void) {
+    int c, d;
+}
+```
+
+For each of the following scopes, list all variable and parameter names visible in that scope. If there's more than one variable or parameter with the same name, indicate which one is
+visible.
+
+(a) The `f` function
+
+(b) The `g` function
+
+(c) The block in which `a` and `d` are declared
+
+(d) The `main` function
+
+### Solution
+(a) `b` defined by the function, `c` global and `d` defined by the function.
+
+(b) `a` function argument, `b` global, `c` defined by function.
+
+(c) `a` inside block, `d` inside block, `b` global, `c` defined by function.
+
+(d) `b` global, `c` inside main, `d` inside main.
+
+## E10.3
+### Statement
+Suppose that a program has only one function (`main`). How many different variables named `i` could this program contain?
+
+### Solution
+There is no limit. The amount of blocks has no limit except possibly something to do with memory and hardware, but disregarding that for any `n`, `n` blocks can be made, each having their own `i`.
+
+# Projects
+## P10.1
+### Statement
+Modify the stack example of Section 10.2 so that it stores characters instead of integers. Next, add a `main` function that asks the user to enter a series of parentheses and/or braces, then indicates whether or not they’re properly nested:
+
+```
+Enter parentheses and/or braces: ((){}{()})
+Parentheses/braces are nested properly
+```
+
+Hint: As the program reads characters, have it push each left parenthesis or left brace. When it reads a right parenthesis or brace, have it pop the stack and check that the item popped is a matching parenthesis or brace. (If not, the parentheses/braces aren't nested properly.) When the program reads the new-line character, have it check whether the stack is empty; if so, the parentheses/braces are matched. If the stack isn't empty (or if `stack_underflow` is ever called), the parenthesis/braces aren't matched. If `stack_overflow` is called, have the program print the message `Stack overflow` and terminate immediately.
+
+### Code
+```
+//Filename: p1.c
+//Purpose: Stack
+//Author: syfer
+//Date: Aug 1st, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>  
+
+
+#define STACK_SIZE 100 
+
+/* external variables */ 
+char contents[STACK_SIZE]; 
+int top = 0; 
+
+void make_empty(void);
+bool is_empty(void); 
+char pop(void); 
+void push(char i); 
+void stack_overflow(void);
+void stack_underflow(void);
+bool is_full(void); 
+
+int main(){
+    char c;
+    printf("Enter parenthesis and/or braces: ");
+    while ((c = getchar()) != '\n'){
+        if (c == '(' || c == '{')
+            push(c);
+        else if (c == ')' && pop() != '('){
+            printf("Parenthesis/braces are NOT nested properly\n");
+            exit(EXIT_SUCCESS);
+        } else if (c == '}' && pop() != '{'){
+            printf("Parenthesis/braces are NOT nested properly\n");
+            exit(EXIT_SUCCESS);
+        }
+    }
+   
+    printf("Parenthesis/braces are nested properly\n");
+
+    return 0;
+}
+
+void make_empty(void) { 
+    top = 0; 
+} 
+
+bool is_empty(void) { 
+    return top == 0; 
+} 
+
+bool is_full(void) { 
+    return top == STACK_SIZE; 
+} 
+
+void push(char i) { 
+    if (is_full()) 
+        stack_overflow(); 
+    else 
+        contents[top++] = i; 
+} 
+
+char pop(void) { 
+    if (is_empty()) 
+        stack_underflow(); 
+    else 
+        return contents[--top]; 
+    return 0; // so that C doesn't yell at me, but we never get here 
+} 
+
+void stack_overflow(void){
+    printf("\nStack overflow\n");
+    exit(EXIT_FAILURE);
+}
+
+void stack_underflow(void){
+    printf("\nStack under\n");
+    exit(EXIT_FAILURE);
+}
+```
+
+## P10.2
+### Statement
+Modify the `poker.c` program of Section 10.5 by moving the `num_in_rank` and `num_in_suit` arrays into `main`, which will pass them as arguments to `read_cards` and `analyze_hand`. 
+
+### Code
+
+```
+// Filename: p2.c
+// Purpose: Evaluates a poker hand
+// Author: syfer
+// Date: August 1st, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define NUM_RANKS 13 
+#define NUM_SUITS 4 
+#define NUM_CARDS 5 
+
+// external variables 
+bool straight, flush, four, three; 
+int pairs; /* can be 0, 1, or 2 */ 
+
+// prototypes  
+void read_cards(int num_in_rank[], int num_in_suit[]); 
+void analyze_hand(int num_in_rank[], int num_in_suit[]); 
+void print_result(void); 
+
+// main: Calls read_cards, analyze_hand, and print_result repeatedly.  
+
+int main(void) { 
+    int num_in_rank[NUM_RANKS]; 
+    int num_in_suit[NUM_SUITS]; 
+
+    for (;;) { 
+        read_cards(num_in_rank, num_in_suit); 
+        analyze_hand(num_in_rank, num_in_suit); 
+        print_result(); 
+    } 
+} 
+
+// read_cards: Reads the cards into the external variables num_in_rank and num_in_suit; * 
+// checks for bad cards and duplicate cards. 
+
+void read_cards(int num_in_rank[], int num_in_suit[]) { 
+    bool card_exists[NUM_RANKS][NUM_SUITS]; 
+    char ch, rank_ch, suit_ch; 
+    int rank, suit; 
+    bool bad_card; 
+    int cards_read = 0; 
+
+    for (rank = 0; rank < NUM_RANKS; rank++) { 
+        num_in_rank[rank] = 0; 
+        for (suit = 0; suit < NUM_SUITS; suit++) 
+            card_exists[rank][suit] = false; 
+    } 
+
+    for (suit = 0; suit < NUM_SUITS; suit++) 
+        num_in_suit[suit] = 0; 
+
+    while (cards_read < NUM_CARDS) { 
+        bad_card = false; 
+
+        printf("Enter a card: "); 
+
+        rank_ch = getchar(); 
+        switch (rank_ch) { 
+            case '0': exit(EXIT_SUCCESS);
+            case '2' : rank = 0; break; 
+            case '3' : rank = 1; break; 
+            case '4' : rank = 2; break; 
+            case '5' : rank = 3; break; 
+            case '6' : rank = 4; break; 
+            case '7' : rank = 5; break; 
+            case '8' : rank = 6; break; 
+            case '9' : rank = 7; break; 
+            case 't': case 'T' : rank = 8; break; 
+            case 'j': case 'J' : rank = 9; break; 
+            case 'q': case 'Q' : rank = 10 ; break; 
+            case 'k': case 'K' : rank = 11 ; break; 
+            case 'a': case 'A' : rank = 12 ; break; 
+            default: bad_card = true; 
+        } 
+
+        suit_ch = getchar();
+        switch (suit_ch) { 
+            case 'c': case 'C': suit = 0; break; 
+            case 'd': case 'D' : suit = 1; break; 
+            case 'h': case 'H' : suit = 2; break; 
+            case 's': case 'S' : suit = 3; break; 
+            default: bad_card = true; 
+        } 
+
+        while ((ch = getchar()) != '\n') 
+            if (ch != ' ') bad_card = true; 
+
+        if (bad_card) 
+            printf("Bad card; ignored. \n"); 
+        else if (card_exists[rank][suit]) 
+            printf("Duplicate card; ignored.\n"); 
+        else { 
+            num_in_rank[rank]++; 
+            num_in_suit[suit]++; 
+            card_exists[rank][suit] = true; 
+            cards_read++; 
+        } 
+    } 
+} 
+// analyze hand: Determines whether the hand contains a
+// straight, a flush, four-of-a-kind, 
+// and/or three-of-a-kind; determines the  
+// number of pairs; stores the results into  
+// the external variables straight, flush,  
+// four, three, and pairs. 
+
+void analyze_hand(int num_in_rank[], int num_in_suit[]) { 
+    int num_consec = 0;
+    int rank, suit; 
+
+    straight = false; 
+    flush = false; 
+    four = false; 
+    three = false; 
+    pairs = 0; 
+
+    /* check for flush */ 
+
+    for (suit = 0; suit < NUM_SUITS; suit++) 
+        if (num_in_suit[suit] == NUM_CARDS) 
+            flush = true; 
+
+    /* check for straight */ 
+    rank = 0; 
+    while (num_in_rank[rank] == 0) rank++; 
+    for (; rank < NUM_RANKS && num_in_rank[rank] > 0; rank++) 
+        num_consec++; 
+    if (num_consec == NUM_CARDS) { 
+        straight = true; 
+        return; 
+    } 
+
+    /* check for 4-of-a-kind, 3-of-a-kind, and pairs */ 
+    for (rank = 0; rank < NUM_RANKS; rank++) { 
+        if (num_in_rank[rank] == 4) four = true; 
+        if (num_in_rank[rank] == 3) three = true; 
+        if (num_in_rank[rank] == 2) pairs++; 
+    } 
+} 
+
+// print_result: Prints the classification of the hand,  
+// based on the values of the external  
+// variables straight, flush, four, three,  
+// and pairs.  
+
+void print_result(void) { 
+    if (straight && flush) 
+        printf("Straight flush"); 
+    else if (four)                 
+        printf("Four of a kind"); 
+    else if (three && pairs == 1) 
+        printf("Full house"); 
+    else if (flush) 
+        printf("Flush"); 
+    else if (straight) 
+        printf("Straight"); 
+    else if (three) 
+        printf("Three of a kind"); 
+    else if (pairs == 2) 
+        printf("Two pairs"); 
+    else if (pairs == 1) 
+        printf("Pair"); 
+    else
+        printf("High card"); 
+
+    printf("\n\n"); 
+} 
+```
+
+## P10.3
+### Statement
+Remove the `num_in_rank`, `num_in_suit`, and `card_exists` arrays from the poker.c program of Section 10.5. Have the program store the cards in a 5 x 2 array instead. Each row of the array will represent a card. For example, if the array is named `hand`, then `hand[0][0]` will store the rank of the first card and `hand[0][1]` will store the suit of the first card.
+
+### Code
+```
+// Filename: p3.c
+// Purpose: Plays a hand of poker
+// Author: syfer
+// Date: August 1st, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define NUM_RANKS 13 
+#define NUM_SUITS 4 
+#define NUM_CARDS 5 
+
+// external variables 
+int hand[NUM_CARDS][2];
+bool straight, flush, four, three; 
+int pairs; /* can be 0, 1, or 2 */ 
+
+// prototypes  
+void read_cards(void); 
+void analyze_hand(void); 
+void print_result(void); 
+
+
+// main: Calls read_cards, analyze_hand, and print_result repeatedly.  
+
+int main(void) { 
+    for (;;) { 
+        read_cards(); 
+        analyze_hand(); 
+        print_result(); 
+    } 
+} 
+
+// read_cards: Reads the cards into the external variables num_in_rank and num_in_suit; * 
+// checks for bad cards and duplicate cards. 
+
+void read_cards(void) { 
+    char ch, rank_ch, suit_ch; 
+    int rank, suit; 
+    bool bad_card; 
+    int cards_read = 0; 
+
+    for(int i = 0; i < NUM_CARDS;i++){
+        hand[i][0] = -1;
+        hand[i][1] = -1;
+    }
+    while (cards_read < NUM_CARDS) { 
+        bad_card = false; 
+
+        printf("Enter a card: "); 
+
+        rank_ch = getchar(); 
+        switch (rank_ch) { 
+            case '0': exit(EXIT_SUCCESS);
+            case '2' : rank = 0; break; 
+            case '3' : rank = 1; break; 
+            case '4' : rank = 2; break; 
+            case '5' : rank = 3; break; 
+            case '6' : rank = 4; break; 
+            case '7' : rank = 5; break; 
+            case '8' : rank = 6; break; 
+            case '9' : rank = 7; break; 
+            case 't': case 'T' : rank = 8; break; 
+            case 'j': case 'J' : rank = 9; break; 
+            case 'q': case 'Q' : rank = 10 ; break; 
+            case 'k': case 'K' : rank = 11 ; break; 
+            case 'a': case 'A' : rank = 12 ; break; 
+            default: bad_card = true; 
+        } 
+
+        suit_ch = getchar();
+        switch (suit_ch) { 
+            case 'c': case 'C': suit = 0; break; 
+            case 'd': case 'D' : suit = 1; break; 
+            case 'h': case 'H' : suit = 2; break; 
+            case 's': case 'S' : suit = 3; break; 
+            default: bad_card = true; 
+        } 
+
+        while ((ch = getchar()) != '\n') 
+            if (ch != ' ') bad_card = true; 
+
+        //dupe check
+        bool dupe = false;
+        for(int i = 0; i < cards_read + 1; i++){
+            if (hand[i][0] == rank && hand[i][1] == suit)
+                dupe = true;
+        }
+        if (bad_card) 
+            printf("Bad card; ignored. \n"); 
+        else if (dupe) 
+            printf("Duplicate card; ignored.\n"); 
+        else { 
+            hand[cards_read][0] = rank;
+            hand[cards_read][1] = suit;
+            cards_read++; 
+        } 
+    } 
+} 
+// analyze hand: Determines whether the hand contains a
+// straight, a flush, four-of-a-kind, 
+// and/or three-of-a-kind; determines the  
+// number of pairs; stores the results into  
+// the external variables straight, flush,  
+// four, three, and pairs. 
+
+void analyze_hand(void) { 
+
+    straight = true; 
+    flush = true; 
+    four = false; 
+    three = false; 
+    pairs = 0; 
+
+    /* check for flush */ 
+    for(int i = 0; i < NUM_CARDS;i++){
+        if (hand[i][1] != hand[0][1])
+            flush = false;
+    }
+
+    /* check for straight */ 
+    for(int i = 1; i < NUM_CARDS; i++){
+        if (hand[i][0] - hand [i-1][0] != 1)
+            straight = false;
+    }
+    if(straight)
+        return;
+
+    /* check for 4-of-a-kind, 3-of-a-kind, and pairs */ 
+    int numHand = 0;
+    for(int i = 0; i < NUM_CARDS;i++){
+        numHand = 0;
+        for(int j = 0; j < NUM_CARDS;j++){
+            if (hand[j][0] == hand[i][0])
+                numHand++;
+        }
+        if (numHand == 4) four = true;
+        if (numHand == 3) three = true;
+        if (numHand == 2) pairs++;
+    }
+} 
+
+// print_result: Prints the classification of the hand,  
+// based on the values of the external  
+// variables straight, flush, four, three,  
+// and pairs.  
+
+void print_result(void) { 
+    if (straight && flush) 
+        printf("Straight flush"); 
+    else if (four)                 
+        printf("Four of a kind"); 
+    else if (three && pairs == 1) 
+        printf("Full house"); 
+    else if (flush) 
+        printf("Flush"); 
+    else if (straight) 
+        printf("Straight"); 
+    else if (three) 
+        printf("Three of a kind"); 
+    else if (pairs == 2) 
+        printf("Two pairs"); 
+    else if (pairs == 1) 
+        printf("Pair"); 
+    else
+        printf("High card"); 
+
+    printf("\n\n"); 
+} 
+```
+
+### Thoughts
+Aside from removing the mentions of `num_in_rank`, etc, I had to rewrite the analyze logic, since it relied on those arrays. Everything else was pretty much unchanged. I did also remove some of the counter variables since I prefer to initialize inside `for` loops.
+
+The code does not work as is unfortunately. I would most likely need to implement a sorting algorithm since without keeping track of the cards, they are out of order. In lieu of copying and pasting a quick-sort I have decided to move on.
+
+## P10.4
+### Statement
+Modify the `poker.c` program of Section 10.5 by having it recognize an additional category, "royal flush" (ace, king, queen, jack, ten of the same suit). A royal flush ranks higher than all other hands.
+
+### Code
+
+```
+// Filename: p4.c
+// Purpose: Analyzes a hand of poker
+// Author: syfer
+// Date: August 1st, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define NUM_RANKS 13 
+#define NUM_SUITS 4 
+#define NUM_CARDS 5 
+
+// external variables 
+int num_in_rank[NUM_RANKS]; 
+int num_in_suit[NUM_SUITS]; 
+bool royal_flush, straight, flush, four, three; 
+int pairs; /* can be 0, 1, or 2 */ 
+
+// prototypes  
+void read_cards(void); 
+void analyze_hand(void); 
+void print_result(void); 
+
+
+// main: Calls read_cards, analyze_hand, and print_result repeatedly.  
+
+int main(void) { 
+    for (;;) { 
+        read_cards(); 
+        analyze_hand(); 
+        print_result(); 
+    } 
+} 
+
+// read_cards: Reads the cards into the external variables num_in_rank and num_in_suit; * 
+// checks for bad cards and duplicate cards. 
+
+void read_cards(void) { 
+    bool card_exists[NUM_RANKS][NUM_SUITS]; 
+    char ch, rank_ch, suit_ch; 
+    int rank, suit; 
+    bool bad_card; 
+    int cards_read = 0; 
+
+    for (rank = 0; rank < NUM_RANKS; rank++) { 
+        num_in_rank[rank] = 0; 
+        for (suit = 0; suit < NUM_SUITS; suit++) 
+            card_exists[rank][suit] = false; 
+    } 
+
+    for (suit = 0; suit < NUM_SUITS; suit++) 
+        num_in_suit[suit] = 0; 
+
+    while (cards_read < NUM_CARDS) { 
+        bad_card = false; 
+
+        printf("Enter a card: "); 
+
+        rank_ch = getchar(); 
+        switch (rank_ch) { 
+            case '0': exit(EXIT_SUCCESS);
+            case '2' : rank = 0; break; 
+            case '3' : rank = 1; break; 
+            case '4' : rank = 2; break; 
+            case '5' : rank = 3; break; 
+            case '6' : rank = 4; break; 
+            case '7' : rank = 5; break; 
+            case '8' : rank = 6; break; 
+            case '9' : rank = 7; break; 
+            case 't': case 'T' : rank = 8; break; 
+            case 'j': case 'J' : rank = 9; break; 
+            case 'q': case 'Q' : rank = 10 ; break; 
+            case 'k': case 'K' : rank = 11 ; break; 
+            case 'a': case 'A' : rank = 12 ; break; 
+            default: bad_card = true; 
+        } 
+
+        suit_ch = getchar();
+        switch (suit_ch) { 
+            case 'c': case 'C': suit = 0; break; 
+            case 'd': case 'D' : suit = 1; break; 
+            case 'h': case 'H' : suit = 2; break; 
+            case 's': case 'S' : suit = 3; break; 
+            default: bad_card = true; 
+        } 
+
+        while ((ch = getchar()) != '\n') 
+            if (ch != ' ') bad_card = true; 
+
+        if (bad_card) 
+            printf("Bad card; ignored. \n"); 
+        else if (card_exists[rank][suit]) 
+            printf("Duplicate card; ignored.\n"); 
+        else { 
+            num_in_rank[rank]++; 
+            num_in_suit[suit]++; 
+            card_exists[rank][suit] = true; 
+            cards_read++; 
+        } 
+    } 
+} 
+// analyze hand: Determines whether the hand contains a
+// straight, a flush, four-of-a-kind, 
+// and/or three-of-a-kind; determines the  
+// number of pairs; stores the results into  
+// the external variables straight, flush,  
+// four, three, and pairs. 
+
+void analyze_hand(void) { 
+    int num_consec = 0;
+    int rank, suit; 
+
+    straight = false; 
+    flush = false; 
+    royal_flush = false; 
+    four = false; 
+    three = false; 
+    pairs = 0; 
+
+    /* check for flush */ 
+
+    for (suit = 0; suit < NUM_SUITS; suit++) 
+        if (num_in_suit[suit] == NUM_CARDS) 
+            flush = true; 
+
+    /* check for royal */
+    if(flush){
+        for(int i = 8; i < NUM_RANKS;i++){
+            if(num_in_rank[i] != 0)
+                num_consec++;
+        }
+        if (num_consec == NUM_CARDS) { 
+            royal_flush = true; 
+            return; 
+        } 
+    }
+
+    /* check for straight */ 
+    rank = 0; 
+    num_consec = 0;
+    while (num_in_rank[rank] == 0) rank++; 
+    for (; rank < NUM_RANKS && num_in_rank[rank] > 0; rank++) 
+        num_consec++; 
+    if (num_consec == NUM_CARDS) { 
+        straight = true; 
+        return; 
+    } 
+
+    /* check for 4-of-a-kind, 3-of-a-kind, and pairs */ 
+    for (rank = 0; rank < NUM_RANKS; rank++) { 
+        if (num_in_rank[rank] == 4) four = true; 
+        if (num_in_rank[rank] == 3) three = true; 
+        if (num_in_rank[rank] == 2) pairs++; 
+    } 
+} 
+
+// print_result: Prints the classification of the hand,  
+// based on the values of the external  
+// variables straight, flush, four, three,  
+// and pairs.  
+
+void print_result(void) { 
+    if (royal_flush)
+        printf("Royal Flush");
+    else if (straight && flush) 
+        printf("Straight flush"); 
+    else if (four)                 
+        printf("Four of a kind"); 
+    else if (three && pairs == 1) 
+        printf("Full house"); 
+    else if (flush) 
+        printf("Flush"); 
+    else if (straight) 
+        printf("Straight"); 
+    else if (three) 
+        printf("Three of a kind"); 
+    else if (pairs == 2) 
+        printf("Two pairs"); 
+    else if (pairs == 1) 
+        printf("Pair"); 
+    else
+        printf("High card"); 
+
+    printf("\n\n"); 
+} 
+
+
+
+```
+
+### Thoughts
+By having to code the royal flush logic using the `num_in_suit` arrays that the author provided, I realize that I would have done everything differently. In particular the checking is much easier with the `hand` array given in P2. 
+
+Even without resorting to those changes, most of the checks could be much shorter if they were reversed, i.e. start everything as `true` and flip them when they fail. This would remove for example the extra variable and `if` check to the straight check. I would also not have to borrow `num_consec` for the royal flush check.
+
+## P10.5
+### Statement
+Modify the `poker.c` program of Section 10.5 by allowing "ace-low" straights (ace, two, three, four, five).
+
+### Code
+```
+/* check for straight */ 
+rank = 0; 
+while (num_in_rank[rank] == 0) rank++; 
+if(rank == 0 && num_in_rank[NUM_RANKS - 1]) //NEW
+    num_consec++; // NEW
+for (; rank < NUM_RANKS && num_in_rank[rank] > 0; rank++) 
+    num_consec++; 
+if (num_consec == NUM_CARDS) { 
+    straight = true; 
+    return; 
+} 
+```
+
+### Thoughts
+The rest of the program is the same, except for the extra `if` statement inserted above (see `NEW`).
+
+## P10.6
+### Statement
+Some calculators (notably those from Hewlett-Packard) use a system of writing mathematical expressions known as Reverse Polish Notation (RPN). In this notation, operators are placed after their operands instead of between their operands. For example. `1 + 2` would be written `1 2 +` in RPN, and `1+2*3` would be written `1 2 3 *+`. RPN expressions can easily be evaluated using a stack. The algorithm involves reading the operators and operands in an expression from left to right, performing the following actions:
+
+When an operand is encountered, push it onto the stack.
+
+When an operator is encountered, pop its operands from the stack, perform the operation on those operands, and then push the result onto the stack.
+
+Write a program that evaluates RPN expressions. The operands will be single-digit integers. The operators are `+`, `-`, `*`, `/`, and `=`. The `=` operator causes the top stack item to be displayed; afterwards, the stack is cleared and the user is prompted to enter another expression. The process continues until the user enters a character that is not an operator or operand:
+
+```
+Enter an RPN expression: 1 2 3 * + =
+Value of expression: 7
+Enter an RPN expression: 5 8 * 4 9 - / =
+Value of expression: -8
+Enter an RPN expression: g
+```
+
+If the stack overflows, the program will display the message `Expression is too complex` and terminate. If the stack underflows (because of an expression such as `1 2 + +`), the program will display the message `Not enough operands in expression` and terminate. Hints: Incorporate the stack code from Section 10.2 into your program. Use `scanf(" %c", &ch)` to read the operators and operands.
+
+### Code
+```
+// Filename: p6.c
+// Purpose: Evaluates Reverse Polish Expressions
+// Author: syfer
+// Date: Aug 1st, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>  
+#include <ctype.h>  
+
+
+#define STACK_SIZE 100 
+
+/* external variables */ 
+int contents[STACK_SIZE]; 
+int top = 0; 
+
+void make_empty(void);
+bool is_empty(void); 
+int pop(void); 
+void push(int i); 
+void stack_overflow(void);
+void stack_underflow(void);
+bool is_full(void); 
+
+int main(){
+
+    char c;
+    int op1, op2;
+
+
+    for(;;){
+
+        printf("Enter an RPN expression: ");
+
+        while ((c = getchar()) != '\n'){
+            if(c == '+'){
+               push(pop() + pop());
+            } else if (c == '-'){
+               op2 = pop();
+               op1 = pop();
+               push(op1 - op2);
+            } else if (c == '*'){
+               push(pop() * pop());
+            } else if (c == '/'){
+               op2 = pop();
+               op1 = pop();
+               push(op1 / op2);
+            } else if (c == '='){
+                printf("Value of expression: %d\n", pop());
+                getchar();
+                make_empty();
+                break;
+            } else if (c==' '){
+                continue;
+            } else if (isdigit(c)){
+                push(c - '0');
+            } else {
+                exit(EXIT_SUCCESS);
+            } 
+        }
+    }
+    return 0;
+}
+
+void make_empty(void) { 
+    top = 0; 
+} 
+
+bool is_empty(void) { 
+    return top == 0; 
+} 
+
+bool is_full(void) { 
+    return top == STACK_SIZE; 
+} 
+
+void push(int i) { 
+    if (is_full()) 
+        stack_overflow(); 
+    else 
+        contents[top++] = i; 
+} 
+
+int pop(void) { 
+    if (is_empty()) 
+        stack_underflow(); 
+    else 
+        return contents[--top]; 
+    return 0; // so that C doesn't yell at me, but we never get here 
+} 
+
+void stack_overflow(void){
+    printf("\nExpression is too complex\n");
+    exit(EXIT_FAILURE);
+}
+
+void stack_underflow(void){
+    printf("\nNot enough operands in expression\n");
+    exit(EXIT_FAILURE);
+}
+```
+
+### Thoughts
+This one was interesting conceptually and as implementation as well. It was fun to shorten the addition and multiplication operations into one liners. The same treatment could not be done for subtraction and division since they are not commutative.
+
+Conceptually, I'm interested to see what a program to convert regular expressions into RPM would look like. About a decade ago I was part of a project that wrote a graphical calculator from scratch in Java, and I remember the most complex part being the evaluation algorithm. As teenagers we did not look much up, and just decided to parse everything as a string and go from there. I don't think we even considered switching around the order of the expression and then evaluating that. It was mostly just string parsing and matching parenthesis. In particular I remember we would replace `2 * 3` with `(2*3)` and then evaluate parenthesis outward. In short, it ended up as spaghetti code.
+
+## P10.7
+### Statement
+Write a program that prompts the user for a number and then displays the number, using characters to simulate the effect of a seven-segment display:
+
+```
+Enter a number: 491-9014
+     _      _   _
+|_| |_|  | |_| | |  | |_|
+  |  _|  |  _| |_|  |   |
+```
+
+
+Characters other than digits should be ignored. Write the program so that the maximum number of digits is controlled by a macro named `MAX_DIGITS`, which has the value 10. If the number contains more than this number of digits, the extra digits are ignored. Hints: Use two external arrays. One is the `segments` array (see Exercise 6 in Chapter 8), which stores data representing the correspondence between digits and segments. The other array, `digits`, will be an array of characters with 4 rows (since each segmented digit is four characters high) and `MAX_DIGITS * 4` columns (digits are three characters wide, but a space is needed between digits for readability). Write your program as four functions: `main`, `clear_digits_array`, `process_digit`, and `print_digits_array`. Here are the prototypes for the latter three functions:
+
+```
+void clear_digits_array(void);
+void process_digit(int digit, int position);
+void print_digits_array(void);
+```
+
+`clear_digits_array` will store blank characters into all elements of the `digits` array, `process_digit` will store the seven-segment representation of `digit` into a specified position in the `digits` array (positions range from 0 to `MAX DIGITS - 1`).  `print_digits_array` will display the rows of the `digits` array, each on a single line, producing output such as that shown in the example.
+
+### Code
+
+```
+// Filename: p7.c
+// Purpose: Displays a number in a seven segment display
+// Author: syfer
+// Date: August 1st, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+
+#define MAX_DIGITS 10
+
+const int segments[10][7] = {1, 1, 1, 1, 1, 1, 0}, //<----MISSING BRACKETS ON PURPOSE, LIQUID 
+                             {0, 1, 1, 0, 0, 0, 0},//HTML PROCESSER LIKES TO THINK THEYRE COMMANDS
+                             {1, 1, 0, 1, 1, 0, 1},
+                             {1, 1, 1, 1, 0, 0, 1},
+                             {0, 1, 1, 0, 0, 1, 1},
+                             {1, 0, 1, 1, 0, 1, 1},
+                             {1, 0, 1, 1, 1, 1, 1},
+                             {1, 1, 1, 0, 0, 0, 0},
+                             {1, 1, 1, 1, 1, 1, 1},
+                             {1, 1, 1, 1, 0, 1, 1}; //<----HERE TOO 
+                                                    
+char digits[3][MAX_DIGITS * 4];
+
+void clear_digits_array(void);
+void process_digit(int digit, int position);
+void print_digits_array(void);
+
+int main(){
+
+    char c;
+    int pos = 0;
+
+    clear_digits_array();
+    printf("Enter a number: ");
+    while((c = getchar()) != '\n' && pos / 4 < MAX_DIGITS){
+        if (isdigit(c)){
+            process_digit(c - '0', pos);
+            pos+=4;
+        }
+    }
+    print_digits_array();
+    
+    return 0;
+}
+
+void clear_digits_array(void){
+    for(int i = 0;i < 3;i++){
+        for(int j = 0; j < MAX_DIGITS * 4;j++){
+            digits[i][j] = ' ';
+        }
+    }
+}
+
+void process_digit(int digit, int position){
+    if (segments[digit][0] == 1)
+        digits[0][position + 1] = '_';
+    if (segments[digit][1] == 1)
+        digits[1][position + 2] = '|';
+    if (segments[digit][2] == 1)
+        digits[2][position + 2] = '|';
+    if (segments[digit][3] == 1)
+        digits[2][position + 1] = '_';
+    if (segments[digit][4] == 1)
+        digits[2][position] = '|';
+    if (segments[digit][5] == 1)
+        digits[1][position] = '|';
+    if (segments[digit][6] == 1)
+        digits[1][position + 1] = '_';
+}
+
+void print_digits_array(void){
+    for(int i = 0; i < 3; i++){
+        for(int j = 0; j < MAX_DIGITS*4;j++){
+            putchar(digits[i][j]);
+        }
+        printf("\n");
+    }
+}
+```
+
+### Thoughts
+Probably not something to brag about, but I wrote this entire thing without a single test run and it worked first try.
+
+# Conclusion
+
+This chapter was called program organization, but mostly dealt with concepts such as variable scope. The projects, however, really did feel like they were testing organizational skills. In particular, except for the last project, the vast majority of the projects were about understanding and modifying an already lengthy program.
+
+Even if I did not learn that much, this was a good coding "workout" for me to do.
+
