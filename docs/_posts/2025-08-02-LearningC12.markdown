@@ -1,0 +1,752 @@
+---
+layout: default
+title: Chapter 12
+date: 2025-08-02 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc12
+---
+# Chapter 12 
+# Exercises
+## E12.1
+### Statement
+Suppose that the following declarations are in effect:
+
+`int a[] = {5, 15, 34, 54, 14, 2, 52, 72};`
+
+`int *p = &a[l], *q = &a[5];`
+
+(a) What is the value of `*(p+3)`?
+
+(b) What is the value of `*(q-3)` ?
+
+(c) What is the value of `q - p`?
+
+(d) Is the condition `p < q` true or false?
+
+(e) Is the condition `*p < *q` true or false?
+
+### Solution
+
+(a) `a[4] = 14`
+
+(b) `a[2] = 34`
+
+(c) pointer to the 4th element 
+
+(d) true
+
+(e) false
+
+## E12.2
+### Statement
+Suppose that `high`, `low`, and `middle` are all pointer variables of the same type, and that `low` and `high` point to elements of an array. Why is the following statement illegal, and how could it be fixed?
+
+`middle = (low + high) / 2;`
+
+### Solution
+We can only subtract pointers from each other. Since subtraction results in an integer we should be fine dividing it at that point.
+
+To fix we establish a quick equivalence (math only, doesn't work in C):
+
+```
+m = (h + l) / 2
+2m = h + l
+2m - 2l = h - l
+m - l = (h - l) / 2
+m = (h-l) / 2 + l
+```
+
+Therefore the statement is equivalent to `middle = (low - high) / 2 + low;`
+
+## E12.3
+### Statement
+What will be the contents of the `a` array after the following statements are executed?
+
+```
+#define N 10
+
+int a[N] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+int *p = &a[0], *q = &a[N-l], temp;
+
+while (p < q) {
+    temp = *p;
+    *p++ = *q;
+    *q-- = temp;
+
+}
+```
+
+### Solution
+The code reverses the array, giving `{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}`
+
+## E12.4
+### Statement
+Rewrite the `make_empty`, `is_empty`, and `is_full` functions of Section 10.2 to use the pointer variable `top_ptr` instead of the integer variable `top`.
+
+### Solution
+```
+void make_empty(){
+    top_ptr = &contents[0];
+}
+bool is_empty(){
+    return top_ptr == contents[0];
+}
+bool is_full(){
+    return top_ptr == contents[STACK_SIZE];
+}
+```
+
+## E12.5
+### Statement
+Suppose that `a` is a one-dimensional array and `p` is a pointer variable. Assuming that the assignment `p = a` has just been performed, which of the following expressions are illegal because of mismatched types? Of the remaining expressions, which are true (have a nonzero value)?
+
+(a) `p == a[0]`
+
+(b) `p == &a[0]`
+
+(c) `*p == a[0]`
+
+(d) `p[0] == a[0]`
+
+### Solution
+(a) is comparing a pointer to the contents of the array, no good.
+
+(b) is comparing a pointer to a pointer, good and `true`.
+
+(c) is comparing the contents of the array to the contents, good and `true`.
+
+(d) is comparing contents to the contents, good and `true`.
+
+## E12.6
+### Statement
+Rewrite the following function to use pointer arithmetic instead of array subscripting. (In other words, eliminate the variable `i` and all uses of the `[]` operator.) Make as few changes as possible.
+
+```
+int sum_array(const int a[], int n) {
+    int i, sum;
+
+    sum = 0;
+    for (i = 0; i < n; i++)
+        sum += a[i];
+    return sum;
+}
+```
+
+### Solution
+```
+int sum_array(const int *a, int n) {
+    int sum;
+
+    sum = 0;
+    for (;a < a + N;a++)
+        sum += *a;
+    return sum;
+}
+```
+
+## E12.7
+### Statement
+Write the following function:
+
+`bool search(const int a[], int n, int key);`
+
+`a` is an array to be searched, `n` is the number of elements in the array, and `key` is the search key. `search` should return `true` if `key` matches some element of `a`, and `false` if it doesn't. Use pointer arithmetic -- not subscripting -- to visit array elements.
+
+### Solution
+```
+bool search(const int a[], int n, int key){
+    for(int p = a; p < a + n; p++){
+        if(key == *p) return true;
+    }
+    return false;
+}
+```
+
+## E12.8
+### Statement
+Rewrite the following function to use pointer arithmetic instead of array subscripting. (In other words, eliminate the variable `i` and all uses of the `[]` operator.) Make as few changes as possible.
+
+```
+void store_zeros(int a[], int n) {
+    int i;
+
+    for (i = 0; i < n; i++)
+        a[i] = 0;
+}
+```
+
+### Solution
+
+```
+void store_zeros(int a[], int n) {
+    for (int *p = a; p < a + n; p++)
+        *p = 0;
+}
+```
+
+## E12.9
+### Statement
+Write the following function: 
+
+`double inner_product(const double *a, const double *b, int n);` 
+
+`a` and `b` both point to arrays of length `n`. The function should return `a[0] * b[0] + a[1] * b[1] + ... + a[n-1] * b[n-1]`. Use pointer arithmetic -- not subscripting -- to visit array elements. 
+
+### Solution
+```
+double inner_product(const double *a, const double *b, int n){
+    double ret = 0;
+    
+    for(int *p = a, *p1 = b; p < a + n, p1 < b + n; p++,p1++)
+        ret+=*p * *p1;
+}
+```
+## E12.10
+### Statement
+Modify the `find_middle` function of Section 11.5 so that it uses pointer arithmetic to calculate the return value.
+
+### Solution
+```
+int *find_middle(int a[], int n){
+    return a + n / 2;
+}
+```
+
+## E12.11
+### Statement
+Modify the `find_largest` function so that it uses pointer arithmetic -- not subscripting -- to visit array elements.
+
+### Solution
+```
+int find_largest(int a[], int n) {
+   int *p = a, max;
+   max = *p;
+   for(;p < a + n; p++){
+       if(*p > max)
+           max = *p;
+   }
+}
+```
+
+## E12.12
+### Statement
+Write the following function:
+
+`void find_two_largest(const int *a, int n, int ‘largest, int *second_largest);`
+
+`a` points to an array of length `n`. The function searches the array for its largest and second-largest elements, storing them in the variables pointed to by `largest` and `second_largest`, respectively. Use pointer arithmetic -- not subscripting -- to visit array elements.
+
+### Solution
+```
+void find_two_largest(const int *a, int n, int *largest, int *second_largest){
+    int *p = a;
+    *largest = second_largest = *a;
+    for(;p < a + n; p++){
+        if(*p > *largest){
+            *second_largest = *largest;
+            *largest = *p;
+        } else if (*p > *second_largest){
+            *second_largest = *p;
+        }
+    }
+}
+```
+
+## E12.13
+### Statement
+Section 8.2 had a program fragment in which two nested `for` loops initialized the array `ident` for use as an identity matrix. Rewrite this code, using a single pointer to step through the array one element at a time. Hint: Since we won't be using `row` and `col` index variables, it won't be easy to tell where to store 1. Instead, we can use the fact that the first element of the array should be 1, the next `N` elements should be 0, the next element should be 1, and so forth. Use a variable to keep track of how many consecutive Os have been stored: when the count reaches `N`, it’s time to store 1.
+
+### Solution
+```
+int numZero = 0;
+for (int *p = &ident[0][0]; p <= &ident[N-1][N-1]; p++){
+    if (numZero == N){
+        *p = 1.0;
+        numZero = 0;
+    } else {
+        *p = 0;
+        numZero++;
+    }
+}
+```
+
+## E12.14
+### Statement
+Assume that the following array contains a week's worth of hourly temperature readings, with each row containing the readings for one day:
+
+`int temperatures[7][24];`
+
+Write a statement that uses the `search` function (see Exercise 7) to search the entire `temperatures` array for the value 32.
+
+### Solution
+```
+search(temperatures, 7*24, 32);
+```
+
+## E12.15
+### Statement
+Write a loop that prints all temperature readings stored in row `i` of the `temperatures` array (see Exercise 14). Use a pointer to visit each element of the row.
+
+### Solution
+```
+for(int *p = &temperatures[i][0]; p < &temperatures[i][24]; p++){
+    printf("%d ", *p);
+}
+```
+
+## E12.16
+### Statement
+Write a loop that prints the highest temperature in the `temperatures` array (see Exercise 14) for each day of the week. The loop body should call the `find_largest` function, passing it one row of the array at a time.
+
+### Solution
+```
+for(int i = 0; i < 7; i++){
+    printf("%d ", find_largest(temperatures[i], 24));
+}
+```
+
+## E12.17
+### Statement
+Rewrite the following function to use pointer arithmetic instead of array subscripting. (In other words, eliminate the variables `i` and `j` and all uses of the `[]` operator.) Use a single
+loop instead of nested loops.
+
+```
+int sum_two_dimensional_array(const int a[][LEN], int n) {
+    int i, j, sum = 0;
+
+    for (i = 0 ; i < n; i++)
+        for (j = 0; j < LEN; j++)
+            sum += a[i][j];
+    return sum;
+}
+```
+
+### Solution
+```
+int sum_two_dimensional_array(const int a[][LEN], int n) {
+    for(int *p = &a[0][0]; p <= &a[n][LEN];p++)
+        sum += *p;
+    return sum;
+}
+```
+
+## E12.18
+### Statement
+Write the `evaluate_position` function described in Exercise 13 of Chapter 9. Use pointer arithmetic -- not subscripting -- to visit array elements. Use a single loop instead of nested loops.
+
+### Solution
+```
+int evaluate_position(char board[8][8]){
+    int white, black;
+    white = black = 0;
+    for(int *p = board; p < board + 64; p++){
+        if(toupper(*p) == c){
+            if (*p == 'Q')
+                white += 9;
+            else if (*p == 'R')
+                white += 5;
+            else if (*p == 'B')
+                white += 3;
+            else if (*p == 'N')
+                white += 3;
+            else if (*p == 'P')
+                white++;
+        } else {
+            if (*p == 'q')
+                black += 9;
+            else if (*p == 'r')
+                black += 5;
+            else if (*p == 'b')
+                black += 3;
+            else if (*p == 'n')
+                black += 3;
+            else if (*p == 'p')
+                black++;
+        }
+    }
+    return white - black
+}
+```
+
+# Projects
+## P12.1
+### Statement
+(a) Write a program that reads a message, then prints the reversal of the message:
+
+```
+Enter a message: Don't get mad, get even.
+Reversal is: .neve teg ,dam teg t'noD
+```
+
+Hint: Read the message one character at a time (using `getchar`) and store the characters in an array. Stop reading when the array is full or the character read is `'\n'`.
+
+(b) Revise the program to use a pointer instead of an integer to keep track of the current position in the array.
+
+### Code (a)
+```
+// Filename: p1.c
+// Purpose: Prints the reversal of a message
+// Author: syfer
+// Date: August 3rd, 2025
+
+#include <stdio.h>
+
+#define MAX_LENGTH 100
+
+int main(){
+
+    int i;
+    char c[MAX_LENGTH], ch;
+
+    printf("Enter a message: ");
+
+    for (i = 0; i < MAX_LENGTH;i++){
+        ch = getchar();
+        if (ch == '\n')
+            break;
+        c[i] = ch;
+    }
+
+    printf("Reversal is: %d ", i);
+    for(int j = i-1; j >= 0; j--){
+        putchar(c[j]);
+    }
+
+    printf("\n");
+    
+    return 0;
+}
+```
+
+### Thoughts (a)
+C has an obsession with letting code execute, despite it being total nonsense. I knew of this aversion to error throwing but it still came to bite me here. For some reason my messages were printing an extra new line during the reversal, so I thought that for some reason my `if` statement to break the loop did not work, or that the last character in the `c` array ended up being a new line character despite the assignment coming after the `break`.
+
+Turns out of course that the `for` loop will increment `i` one last time regardless of the `break` meaning that I was actually going out of bounds by printing starting with `j = i` not `j = i - 1`. And the lovely C, instead of telling me this, decided to print new line characters fairly consistently. 
+
+### Code (b)
+```
+// Filename: p1.c
+// Purpose: Prints the reversal of a message
+// Author: syfer
+// Date: August 3rd, 2025
+
+#include <stdio.h>
+
+#define MAX_LENGTH 100
+
+int main(){
+
+    char *i, c[MAX_LENGTH], ch;
+
+    printf("Enter a message: ");
+
+    for (i = c; i < c + MAX_LENGTH;i++){
+        ch = getchar();
+        if (ch == '\n')
+            break;
+        *i = ch;
+    }
+
+    printf("Reversal is: ");
+    for(i -= 1; i >= c; i--){
+        putchar(*i);
+    }
+
+    printf("\n");
+    
+    return 0;
+}
+```
+
+## P12.2
+### Statement
+(a) Write a program that reads a message, then checks whether it’s a palindrome (the letters in the message are the same from left to right as from right to left):
+
+```
+Enter a message: He lived as a devil, eh?
+Palindrome
+
+Enter a message: Madam, I am Adam,
+Not a palindrome
+```
+
+Ignore all characters that aren't letters. Use integer variables to keep track of positions in the array.
+
+(b) Revise the program to use pointers instead of integers to keep track of positions in the array.
+
+### Code (a)
+```
+// Filename: p2.c
+// Purpose: Checks whether a message is a palindrome
+// Author: syfer
+// Date: August 3rd, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+#define MAX_LENGTH 100
+
+int main(){
+
+    int i;
+    char m[MAX_LENGTH], ch;
+
+    printf("Enter a message: ");
+    for(i = 0; i < MAX_LENGTH;){
+        ch = getchar();
+        if(isalpha(ch)){
+            m[i++] = ch;
+        } else if (ch == '\n')
+            break;
+    }
+    i--;
+    int len = i;
+    for (int j = 0; j <= len; j++, i--){
+        if(toupper(m[i]) != toupper(m[j])){
+            printf("Not a palindrome\n");
+            exit(EXIT_SUCCESS);
+        }
+    }
+    printf("Palindrome\n");
+    
+    return 0;
+}
+
+```
+### Thoughts (a)
+Once again I ran into the same bug, and it was not until typing the explanation as to why I could not understand it, that I finally did. 
+
+Turns out we increment `i` postfix! Since I wrote the code I should be aware of that. Meaning that `i` will be the index of the next value to be stored, not where the last value is, hence the decrement.
+
+I guess to remove the extra `--i` I could start `i` at -1 and then use a prefix increment like `m[++i] = ch`. Personally I think that is uglier than just having an extra decrement.
+
+### Code (b)
+```
+// Filename: p2.c
+// Purpose: Checks whether a message is a palindrome
+// Author: syfer
+// Date: August 3rd, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+#define MAX_LENGTH 100
+
+int main(){
+
+    char *i, m[MAX_LENGTH], ch;
+
+    printf("Enter a message: ");
+    for(i = m; i < m + MAX_LENGTH;){
+        ch = getchar();
+        if(isalpha(ch)){
+            *i++ = ch;
+        } else if (ch == '\n')
+            break;
+    }
+    i--;
+    int len = i - m;
+    for (char *j = m; j <= m + len; j++, i--){
+        if(toupper(*i) != toupper(*j)){
+            printf("Not a palindrome\n");
+            exit(EXIT_SUCCESS);
+        }
+    }
+    printf("Palindrome\n");
+    
+    return 0;
+}
+```
+
+## P12.3
+### Statement
+Simplify Programming Project 1(b) by taking advantage of the fact that an array name can be used as a pointer.
+
+### Thoughts
+Could not figure out what was needed from me here. From what I can see online, every solution is just my 1(b).
+
+## P12.4
+### Statement
+Simplify Programming Project 2(b) by taking advantage of the fact that an array name can be used as a pointer.
+
+### Thoughts
+Once again, just my 2(b)... 
+
+## P12.5
+### Statement
+Modify Programming Project 14 from Chapter 8 so that it uses a pointer instead of an integer to keep track of the current position in the array that contains the sentence.
+
+### Code
+```
+// Filename: p5.c
+// Purpose: Reverses the words in a sentence
+// Author: syfer
+// Date: August 3rd, 2025
+
+#include <stdio.h>
+
+#define MAX_VALUE 100
+
+int main(){
+
+    char *i,m[MAX_VALUE] = {0}, ch;
+
+    printf("Enter a sentence: ");
+
+    i = m;
+    
+    while ((ch = getchar()) != '\n'){ //just in case we check for enter termination as well
+        if (ch == '?' || ch == '!' || ch == '.')
+            break;
+        *i = ch;
+        i++;
+    }
+
+    printf("Reversal of sentence: ");
+    for(char *j = i - 1; j >= m; j--){
+        if(*j == ' '){
+           for(char *k = j + 1; k< m + MAX_VALUE && *k != ' '; k++) {
+               putchar(*k);
+           }
+           putchar(' ');
+        }
+        //The first word will not have a blank before it
+        if (j == m){
+           for(char *k = m; k< m + MAX_VALUE && *k != ' '; k++) {
+               putchar(*k);
+           }
+        }
+    }
+
+    putchar(ch);
+    printf("\n");
+
+    return 0;
+}
+```
+### Thoughts
+Worked first try without any bug-fixing. Breath of fresh air compared to how long this project took me originally.
+
+## P12.6
+### Statement
+Modify the `qsort.c` program of Section 9.6 so that `low`, `high`, and `middle` are pointers to array elements rather than integers. The `split` function will need to return a pointer, not an integer. 
+
+### Code
+```
+// Filename: p6.c
+// Purpose: Quick sorts an array
+// Author: syfer
+// Date: August 3rd, 2025
+#include <stdio.h> 
+
+#define N 10 
+
+void quicksort(int a[], int *low, int *high); 
+int *split(int a[], int *low, int *high); 
+
+int main(void) { 
+    int a[N], i; 
+
+    printf("Enter %d numbers to be sorted: ", N); 
+    for (i = 0; i < N; i++) 
+        scanf("%d", &a[i]); 
+
+    quicksort(a, a, a + N - 1);
+
+    printf("In sorted order: ") ; 
+    for (i = 0; i < N; i++) 
+        printf("%d ", a[i]); 
+    printf("\n"); 
+
+    return 0; 
+} 
+
+
+void quicksort (int a[],  int* low, int* high) {
+    int* middle;
+
+    if (low >= high) return; 
+    middle = split(a, low, high); 
+    quicksort(a, low, middle - 1) ; 
+    quicksort(a, middle + 1 , high); 
+}
+
+int *split (int a[], int* low, int* high) {
+    int part_element = *low; 
+    for (;;) {
+        while (low < high && part_element <= *high) 
+           high--; 
+        if (low >= high) break; 
+        *low++ = *high; 
+
+        while (low < high && *low <= part_element) 
+            low++;
+        if (low >= high) break; 
+        *high-- = *low; 
+    } 
+    *high = part_element; 
+    return high; 
+} 
+```
+### Thoughts
+Not too bad, just a lot of replacements. No bugs, worked first try.
+
+## P12.7
+### Statement
+Modify the `maxmin.c` program of Section 11.4 so that the `max_min` function uses a pointer instead of an integer to keep track of the current position in the array.
+
+### Code
+```
+// Filename: p7.c
+// Purpose: finds the largest and smallest elements in an array
+// Author: syfer
+// Date: August 3rd, 2025
+
+#include <stdio.h>
+
+#define N 10 
+
+void max_min(int a[], int n, int *max, int *min); 
+
+int main(void) { 
+
+    int b[N], i, big, small; 
+
+    printf("Enter %d numbers: ", N); 
+    for (i = 0; i < N; i++) 
+        scanf("%d", &b[i]); 
+
+    max_min(b, N, &big, &small) ; 
+
+    printf("Largest: %d\n", big); 
+    printf("Smallest: %d\n", small); 
+
+    return 0; 
+} 
+
+void max_min(int a[], int n, int *max, int *min) { 
+    int *i; 
+
+    *max = *min = a[0]; 
+    for (i = a + 1; i < a + n; i++) { 
+        if (*i > *max) 
+            *max = *i; 
+        else if (*i < *min) 
+            *min = *i; 
+    }
+}
+```
+# Conclusion
+This chapter was one of the big ones that I was really looking forward to. The information was exactly what I wanted, and the exercises were really helpful to gain a better understanding. Unfortunately, especially with the projects, I felt that too much emphasis was used on modifying existing programs, rather than showing where pointers would be useful in the first place.
+
+The book mentions several times that pointers in fact are faster on some older compilers and might not be as fast on more modern ones. Since this was almost two decades ago, I would assume that the optimization has gotten so good that there's no time saved using these techniques. I do think that the majority of solutions with them look more elegant than otherwise, but also hurt readability. There is still another chapter on pointers after this, so there will be more applications there.
+
+The information in the chapter was very helpful to my learning. There were two important realizations I came to with pointers. 
+
+The first is that pointers are their own type, and each type of pointer also has its own type. For some reason for a while I had thought that since pointers were just addresses, and we could do arithmetic operations to them, that they basically were numbers, in the same way that `char` is treated as an `int`. In particular a big misconception I had was that two pointers to two different types would have the same type. It made sense to me that an address is an address no matter what is stored there, but it seems pointers keep track.
+
+The second realization was that we cannot treat pointers as integers. I do not know how I was unaware of this, and it might be different in C++ but in C you cannot even add pointers together. There are 3 strict things we can do and that is IT. I originally thought that you could do any operation to and between pointers of the same type. Not the case
+
+I think these concepts will be propagated throughout every chapter going forward, so I'm not too worried if there are still holes in my knowledge here. With that being said, every project worked first try (at least the find and replace ones) so I must have understood at least something.
