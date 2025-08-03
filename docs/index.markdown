@@ -35,6 +35,8 @@ layout: default
 
 [Chapter 11 (2025-08-02)](/learningc11)
 
+[Chapter 12 (2025-08-03)](/learningc12)
+
 ## Notes
 [Personal pentesting notes](/pentestnotes)
 
