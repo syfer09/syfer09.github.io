@@ -1,0 +1,592 @@
+---
+layout: default
+title: Chapter 15
+date: 2025-08-05 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc15
+---
+# Chapter 15
+# Exercises
+## E15.1
+### Statement
+Section 15.1 listed several advantages of dividing a program into multiple source files.
+
+(a) Describe several other advantages.
+
+(b) Describe some disadvantages.
+
+### Solution
+(a) There must be other advantages, but the only one that I could think of that was not already mention was obfuscation and information hiding. If we give the user access to say provide input in a particular piece of code, it would be much easier for them to do something unintended if the entire code for the program was located in a single file. Similarly if there is back-end data that we want to hide from someone, but we still want to give access to part of the code, multiple files is the only solution.
+
+(b) Complexity. Already my first thought throughout this whole chapter was "sounds like a lot of work to manage linking and makefiles, what is the point?". In an object oriented language I understand that multiple files aren't just useful but also a necessity (i.e. a separate file for every class). In C, however, most of the advantages involve things like "readability" and "portability" and "mutability". All very important concepts, but they are all still examples of preferences rather than necessities.
+
+## E15.2
+### Statement
+Which of the following should not be put in a header file? Why not?
+
+(a) Function prototypes
+
+(b) Function definitions
+
+(c) Macro definitions
+
+(d) Type definitions
+
+### Solution
+(b) function definitions. Linking a header file that contains a definition will create a copy of that definition in each file it is included in. Once is technically fine, but a second inclusion will break the program due to duplicate function identifiers.
+
+## E15.3
+### Statement
+We saw that writing `#include<file>` instead of `#include "file"` may not work if `file` is one that we've written. Would there be any problem with writing `#include "file"` instead of `#include<file>` if file is a system header?
+
+### Solution
+Depending on the implementation and several factors it could work, but should be avoided. In particular it will work if
+
+1. There is no local header file of the same name
+2. The compiler checks local directory first, and then automatically goes into the `/usr/include` directory (not sure which ones do this).
+
+## E15.4
+### Statement
+Assume that `debug.h` is a header file with the following contents:
+
+```
+#ifdef DEBUG
+#define PRINT_DEBUG(n) printf("Value of " #n ": %d\n", n)
+#else
+#define PRINT_DEBUG(n)
+#endif
+```
+
+Let `testdebug.c` be the following source file:
+
+```
+#include <stdio.h>
+
+#define DEBUG
+#include "debug.h"
+
+int main(void){ 
+    int i = 1, j = 2, k = 3 ;
+#ifdef DEBUG
+    printf("Output if DEBUG is defined:\n");
+#else
+    printf("Output if DEBUG is not defined:\n");
+#endif
+    PRINT_DEBUG(i);
+    PRINT_DEBUG(j);
+    PRINT_DEBUG (k);
+    PRINT_DEBUG(i + j);
+    PRINT_DEBUG(2 * i + j - k);
+
+    return 0;
+}
+```
+
+(a) What is the output when the program is executed ?
+
+(b) What is the output if the `#define` directive is removed from `testdebug.c`?
+
+(c) Explain why the output is different in parts (a) and (b).
+
+(d) Is it necessary for the `DEBUG` macro to be defined before `debug.h` is included in order for `PRINT_DEBUG` to have the desired effect? Justify your answer.
+
+### Solution
+(a)
+```
+Output if DEBUG is defined:
+Value of i: 1
+Value of j: 2
+Value of k: 3
+Value of i + j: 3
+Value of 2 * i + j - k: 1
+```
+
+(b) 
+
+```
+Output if DEBUG is not defined:
+```
+
+(c) The header file defines `PRINT_DEBUG` differently based on whether or not `DEBUG` is defined. In the second example it is not defined, therefore `PRINT_DEBUG` gets defined as a blank macro.
+
+(d) It seems to be the case that `DEBUG` must be defined before the linking. I think this is due to the fact that the header file is handled entirely by the pre-processor.
+
+## E15.5
+### Statement
+Suppose that a program consists of three source files -- `main.c`, `f1.c`, and `f2.c` -- plus two header files, `f1.h` and `f2.h`. All three source files include `f1.h`, but only `f1.c` and `f2.c` include `f2.h`. Write a makefile for this program, assuming that the compiler is `gcc` and that the executable file is to be named `demo`.
+
+### Solution
+```
+demo: main.o f1.o f2.o
+    gcc -o demo demo.o f1.o f2.o
+
+main.o: main.c f1.h
+    gcc -c main.c
+
+f1.o: f1.c f1.h f2.h
+    gcc -c f1.c
+
+f2.o: f2.c f1.h f2.h
+    gcc -c f2.c
+```
+
+## E15.6
+### Statement
+The following questions refer to the program described in Exercise 5.
+
+(a) Which files need to be compiled when the program is built for the first time?
+
+(b) If `f1.c` is changed after the program has been built, which files need to be recompiled?
+
+(c) If `f1.h` is changed after the program has been built, which files need to be recompiled?
+
+(d) If `f2.h` is changed after the program has been built, which files need to be recompiled?
+
+### Solution
+(a) all `.c` files
+
+(b) `f1.c`
+
+(c) all `.c` files
+
+(d) `f1.c` and `f2.c`
+
+# Projects
+## P15.1
+### Statement
+The justify program of Section 15.3 justifies lines by inserting extra spaces between words. The way the `write_line` function currently works, the words closer to the end of a line tend to have slightly wider gaps between them than the words at the beginning. (For example, the words closer to the end might have three spaces between them, while the words closer to the beginning might be separated by only two spaces.) Improve the program by having write_line alternate between putting the larger gaps at the end of the line and putting them at the beginning of the line.
+
+### Code
+
+```
+// Filename: line.c
+// Purpose: Reads in a full line, one word at a time
+// Author: syfer
+// Date: August 5th, 2025
+
+#include <stdio.h> 
+#include <string.h> 
+#include <stdbool.h> 
+#include "line.h" 
+
+#define MAX_LINE_LEN 60 
+
+char line[MAX_LINE_LEN+1]; 
+int line_len = 0; 
+int num_words = 0; 
+bool togglespace = false;
+
+void clear_line(void) { 
+    line [0] = '\0'; 
+    line_len = 0; 
+    num_words = 0; 
+} 
+
+void add_word(const char *word) {
+    if (num_words > 0) { 
+        line[line_len] = ' ';
+        line[line_len+1] = '\0'; 
+        line_len++; 
+    } 
+    strcat(line, word); 
+    line_len += strlen(word); 
+    num_words++; 
+} 
+
+int space_remaining(void) { 
+    return MAX_LINE_LEN - line_len; 
+} 
+
+void write_line(void) { 
+    int extra_spaces, spaces_to_insert, i, j; 
+
+    togglespace = !togglespace;
+
+    extra_spaces = MAX_LINE_LEN - line_len; 
+    for (i = 0; i < line_len; i++) { 
+        if (line [i] != ' ') 
+            putchar(line[i]); 
+        else { 
+            spaces_to_insert = extra_spaces / (num_words - 1); 
+            if(togglespace && extra_spaces > 0){   //CHANGES HERE <-------------
+                spaces_to_insert++;
+                togglespace = !togglespace;
+            }
+
+            for (j = 1; j <= spaces_to_insert + 1; j++) 
+                putchar(' '); 
+            extra_spaces -= spaces_to_insert; 
+            num_words--; 
+        } 
+    } 
+    putchar('\n'); 
+} 
+
+void flush_line(void) { 
+    if (line_len > 0) 
+        puts(line); 
+}
+```
+
+### Thoughts
+Since the project consists of 5 files, and only one was modified I decided to just include `line.c` since everything else remains the same.
+
+I'm actually a bit unsure if this was what was needed, but we now alternate, increasing every other space by 1.
+
+It does look better, I guess. I think that the important part of this project was actually linking and writing my first multi-file C program with custom headers. Although I did not make a makefile, perhaps that should be something I test out as well.
+
+## P15.2
+### Statement
+Modify the justify program of Section 15.3 by having the `read_word` function (instead of `main`) store the `*` character at the end of a word that's been truncated.
+
+### Code
+
+```
+// Filename: word.c
+// Purpose: reads in words
+// Author: syfer
+// Date: August 5th, 2025
+
+#include <stdio.h> 
+#include "word.h" 
+
+int read_char(void) { 
+    int ch = getchar (); 
+
+    if (ch == '\n' || ch == '\t') 
+        return ' '; 
+    return ch; 
+} 
+
+void read_word(char *word, int len) { 
+    int ch, pos = 0; 
+
+    while ((ch = read_char()) == ' ')  
+        ;
+
+    while (ch != ' ' && ch != EOF) { 
+        if (pos < len) 
+            word[pos++] = ch; 
+        ch = read_char(); 
+
+    } 
+    word [pos] = '\0'; 
+    if(strlen(word) > MAX_WORD_LEN)
+        word[MAX_WORD_LEN] = '*' // CHANGE HERE <-------
+} 
+```
+
+### Thoughts
+Same thing here, we remove the `*` check from justify and just put it at the end of the `read_word` function.
+
+## P15.3
+### Statement
+Modify the `qsort.c` program of Section 9.6 so that the `quicksort` and `split` functions are in a separate tile named `quicksort.c`. Create a header tile named `quicksort.h` that contains prototypes for the two functions and have both `qsort.c` and `quicksort.c` include this file.
+
+### Code
+#### qsort.c
+```
+// Filename: qsort.c
+// Purpose: Quick sorts an array
+// Author: syfer
+// Date: August 5th, 2025
+#include <stdio.h> 
+#include "quicksort.h"
+
+#define N 5 
+
+
+int main(void) { 
+    int a[N], i; 
+
+    printf("Enter %d numbers to be sorted: ", N) ; 
+    for (i = 0; i < N; i++) 
+        scanf("%d", &a[i]); 
+
+    quicksort(a, 0, N - 1) ; 
+
+    printf("In sorted order: ") ; 
+    for (i = 0; i < N; i++) 
+        printf("%d ", a[i]); 
+    printf("\n"); 
+
+    return 0; 
+} 
+```
+
+#### quicksort.c
+```
+// Filename: quicksort.c
+// Purpose: provides quicksorting functions
+// Author: syfer
+// Date: August 5th, 2025
+
+#include "quicksort.h"
+
+void quicksort (int a[], int low, int high) {
+    int middle;
+
+    if (low >= high) return; 
+    middle = split(a, low, high); 
+    quicksort(a, low, middle - 1) ; 
+    quicksort(a, middle + 1 , high); 
+}
+
+int split (int a[], int low, int high) {
+    int part_element = a[low]; 
+    for (;;) { 
+        while (low < high && part_element <= a[high]) 
+            high--; 
+
+        if (low >= high) break; 
+        a[low++] = a[high]; 
+
+        while (low < high && a[low] <= part_element) 
+            low++;
+        if (low >= high) break; 
+            a[high--] = a[low]; 
+    } 
+    a[high] = part_element; 
+    return high; 
+}
+
+```
+
+#### quicksort.h
+```
+#ifndef QUICKSORT_H
+#define QUICKSORT_H
+void quicksort(int a[], int low, int high); 
+int split(int a[], int low, int high); 
+#endif
+```
+
+### Thoughts
+Not very complicated, did not change one line of code, just moved everything to the appropriate files.
+
+## P15.4
+### Statement
+Modify the `remind.c` program of Section 13.5 so that the `read_line` function is in a separate tile named `readline.c`. Create a header tile named `readline.h` that contains a prototype for the function and have both `remind.c` and `readline.c` include this file.
+
+### Code
+#### remind.c
+```
+// Filename: remind.c
+// Purpose: reminder program
+// Author: syfer
+// Date: August 5th, 2025
+
+#include <stdio.h>
+#include <string.h>
+#include "readline.h"
+
+#define MAX_REMIND 50 /* maximum number of reminders */ 
+
+#define MSG_LEN 60 /* max length of reminder message */ 
+
+int main() { 
+    char reminders[MAX_REMIND][MSG_LEN+3]; 
+    char day_str[3], msg_str[MSG_LEN+1] ; 
+    int day, i, j, num_remind = 0; 
+
+    for (;;) { 
+        if (num_remind == MAX_REMIND) { 
+            printf("No space left \n") ; 
+            break; 
+        } 
+
+        printf("Enter day and reminder: "); 
+        scanf("%2d", &day); 
+        if (day == 0) 
+            break; 
+
+        sprintf(day_str, "%2d", day); 
+
+        read_line(msg_str, MSG_LEN); 
+
+        for (i = 0; i < num_remind; i++) 
+            if (strcmp(day_str, reminders[i]) < 0) 
+                break; 
+        for (j = num_remind; j > i; j--) 
+            strcpy(reminders[j] , reminders[j-1]); 
+
+        strcpy(reminders[i], day_str); 
+        strcat(reminders[i], msg_str); 
+
+        num_remind++; 
+    } 
+
+    printf("\nDay Reminder\n"); 
+    for (i = 0; i < num_remind; i++) 
+        printf(" %s\n", reminders[i]); 
+
+    return 0; 
+} 
+
+```
+
+#### readline.c
+```
+// Filename: readline.c
+// Purpose: Reads in lines for the reminder progra
+// Author: syfer
+// Date: August 5th, 2025
+
+#include "readline.h"
+#include <stdio.h>
+
+int read_line(char str[], int n) { 
+    int ch, i = 0; 
+
+    while ((ch = getchar()) != '\n') 
+        if (i < n) 
+            str[i++] = ch; 
+    str[i] = '\0'; 
+    return i; 
+}
+
+```
+
+#### readline.h
+```
+#ifndef READLINE_H
+#define READLINE_H
+int read_line(char str[], int n); 
+#endif
+```
+
+## P15.5
+### Statement
+Modify Programming Project 6 from Chapter 10 so that it has separate `stack.h` and `stack.c` tiles, as described in Section 15.2.
+
+### Code
+#### rpn.c
+```
+// Filename: rpn.c
+// Purpose: Evaluates Reverse Polish Expressions
+// Author: syfer
+// Date: August 5th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>  
+#include "stack.h"
+
+int main(){
+
+    char c;
+    int op1, op2;
+
+    for(;;){
+        printf("Enter an RPN expression: ");
+        while ((c = getchar()) != '\n'){
+            if(c == '+'){
+               push(pop() + pop());
+            } else if (c == '-'){
+               op2 = pop();
+               op1 = pop();
+               push(op1 - op2);
+            } else if (c == '*'){
+               push(pop() * pop());
+            } else if (c == '/'){
+               op2 = pop();
+               op1 = pop();
+               push(op1 / op2);
+            } else if (c == '='){
+                printf("Value of expression: %d\n", pop());
+                getchar();
+                make_empty();
+                break;
+            } else if (c==' '){
+                continue;
+            } else if (isdigit(c)){
+                push(c - '0');
+            } else {
+                exit(EXIT_SUCCESS);
+            } 
+        }
+    }
+    return 0;
+}
+```
+
+#### stack.c
+
+```
+// Filename: stack.c
+// Purpose: creates a stack object
+// Author: syfer
+// Date: August 5th, 2025
+
+#include <stdio.h>
+#include <stdbool.h>
+#include "stack.h"
+#include <stdlib.h>
+
+#define STACK_SIZE 100 
+
+/* external variables */ 
+int contents[STACK_SIZE]; 
+int top = 0; 
+
+void make_empty(void) { 
+    top = 0; 
+} 
+
+bool is_empty(void) { 
+    return top == 0; 
+} 
+
+bool is_full(void) { 
+    return top == STACK_SIZE; 
+} 
+
+void push(int i) { 
+    if (is_full()) 
+        stack_overflow(); 
+    else 
+        contents[top++] = i; 
+} 
+
+int pop(void) { 
+    if (is_empty()) 
+        stack_underflow(); 
+    else 
+        return contents[--top]; 
+    return 0; // so that C doesn't yell at me, but we never get here 
+} 
+
+void stack_overflow(void){
+    printf("\nExpression is too complex\n");
+    exit(EXIT_FAILURE);
+}
+
+void stack_underflow(void){
+    printf("\nNot enough operands in expression\n");
+    exit(EXIT_FAILURE);
+}
+```
+
+#### stack.h
+
+```
+#include <stdbool.h>
+#ifndef STACK_H
+#define STACK_H
+void make_empty(void);
+bool is_empty(void); 
+int pop(void); 
+void push(int i); 
+void stack_overflow(void);
+void stack_underflow(void);
+bool is_full(void); 
+#endif
+```
+
+### Thoughts
+Only confusing part here was how to include `bool` in the header. I'm not sure that just having an `include` at the start is the safest solution, but it works.
+
+# Conclusion
+This chapter was just a lot of new information about linking and how programs work together. To be honest, most of these rules feel a lot simpler than what I had encountered with other languages. 
+
+Working primarily on Linux, makefiles are standard for practically anything that isn't a package from an official repository. Before this chapter I only had the barest understanding of what they were, and what to eat them with. That's not to say that I understand anything about their syntax, but I at least now know how to write a basic make to make linking automatic, and I'm a little less worried about manually fixing dependencies this way. In fact I kind of want to read a book on Makefiles at some point since they end up being relevant to my daily life as a Linux user.
