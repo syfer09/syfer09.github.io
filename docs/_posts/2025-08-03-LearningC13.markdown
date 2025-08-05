@@ -1,0 +1,1453 @@
+---
+layout: default
+title: Chapter 13
+date: 2025-0 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc13
+---
+# Chapter 13
+# Introduction
+# Exercises
+## E13.1
+### Statement
+The following function calls supposedly write a single new-line character, but some are incorrect. Identify which calls don’t work and explain why.
+
+(a) `printf("%c", '\n');`
+
+(b) `printf("%c", "\n");`
+
+(c) `printf("%s", '\n');`
+
+(d) `printf("%s", "\n");`
+
+(e) `printf('\n');`
+
+(f) `printf("\n");`
+
+(g) `putchar('\n');`
+
+(h) `putchar("\n");`
+
+(i) `puts('\n');`
+
+(j) `puts("\n");`
+
+(k) `puts(" ");`
+
+### Solution
+(a) is legal
+
+(b) is illegal due to the format expecting a `char` instead of a string literal
+
+(c) is illegal due to the format expecting a `string` instead of a `char    `
+
+(d) is legal
+
+(e) is illegal due to `printf` requiring a `char *` as the first argument
+
+(f) is legal
+
+(g) is legal
+
+(h) is illegal due to `putchar` needing a `char` not a string literal
+
+(i) is illegal due to `puts` needing a string, not a `char`
+
+(j) is legal but will print two new line characters
+
+(k) is legal.
+
+## E13.2
+### Statement
+Suppose that `p` has been declared as follows:
+
+`char *p = "abc";`
+
+Which of the following function calls are legal? Show the output produced by each legal call, and explain why the others are illegal.
+
+(a) `putchar(p);`
+
+(b) `putchar(*p);`
+
+(c) `puts(p);`
+
+(d) `puts(*p);`
+
+### Solution
+(a) is illegal because `putchar` needs an integer, not a pointer
+
+(b) is legal, since `*p` points to the character `a` in the string literal, prints `a`
+
+(c) is legal and prints `abc` with a new line character at the end.
+
+(d) is illegal since `puts` needs a string literal, not a integer / character.
+
+## E13.3
+### Statement
+Suppose that we call `scanf` as follows: 
+
+`scanf("%d%s%d", &i, s, &j);`
+
+If the user enters `12abc34` `56def78`, what will be the values of `i`,`s`, and `j` after the call? (Assume that `i` and `i` are `int` variables and `s` is an array of characters).
+
+### Solution
+The `scanf` first reads an integer, 12, into `i`. Next comes the string scan, which will only stop once it encounters a whitespace character, therefore the string will read in `"abc34"`. Then, the integers will take over again and put 56 into `j`. The rest is discarded.
+
+## E13.4
+### Statement 
+Modify the read_line function in each of the following ways:
+
+(a) Have it skip white space before beginning to store input characters.
+
+(b) Have it stop reading at the first white-space character. Hint: To determine whether or not a character is white space, call the `isspace` function.
+
+(c) Have it stop reading at the first new-line character, then store the new-line character in the string.
+
+(d) Have it leave behind characters that it doesn't have room to store.
+
+### Solution
+(a) Added in an extra `while` loop to skip the whitespace, changed the other `while` loop to a `do`
+
+```
+int read_line(char str[], int n) {
+    int ch, i = 0;
+    while((ch = getchar()) == ' ');
+    do{
+        if (i < n)
+            str[i++] = ch;
+    } while ((ch = getchar()) != '\n');
+
+    str[i] = '\0'; /* terminates string */
+
+    return i; /* number of characters stored */
+
+}
+```
+
+(b) Just adding an extra condition to the `while` loop.
+
+```
+int read_line(char str[], int n) {
+    int ch, i = 0;
+
+    while ((ch = getchar()) != '\n' && !isspace(ch))
+        if (i < n)
+            str[i++] = ch;
+    str[i] = '\0'; /* terminates string */
+    return i; /* number of characters stored */
+}
+```
+
+(c) Just an extra repeat of the `while` loop body after it terminates to store the new line.
+
+```
+int read_line(char str[], int n) {
+    int ch, i = 0;
+
+    while ((ch = getchar()) != '\n')
+        if (i < n)
+            str[i++] = ch;
+
+    if (i < n)
+        str[i++] = ch;
+    str[i] = '\0'; /* terminates string */
+    return i; /* number of characters stored */
+}
+```
+
+(d) Putting the `if` condition into the `while` loop body
+
+```
+int read_line_origin(char str[], int n) {
+    int ch, i = 0;
+
+    while ((ch = getchar()) != '\n' && i < n)
+            str[i++] = ch;
+    str[i] = '\0'; /* terminates string */
+    return i; /* number of characters stored */
+}
+```
+
+## E13.5
+### Statement
+(a) Write a function named `capitalize` that capitalizes all letters in its argument. The argument will be a null-terminated string containing arbitrary characters, not just letters.  Use array subscripting to access the characters in the string. Hint: Use the `toupper` function to convert each character to upper-case.
+
+(b) Rewrite the `capitalize` function, this time using pointer arithmetic to access the characters in the string.
+
+### Solution
+(a)
+
+```
+void capitalize(char str[]){
+    for(int i = 0; str[i] != '\0';i++)
+        if (isalpha(str[i])) 
+            str[i] = toupper(str[i]);
+}
+```
+
+(b)
+
+```
+void capitalize(char *str){
+    for(char *i = str; *i != '\0'; i++)
+        if (isalpha(*i)) 
+            *i = toupper(*i);
+}
+```
+
+## E13.5 Discussion
+
+The functions written here were simple but they pushed me down a bit of a rabbit hole:
+
+I ran into an issue testing these functions. I was originally declaring my test string as `char *p = "test";` but this was throwing segmentation faults at me, and I was unsure why. 
+
+This chapter really emphasized that pointers and arrays are really the same thing, and are almost interchangeable. In particular we can pass pointers where arrays are declared and vice versa. There are, however, exceptions to this like the one I ran into.
+
+Based on what I had found online, declaring a string literal in this way removes the ability for us to modify it, since we are just storing a pointer, while allocating `char str[] = "test"` will allocate the memory for each individual character. Regardless I think I need to reread parts of this chapter.
+
+In fact this entire discussion/realization is available on page 283 that I supposedly have read already.
+
+Continuing this, I found an excellent Stack Overflow [answer](https://stackoverflow.com/questions/2036096/literal-string-initializer-for-a-character-array) about when pointers != arrays:
+
+(1) When we use `sizeof`:
+
+(2) Using `&` to access the address of either the array or the address of the pointer
+
+(3) Declaring a string literal as discussed above
+
+## E13.6
+### Statement
+Write a function named `censor` that modifies a string by replacing every occurrence of `foo` by `xxx`. For example, the string `"food fool"` would become `"xxxd xxxl"`. Make the function as short as possible without sacrificing clarity.
+
+### Solution
+```
+void censor(char str[]){
+    for (char *i = str; *i;i++){
+        if(*i == 'f' && *(i+1) == 'o' && *(i+2) == 'o'){
+            *i = 'x';
+            *(i+1) = 'x';
+            *(i+2) = 'x';
+        }
+    }
+}
+```
+
+Felt like it was better to write this with pointers to avoid having to do any bounds checking. In general though, strings make it very nice to check bounds, since we know they start at 0 and end when `c[i] == 0`. Also the short circuit nature of the `&`'s, make it avoid checking anything after the null character.
+
+## E13.7
+### Statement
+Suppose that `str` is an array of characters. Which one of the following statements is not equivalent to the other three?
+
+(a) `*str = 0;`
+
+(b) `str[0] = '\0';`
+
+(c) `strcpy(str, "");`
+
+(d) `strcat(str, "");`
+
+### Solution
+(d) is the outlier, since everything else replaces the string with the null character while `strcat` just appends it at the end.
+
+## E13.8
+### Statement
+What will be the value of the string `str` after the following statements have been executed?
+
+```
+strcpy(str, "tire-bouchon");
+strcpy(&str[4], "d-or-wi");
+strcat(str, "red?");
+```
+
+### Solution
+`"tired-or-wired"`. We first replace the entire string with `"tire-bouchon"`, then replace the string `"-bouchon"` (located at index 4) with `"d-or-wi"` and finally append `"red?"` to the end of the string.
+
+## E13.9
+### Statement
+What will be the value of the string `s1` after the following statements have been executed?
+
+```
+strcpy(s1, "computer");
+strcpy(s2, "science");
+if (strcmp(s1, s2) < 0)
+    strcat(s1, s2);
+else
+    strcat(s2, s1);
+s1[strlen(s1) - 6] = '\0';
+```
+
+### Solution
+`"computers"`. First we put `"computer"` into `s1` and `"science"` into `s2`. Comparing the strings, `c` is earlier in the alphabet than `s` therefore we append `s2` to the end of `s1`. After that we end the string by putting a null character exactly 6 characters earlier, cutting off everything but the `s` in `science`.
+
+## E13.10
+### Statement
+The following function supposedly creates an identical copy of a string. What's wrong with the function?
+
+```
+char *duplicate(const char *p) {
+    char *q;
+
+    strcpy(q, p);
+    return q;
+}
+```
+
+### Solution
+`q` is uninitialized before using it in the `strcopy` function and the string will be stored in an unknown location in memory.
+
+## E13.11
+### Statement
+The Q&A section at the end of this chapter shows how the `strcmp` function might be written using array subscripting. Modify the function to use pointer arithmetic instead. 
+
+### Solution
+```
+int strcmp(char *s, char *t){
+    while (*s && *t)
+        if (*s != *t)
+            return *s - *t;
+    return 0;
+}
+```
+## E13.12
+### Statement
+Write the following function: 
+
+`void get extension(const char *file_name, char ‘extension);` 
+
+`file_name` points to a string containing a file name. The function should store the extension on the file name in the string pointed to by `extension`. For example, if the file name is `"memo.txt"`, the function will store `"txt"` in the string pointed to by `extension`. If the file name doesn't have an extension, the function should store an empty string (a single null character) in the string pointed to by `extension`. Keep the function as simple as possible by having it use the `strlen` and `strcpy` functions. 
+
+### Solution
+I really like this solution, but unfortunately it doesn't store anything where `extension` is, rather just changes where `extension` points.
+
+```
+void get_extension(const char *file_name, char *extension){
+    for(extension = file_name; *extension != '.'; extension++);
+    extension++;
+}
+```
+
+The correct solution is:
+```
+void get_extension(const char *file_name, char *extension){
+    for(;*file_name;file_name++){
+        if (*file_name == '.'){
+            strcpy(extension, ++file_name);
+            return;
+        }
+    }
+    strcpy(extension, "");
+}
+```
+
+## E13.13
+### Statement
+Write the following function: 
+
+`void build_index_url(const char *domain, char *index_url);` 
+
+`domain` points to a string containing an Internet domain, such as "knking.com". The function should add `"http://www."` to the beginning of this string and `"/index.html"` to the end of the string, storing the result in the string pointed to by `index_url`. (In this example, the result will be `"http://www.knking.com/index.html"`.) You may assume that `indexurl` points to a variable that is long enough to hold the resulting string. Keep the function as simple as possible by having it use the `strcat` and `strcpy` functions. 
+
+### Solution
+```
+void build_index_url(const char *domain, char *index_url){
+    strcpy(index_url, "http://www.");
+    strcat(index_url, domain);
+    strcat(index_url, "/index.html");
+}
+```
+
+## E13.14
+### Statement
+What does the following program print?
+
+```
+#include <stdio.h>
+
+int main(void) {
+
+    char s[] = "Hsjodi", *p;
+    for (p = s; *p; p++)
+        --*p;
+    puts(s);
+    return 0;
+}
+```
+
+### Solution
+The program decrements each character of the original string one by one. The result becomes `"Grinch"`
+
+## E13.15
+### Statement
+Let `f` be the following function:
+
+```
+int f(char *s, char *t) {
+    char *p1, *p2;
+
+    for (p1 = s; *p1; p1++) {
+        for (p2 = t; *p2; p2++)
+            if (*p1 == *p2) break;
+        if (*p2 == '\0') break;
+    }
+    return p1 - s;
+}
+```
+
+(a) What is the value of `f("abcd", "babc")`?
+
+(b) What is the value off `f("abcd", "bcd")`?
+
+(c) In general, what value does `f` return when passed two strings `t` and `s`?
+
+### Solution
+(a) 3
+
+(b) 0
+
+(c) in general the function returns the index of the first character in `s` that is not present in `t`.For example in `s = "abcd"` and `t = "babc"`, `d` is not present in `t` and is located at index 3 in `s`.
+
+## E13.16
+### Statement
+Use the techniques of Section 13.6 to condense the `count_spaces` function of Section 13.4. In particular, replace the `for` statement by a `while` loop.
+
+### Solution
+
+```
+int count_spaces(const char s[]) { 
+    int count = 0; 
+
+    while (*s++)
+        if (*s == ' ') 
+            count++; 
+    return count; 
+}  
+```
+
+## E13.17
+### Statement
+Write the following function:
+
+`bool test_extension(const char *file_name, const char *extension);`
+
+`file_name` points to a string containing a file name. The function should return `true` if the file's extension matches the string pointed to by `extension`, ignoring the case of letters. For example, the call `test_extension("memo.txt", "TXT")` would return `true`. Incorporate the "search for the end of a string" idiom into your function. Hint: Use `toupper` function to convert characters to upper-case before comparing them.
+
+### Solution
+```
+bool test_extension(const char *file_name, const char *extension){
+    while (*file_name++ && *file_name != '.')
+        ;
+    file_name++;
+    while(toupper(*file_name++) == toupper(*extension++))
+        if(!*file_name)
+            return true;
+    return false;
+}
+```
+
+## E13.18
+### Statement
+Write the following function:
+
+`void remove_filename(char *url);`
+
+`url` points to a string containing a URL (Uniform Resource Locator) that ends with a file name (such as `"http://www.knking.com/index.html"`). The function should modify the string by removing the file name and the preceding slash. (In this example, the result will be `"http://www.knking.com"`.) Incorporate the "search for the end of a string” idiom into your function. Hint: Have the function replace the last slash in the string by a null character.
+
+### Solution
+```
+void remove_filename(char *url){
+    char *p = url;
+    while (*p++)
+        if (*p == '/')
+            url = p;
+    *url = '\0';
+}
+```
+
+Feels like a clever solution
+
+# Projects
+## P13.1
+### Statement
+Write a program that finds the "smallest" and "largest" in a series of words. After the user enters the words, the program will determine which words would come first and last if the words were listed in dictionary order. The program must stop accepting input when the user enters a four-letter word. Assume that no word is more than 20 letters long. An interactive session with the program might look like this:
+
+```
+Enter word: dog
+Enter word: zebra
+Enter word: rabbit
+Enter word: catfish
+Enter word: walrus
+Enter word: cat
+Enter word: fish
+
+Smallest word: cat
+Largest word: zebra
+```
+
+Hint: Use two strings named `smallest_word` and `largest_word` to keep track of the "smallest" and "largest" words entered so far. Each time the user enters a new word, use `strcmp` to compare it with `smallest_word`; if the new word is "smaller", use `strcpy` to save it in `smallest_word`. Do a similar comparison with `largest_word`. Use `strlen` to determine when the user has entered a four-letter word.
+
+### Code
+```
+// Filename: p1.c
+// Purpose: Finds the smallest and largest(alphabetically) of a series of user given strings
+// Author: syfer
+// Date: August 4th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+
+#define LEN 20
+
+int main(){
+
+    char smallest[LEN], largest[LEN], w[LEN];
+
+    printf("Enter word: ");
+    fgets(w, LEN, stdin);
+    strcpy(smallest, w);
+    strcpy(largest, w);
+
+    while (strlen(w) != 5){
+        printf("Enter word: ");
+        fgets(w, LEN, stdin);
+
+        if (strcmp(w,smallest) < 0)
+            strcpy(smallest, w);
+        if (strcmp(w, largest) > 0){
+            strcpy(largest, w);
+        }
+    }
+    printf("Smallest word: %s", smallest);
+    printf("Largest word: %s", largest);
+    
+    return 0;
+}
+
+```
+
+### Thoughts
+My first time trying to use `gets()`, and my compiler will not even let me use it, claiming it is deprecated. This is despite still using `std=c99` in my `gcc` arguments. 
+
+The safer `fgets` is unfortunately a different function. In particular I was using `gets` specifically because it did not store the last new line character, unlike `scanf`. `fgets` stores it as well, as I discovered.
+
+It is, however, faster to type so I stayed with `fgets`.
+
+## P13.2
+### Statement
+Improve the `remind.c` program of Section 13.5 in the following ways:
+
+(a) Have the program print an error message and ignore a reminder if the corresponding day is negative or larger than 31. Hint: Use the `continue` statement.
+
+(b) Allow the user to enter a day, a 24-hour time, and a reminder. The printed reminder list should be sorted first by day, then by time. (The original program allows the user to enter a time, but it's treated as part of the reminder.)
+
+(c) Have the program print a one-year reminder list. Require the user to enter days in the form `month/day`.
+
+### Code
+
+```
+// Filename: p2.c
+// Purpose: Reminder program
+// Author: syfer
+// Date: August 4th, 2025
+
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_REMIND 50 /* maximum number of reminders */ 
+
+#define MSG_LEN 60 /* max length of reminder message */ 
+
+int read_line(char str[], int n); 
+
+int main() { 
+
+    char reminders[MAX_REMIND][MSG_LEN+3]; 
+    char day_str[4], month_str[3], hour_str[4], min_str[4], teststr[12], msg_str[MSG_LEN+1] ; 
+    int day, month, hour, min, i, j, num_remind = 0; 
+
+    for (;;) { 
+        if (num_remind == MAX_REMIND) { 
+            printf("No space left \n") ; 
+            break; 
+        } 
+
+        printf("Enter date (month/day), 24h time (hr:min) and reminder: "); 
+        scanf("%2d/%2d %2d:%2d", &month, &day, &hour, &min);
+            
+        if (day == 0) 
+            break; 
+        else if (day > 31 || day < 0){
+            printf("Error, invalid day\n");
+            continue;
+        }
+
+        sprintf(month_str, "%2d", month); 
+        sprintf(day_str, "/%.2d", day); 
+        sprintf(hour_str, " %2d", hour); 
+        sprintf(min_str, ":%.2d", min); 
+
+        read_line(msg_str, MSG_LEN); 
+
+        strcpy(teststr, month_str);
+        strcat(teststr, day_str);
+        strcat(teststr, hour_str);
+        strcat(teststr, min_str);
+        for (i = 0; i < num_remind; i++)
+            if (strcmp(teststr, reminders[i]) < 0)
+                break; 
+        for (j = num_remind; j > i; j--) 
+            strcpy(reminders[j] , reminders[j-1]); 
+
+        strcpy(reminders[i], teststr); 
+        strcat(reminders[i], msg_str);
+
+        num_remind++; 
+    }
+
+    printf("\nDay Reminder\n"); 
+    for (i = 0; i < num_remind; i++) 
+        printf(" %s\n", reminders[i]); 
+
+    return 0; 
+} 
+
+int read_line(char str[], int n) { 
+    int ch, i = 0; 
+
+    while ((ch = getchar()) != '\n') 
+        if (i < n) 
+            str[i++] = ch; 
+    str[i] = '\0'; 
+    return i; 
+}
+```
+
+### Thoughts
+At first, to deal with having to sort multiple elements with different priorities, I decided to do four separate `for` loops to sort month, day, hour etc. I was then going to do a `goto` to maybe skip the other loops that I did not need to do. Thankfully I realized that sorting order can just be done by the `strcmp`. If month comes first in the string, it'll be sorted with a higher priority than other parts that come later, since for example `12/3 > 11/4` because `strcmp` goes left to right, and `2>1`. 
+
+## P13.3
+### Statement
+Modify the `deal.c` program of Section 8.2 so that it prints the full names of the cards it deals:
+
+```
+Enter number of cards in hand: 5
+Your hand:
+Seven of clubs
+Two of spades
+Five of diamonds
+Ace of spades
+Two of hearts
+```
+
+Hint: Replace `rank_code` and `suit_code` by arrays containing pointers to strings.
+
+### Code
+```
+// Filename: p3.c
+// Purpose: Deals a poker hand
+// Author: syfer
+// Date: August 4th, 2025
+
+#include <stdbool.h>
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <time.h> 
+
+#define NUM_SUITS 4 
+#define NUM_RANKS 13 
+
+int main() { 
+    bool in_hand[NUM_SUITS][NUM_RANKS] = {false}; 
+    int num_cards, rank, suit; 
+    const char *rank_code[] = {"One", "Two", "Three", "Four", "Five", "Six", "Seven", 
+        "Eight", "Nine", "Ten", "Jack", "Queen", "King", "Ace"};
+    const char *suit_code[] = {"Clubs", "Diamonds", "Jacks", "Hearts"}; 
+
+    srand((unsigned) time(NULL)); 
+
+    printf("Enter number of cards in hand: "); 
+    scanf("%d", &num_cards); 
+
+    printf("Your hand:\n"); 
+    while (num_cards >0) { 
+        suit = rand() % NUM_SUITS; /* picks a random suit */ 
+        rank = rand() % NUM_RANKS; /* picks a random rank */ 
+
+        if (!in_hand[suit][rank]) { 
+            in_hand[suit][rank] = true; 
+            num_cards--; 
+            printf("%s of %s\n", rank_code[rank], suit_code[suit]); 
+        } 
+    } 
+    return 0; 
+} 
+```
+## P13.4
+### Statement
+Write a program named reverse.c that echoes its command-line arguments in reverse order. Running the program by typing
+
+`reverse void and null`
+
+should produce the following output:
+
+`null and void`
+
+### Code
+
+```
+// Filename: p4.c
+// Purpose: Echoes the command line arguments in reverse order
+// Author: syfer
+// Date: August 4th, 2025
+
+#include <stdio.h>
+
+int main(int argc, char *argv[]){
+    for(int i = argc - 1; i >= 0; i--){
+        printf("%s\n ", argv[i]);
+    }
+    return 0;
+}
+```
+
+## P13.5
+### Statement
+Write a program named `sum.c` that adds up its command-line arguments, which are assumed to be integers. Running the program by typing
+
+`sum 8 24 62`
+
+should produce the following output:
+
+`Total: 94`
+
+Hint: Use the `atoi` function to convert each command-line argument from string form to integer form.
+
+### Code
+```
+// Filename: p5.c or sum.c
+// Purpose: Sums command-line arguments
+// Author: syfer
+// Date: August 4th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[]){
+
+    int ret = 0;
+    for(int i = 0; i < argc;i++)
+        ret+=atoi(argv[i]);
+    
+    printf("Total: %d\n", ret);
+    return 0;
+}
+
+```
+
+## P13.6
+### Statement
+Improve the `planet.c` program of Section 13.7 by having it ignore case when comparing command-line arguments with strings in the `planets` array.
+
+### Code
+```
+// Filename: p6.c
+// Purpose: Indicates whether the strings given through command line arguments are planets. If yes, prints the planet number.
+// Author: syfer
+// Date: August 4th, 2025
+
+#include <stdio.h> 
+#include <string.h> 
+#include <ctype.h> 
+
+#define NUM_PLANETS 9 
+int main(int argc, char *argv[]) {
+    char *planets[] = {"Mercury", "Venus", "Earth", "Mars", "Jupiter", 
+        "Saturn", "Uranus", "Neptune", "Pluto"}; 
+    int i, j; 
+
+    for(i = 0; i < argc;i++){
+        if (isalpha(argv[i][0]))
+            argv[i][0] = toupper(argv[i][0]);
+        for(char *s = argv[i] + 1; *s; s++){
+            if(isalpha(*s))
+                *s = tolower(*s);
+        }
+    }
+    for (i = 1 ; i < argc; i++) { 
+        for (j = 0; j < NUM_PLANETS; j++) 
+            if (strcmp(argv[i], planets[j]) == 0) { 
+                printf("%s is planet %d\n", argv[i], j + 1); 
+                break; 
+            } 
+        if (j == NUM_PLANETS) 
+            printf("%s is not a planet\n", argv [i]); 
+    } 
+    return 0; 
+}
+```
+
+### Thoughts
+To solve this I decided to format the `*argv[]` array directly. Going through each character, I capitalize the first letter and make everything else lowercase. Then when we compare to planets it will not matter what the original case was. It does however mean that the output will also be formatted.
+
+## P13.7
+### Statement
+Modify Programming Project 11 from Chapter 5 so that it uses arrays containing pointers to strings instead of `switch` statements. For example, instead of using a `switch` statement to print the word for the first digit, use the digit as an index into an array that contains the strings `"twenty"`, `"thirty"`, and so forth. 
+
+### Code
+```
+// Filename: p7.c
+// Purpose: Prints the English words for a 2 digit number
+// Author: syfer
+// Date: August 4th, 2025
+
+#include <stdio.h>
+
+int main(){
+
+    int d1, d2, num;
+    const char *tens[] = {"Twenty", "Thirty", "Forty", "Fifty", 
+        "Sixty", "Seventy", "Eighty", "Ninety"};
+    const char *ones[] = {"", "One", "Two", "Three", "Four", "Five", 
+        "Six", "Seven", "Eight", "Nine"};
+    const char *teens[] = {"Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", 
+        "Sixteen", "Seventeen", "Eighteen", "Nineteen"};
+
+    printf("Enter a two-digit number: ");
+    scanf("%1d%1d", &d1, &d2);
+
+    num = d1 * 10 + d2;
+
+    if(num >=10 && num <= 19)
+        printf("You entered %s\n", teens[d2]);
+    else if (num < 10)
+        printf("You entered %s\n", ones[d2]);
+    else
+        printf(num % 10 == 0 ? "You entered %s%s\n" : "You entered %s-%s\n", 
+                tens[d1 - 2], ones[d2]);
+
+    return 0;
+}
+```
+
+### Thoughts
+Note the ternary operator that takes care not to print `-` if the ones digit is 0.
+
+## P13.8
+### Statement
+Modify Programming Project 5 from Chapter 7 so that it includes the following function:
+
+`int compute_scrabble_value(const char *word);`
+
+The function returns the SCRABBLE value of the string pointed to by `word`.
+
+### Code
+```
+// Filename: p8.c
+// Purpose: Computes the scrabble value of a word
+// Author: syfer
+// Date: August 4th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+int compute_scrabble_value(const char *word);
+
+int main(){
+
+    char ch[100];
+
+    printf("Enter a word: ");
+    scanf("%s", ch);
+
+    printf("Scrabble value: %d\n", compute_scrabble_value(ch));
+        
+    return 0;
+}
+
+int compute_scrabble_value(const char *word){
+    int val = 0;
+    for(const char *ch = word; *ch; ch++){
+        if(!isalpha(*ch)){
+            printf("Bad Char");
+            exit(EXIT_SUCCESS);
+        }
+        char c1 = toupper(*ch);
+        if (c1 == 'A' || c1 == 'E' || c1 == 'I' || c1 == 'L' 
+                || c1 == 'N' || c1 == 'O' || c1 == 'R' || c1 == 'S' 
+                || c1 == 'T' || c1 == 'U'){
+            val += 1;
+        } else if (c1 == 'D' || c1 == 'G')
+            val += 2;
+        else if (c1 == 'B' || c1 == 'C' || c1 == 'M' || c1 == 'P')
+            val += 3;
+        else if (c1 == 'F' || c1 == 'H' || c1 == 'V' || c1 == 'W' || c1 == 'Y')
+            val += 4;
+        else if (c1 == 'K')
+            val += 5;
+        else if (c1 == 'J' || c1 == 'X')
+            val += 8;
+        else if (c1 == 'Q' || c1 == 'Z')
+            val += 10;
+    }
+    return val;
+}
+```
+
+### Thoughts
+Originally I was using the `ch` pointer in the `for` loop, to do all of the comparisons. This, however, ran into a compiler warning, specifically that I was discarding the `const` qualifier for `word`. This happens due to the fact that if `ch` and `word` now point to the same location, and I modify `*ch` I've effectively modified `*word` despite promising that it would be immutable. Then I tried to make `ch` `const`, which now threw an error, due to me converting it to upper-case through `toupper`. Storing the upper-case in a separate `char` is the workaround to that.
+
+Now that I have gone over this, I also realize that the `ch` pointer is unnecessary anyways, since I could just use `word` as the counter. In particular only the object that `word` is pointing to needs remain constant, the address `word` points to can be changed.
+
+## P13.9
+### Statement
+Modify Programming Project 10 from Chapter 7 so that it includes the following function:
+
+`int compute_vowel_count(const char *sentence);`
+
+The function returns the number of vowels in the string pointed to by the `sentence` parameter.
+
+### Code
+```
+// Filename: p9.c
+// Purpose: Counts the number of vowels in a sentence
+// Author: syfer
+// Date: August 4th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+
+#define MAX_LEN 100
+
+int compute_vowel_count(const char *sentence);
+
+int main(){
+
+    char ch[MAX_LEN];
+
+    printf("Enter a sentence: ");
+    fgets(ch, MAX_LEN, stdin);
+
+    printf("Your sentence contained %d vowels.\n", compute_vowel_count(ch));
+   
+    return 0;
+}
+
+int compute_vowel_count(const char *sentence){
+    int ret = 0;
+    for(;*sentence;sentence++){
+        if(isalpha(*sentence)){
+            char c = *sentence;
+            c = toupper(c);
+            if(c == 'A' || c == 'E' ||c == 'I' || c == 'O' ||c == 'U' )
+                ret++;
+        }
+    }
+    return ret;
+}
+```
+
+### Thoughts
+I learned from the previous project and just used `sentence` as a loop counter.
+
+## P13.10
+### Statement
+Modify Programming Project 11 from Chapter 7 so that it includes the following function:
+
+`void reversename(char *name);`
+
+The function expects name to point to a string containing a first name followed by a last name. It modifies the string so that the last name comes first, followed by a comma, a space, the first initial, and a period. The original string may contain extra spaces before the first name, between the first and last names, and after the last name.
+
+### Code
+```
+// Filename: p10.c
+// Purpose: Displays the last name followed by the first initial of a user given name
+// Author: syfer
+// Date: August 4th, 2025
+
+#include <stdio.h>
+
+#define MAX_LENGTH 100
+
+void reversename(char *name);
+
+int main(){
+    char str[MAX_LENGTH];
+
+    printf("Enter a name: ");
+    fgets(str, MAX_LENGTH, stdin);
+    reversename(str);
+    
+    return 0;
+}
+void reversename(char *name){
+    char *p;
+    for(;*name == ' ';name++)
+        ;
+    p = name; // start of first name
+    for(;*name != ' ';name++)
+        ;
+    for(;*name != '\n';name++)
+        putchar(*name);
+    printf(", %c.\n", *p);
+}
+```
+
+## P13.11
+### Statement
+Modify Programming Project 13 from Chapter 7 so that it includes the following function: 
+
+`double compute_average_word_length(const char *sentence);` 
+
+The function returns the average length of the words in the string pointed to by `sentence`. 
+
+### Code
+
+```
+// Filename: p11.c
+// Purpose: Displays the average word length of a sentence
+// Author: syfer
+// Date: August 4th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+
+#define MAX_LENGTH 100
+
+double compute_average_word(const char *sentence);
+
+int main(){
+
+    char str[MAX_LENGTH];
+
+    printf("Enter a sentence: ");
+    fgets(str, MAX_LENGTH, stdin);
+
+    printf("Average word length is: %lf\n", compute_average_word(str));
+    
+    return 0;
+}
+
+double compute_average_word(const char *sentence){
+    double avg = 0, words = 0;
+
+    for(;*sentence;sentence++){
+        if(isspace(*sentence))
+            words++;
+        else
+            avg++;
+    }
+    return avg / words;
+}
+```
+
+## P13.12
+### Statement
+Modify Programming Project 14 from Chapter 8 so that it stores the words in a two-dimensional `char` array as it reads the sentence, with each row of the array storing a single word. Assume that the sentence contains no more than 30 words and no word is more than 20 characters long. Be sure to store a null character at the end of each word so that it can be treated as a string.
+
+### Code
+
+```
+// Filename: p12.c
+// Purpose:
+// Author: syfer
+// Date:
+
+#include <stdio.h>
+#include <ctype.h>
+
+int main(){
+
+    char m[30][20], ch; 
+    int i = 0, j = 0;
+
+    printf("Enter a sentence: ");
+    while ((ch = getchar()) != '\n'){
+        if(isspace(ch)){
+            m[i][j] = '\0';
+            i++;
+            j = 0;
+        } else{
+            m[i][j] = ch;
+            j++;
+        }
+    }
+
+    printf("The reversal is: ");
+    for(i = i - 1; i >= 0;i--){
+        printf("%s ", m[i]);
+    }
+
+    printf("\n");
+    
+    return 0;
+}
+
+```
+
+### Thoughts
+In chapter 8 this was the longest project by far. In fact out of every project I think that the Chapter 8 version took me the most time. 
+
+This method however was a breeze... no worrying about indices or reversing backwards and forwards, we can just print the entire string object `m[i]`. Absolutely splendid.
+
+## P13.13
+### Statement
+Modify Programming Project 15 from Chapter 8 so dial it includes the following function:
+
+`void encrypt(char *message, int shift);`
+
+The function expects message to point to a string containing the message to be encrypted; shift represents the amount by which each letter in the message is to be shifted.
+
+### Code
+```
+// Filename: p13.c
+// Purpose: Encrypts a message with the Ceaser cipher
+// Author: syfer
+// Date: August 4th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+
+#define MAX_LENGTH 100
+
+void encrypt(char *message, int shift);
+
+int main(){
+
+    int shift;
+    char str[MAX_LENGTH];
+
+    printf("Enter message to be encrypted: ");
+    fgets(str, MAX_LENGTH, stdin);
+
+    printf("Enter shift amount (1-25): ");
+    scanf("%d", &shift);
+
+    encrypt(str, shift);
+
+    return 0;
+}
+
+void encrypt(char *message, int shift){
+    for(;*message;message++){
+        if (*message == ' ' || *message == '.' || *message == '!' || *message == ',' || *message == '?'){
+            putchar(*message);
+            continue;
+        }
+        if (toupper(*message) == *message)
+            putchar(((*message - 'A') + shift) % 26 + 'A');
+        else
+            putchar(((*message - 'a') + shift) % 26 + 'a');
+    }
+    printf("\n");
+}
+
+```
+
+## P13.14
+### Statement
+Modify Programming Project 16 from Chapter 8 so that it includes the following function:
+
+`bool are_anagrams(const char *word1, const char *word2);`
+
+The function returns `true` if the strings pointed to by `word1` and `word2` are anagrams.
+
+### Code
+```
+// Filename: p14.c
+// Purpose: Determines whether two words are anagrams
+// Author: syfer
+// Date: August 4th, 2025
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <string.h>
+
+#define MAX_LENGTH 20
+
+bool are_anagrams(const char *word1, const char* word2);
+
+int main(){
+    char w1[MAX_LENGTH], w2[MAX_LENGTH];
+
+    printf("Enter the first word: ");
+    scanf("%s", w1);
+
+    printf("Enter the second word: ");
+    scanf("%s", w2);
+    printf(are_anagrams(w1,w2) ? "The words are anagrams\n" : "The words are NOT anagrams\n");
+
+    return 0;
+}
+
+bool are_anagrams(const char *word1, const char* word2){
+    int letters[26] = {0};
+    if(strlen(word1) != strlen(word2))
+        return false;
+    for(;*word1;word1++,word2++){
+        letters[toupper(*word1) - 'A']++;
+        letters[toupper(*word2) - 'A']--;
+    }
+
+    for(int i = 0; i < 26; i++)
+        if (letters[i] != 0)
+            return false;
+    return true;
+}
+```
+
+## P13.15
+### Statement
+Modify Programming Project 6 from Chapter 10 so that it includes the following function:
+
+`int evaluate_RPN_expression(const char *expression);`
+
+The function returns the value of the RPN expression pointed to by `expression`.
+
+### Code
+```
+// Filename: p15.c
+// Purpose: Evaluates Reverse Polish Expressions
+// Author: syfer
+// Date: Aug 4st, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>  
+#include <ctype.h>  
+
+
+#define STACK_SIZE 100 
+
+/* external variables */ 
+int contents[STACK_SIZE]; 
+int top = 0; 
+
+int evaluate_RPN_expression(const char *expression);
+void make_empty(void);
+bool is_empty(void); 
+int pop(void); 
+void push(int i); 
+void stack_overflow(void);
+void stack_underflow(void);
+bool is_full(void); 
+
+int main(){
+
+    char str[STACK_SIZE];
+    for(;;){
+        printf("Enter an RPN expression: ");
+        fgets(str, STACK_SIZE,stdin);
+        printf("Value is: %d\n", evaluate_RPN_expression(str));
+    }
+    return 0;
+}
+
+int evaluate_RPN_expression(const char *expression){
+    int op1, op2;
+    for(;*expression;expression++){
+            if(*expression == '+'){
+               push(pop() + pop());
+            } else if (*expression == '-'){
+               op2 = pop();
+               op1 = pop();
+               push(op1 - op2);
+            } else if (*expression == '*'){
+               push(pop() * pop());
+            } else if (*expression == '/'){
+               op2 = pop();
+               op1 = pop();
+               push(op1 / op2);
+            } else if (*expression == '='){
+                op1 = pop(); // store so that we can empty stack before return
+                make_empty();
+                return op1;
+            } else if (*expression==' '){
+                continue;
+            } else if (isdigit(*expression)){
+                push(*expresssion - '0');
+            } else {
+                exit(EXIT_SUCCESS);
+            } 
+    }
+}
+
+void make_empty(void) { 
+    top = 0; 
+} 
+
+bool is_empty(void) { 
+    return top == 0; 
+} 
+
+bool is_full(void) { 
+    return top == STACK_SIZE; 
+} 
+
+void push(int i) { 
+    if (is_full()) 
+        stack_overflow(); 
+    else 
+        contents[top++] = i; 
+} 
+
+int pop(void) { 
+    if (is_empty()) 
+        stack_underflow(); 
+    else 
+        return contents[--top]; 
+    return 0; // so that C doesn't yell at me, but we never get here 
+} 
+
+void stack_overflow(void){
+    printf("\nExpression is too complex\n");
+    exit(EXIT_FAILURE);
+}
+
+void stack_underflow(void){
+    printf("\nNot enough operands in expression\n");
+    exit(EXIT_FAILURE);
+}
+```
+
+## P13.16
+### Statement
+Modify Programming Project 1 from Chapter 12 so that it includes the following function:
+
+`void reverse(char *message);`
+
+The function reverses the string pointed to by `message`. Hint: Use two pointers, one initially pointing to the first character of the string and the other initially pointing to the last character. Have the function reverse these characters and then move the pointers toward each other, repeating the process until the pointers meet.
+
+### Code
+```
+// Filename: p16.c
+// Purpose: Prints the reversal of a message
+// Author: syfer
+// Date: August 4rd, 2025
+
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_LENGTH 100
+
+void reverse(char *message);
+
+int main(){
+
+    char c[MAX_LENGTH];
+
+    printf("Enter a message: ");
+    fgets(c, MAX_LENGTH,stdin);
+    reverse(c);
+    puts(c);
+    
+    return 0;
+}
+
+void reverse(char *message){
+    char *p  = message + strlen(message) - 2;
+    for(;p != message; message++,p--){
+        char temp = *message;
+        *message = *p;
+        *p = temp;
+    }
+}
+```
+
+## P13.17   
+### Statement
+Modify Programming Project 2 from Chapter 12 so that it includes the following function:
+
+`bool is_palindrome(const char *message);`
+
+The function returns `true` if the string pointed to by `message` is a palindrome.
+
+### Code
+```
+// Filename: p17.c
+// Purpose: Checks whether a message is a palindrome
+// Author: syfer
+// Date: August 4rd, 2025
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#include <math.h>
+
+#define MAX_LENGTH 100
+
+bool is_palindrome(const char *message);
+
+int main(){
+
+    char m[MAX_LENGTH];
+
+    printf("Enter a message: ");
+    fgets(m, MAX_LENGTH, stdin);
+    printf(is_palindrome(m) ? "Is a palindrome\n": "Is not a palindrome\n");
+
+    return 0;
+}
+
+bool is_palindrome(const char *message){
+    int len = strlen(message);
+    char *p  = message + len - 2; //remove null and new line chars
+    printf("%ld\n %c %c", p - message, *p, *message);
+    
+    for(;len % 2 == 1 ? fabs(p - message) != 1: p != message; message++,p--){
+        printf("m: %c p: %c ", *message, *p);
+        if(*p != *message)
+            return false;
+    }
+    return true;
+}
+```
+
+## P13.18
+### Statement
+Write a program that accepts a date from the user in the form `mm/dd/yyyy` and then displays it in the form `month dd, yyyy`, where `month` is the name of the month:
+
+```
+Enter a date (mm/dd/yyyy): 2/17/2011
+You entered the date February 17, 2011
+```
+
+Store the month names in an array that contains pointers to strings.
+
+### Code
+```
+// Filename: p18.c
+// Purpose: Displays a user given date in written format like this --|
+// Author: syfer                                                     |
+// Date: August 4, 2025                                       <<---|
+
+#include <stdio.h>
+
+#define MAX_LENGTH 100
+int main(){
+
+    char *months[] = {"January", "Febuary", "March", "April", "May","June", "July", 
+        "August", "September", "October", "November", "December"};
+    int month, day, year;
+
+    printf("Enter a date (mm/dd/yyyy): ");
+    scanf("%2d/%2d/%4d", &month, &day, &year);
+
+    printf("You entered the date %s %d, %d\n", months[month - 1], day, year);
+    
+    return 0;
+}
+
+```
+
+# Conclusion
+
+This was the longest chapter yet. I don't think it was the hardest though, just a lot of exercises and projects.
+
+Overall I'm quite happy with how this went. Most of the projects went and worked first try. Normally I'd take issue with the fact that the vast majority of them were just modifications to existing projects, but for most the modifications were so different that it was just worth it to rewrite the project from scratch. The string tools are so much more powerful than those that we used before, meaning the projects I was rewriting were shorter and simpler.
+
+Finally I'm quite secure about my pointer knowledge now. I have used them in enough programs to get pretty comfortable with them. In fact I really like using them as array counters, since in my opinion they make loops that much more elegant, without the need to keep specifying a subindex. I also really enjoyed the string idioms which take advantage of a large number of C features to write extremely concise code.
+
