@@ -1,0 +1,406 @@
+---
+layout: default
+title: Chapter 14
+date: 2025-0 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc14
+---
+# Chapter 14
+# Exercises
+## E14.1
+### Statement
+Write parameterized macros that compute the following values.
+
+(a) The cube of `x`.
+
+(b) The remainder when `n` is divided by 4.
+
+(c) 1 if the product of `x` and `y` is less than 100, 0 otherwise.
+
+Do your macros always work? If not, describe what arguments would make them fail.
+
+### Solution
+(a) `#define CUBE(x) ((x) * (x) * (x))`
+
+(b) `#define REMAINDER_4(n) ((n) % 4)`
+
+(c) `#define REMAINDER_4(n) ((n) % 4)`
+
+All of the these macros only work with numeric types. For example if `x` is a `char` pointer, the macros would fail
+
+## E14.2
+### Statement
+Write a macro `NELEMS(a)` that computes the number of elements in a one-dimensional array `a`. Hint: See the discussion of the `sizeof` operator in Section 8.1.
+
+### Solution
+`#define ARRAY_SIZE(n) (sizeof(n) / sizeof(n[0]))`
+
+## E14.3
+### Statement
+Let `DOUBLE` be the following macro:
+
+`#define DOUBLE(x) 2*x`
+
+(a) What is the value of `DOUBLE(1+2)`?
+
+(b) What is the value of `4 / DOUBLE(2)` ?
+
+(c) Fix the definition of `DOUBLE`.
+
+### Solution
+(a) `2 * 1 + 2 = 4`
+
+(b) `4 / 2 * 2 = 4`
+
+(c) `#define DOUBLE(x) (2*(x))`
+
+## E14.4
+### Statement
+For each of the following macros, give an example that illustrates a problem with the macro and show how to fix it. 
+
+(a) `#define AVG(x,y) (x - y) / 2`
+
+(b) `#define AREA(x,y) (x) * (y)` 
+
+### Solution
+
+(a) `4 / AVG(8,4)` should be `2`. Instead:
+
+```
+4 / AVG (8,4) = 4 / (8 - 4) / 2
+= 4 / (4) / 2
+= 1 / 2
+= 0
+```
+Fixed by putting extra parenthesis everywhere: 
+
+`#define AVG(x,y) ((x) - (y) / 2)`
+
+(b) Same idea, fails if there is an operator in front of the macro with the same associativity rule as `*`. Fixed once again by parenthesis:
+
+`#define AREA(x,y) ((x) * (y))`
+
+## E14.5
+### Statement
+Let `TOUPPER` be the following macro:
+
+`#define TOUPPER(c) ('a' <= (c) && (c) <= 'z' ? (c) - 'a' + 'A' : (c))`
+
+Let `s` be a string and let `i` be an `int` variable. Show the output produced by each of the following program fragments.
+
+(a)
+
+```
+strcpy(s, "abcd");
+i = 0;
+putchar(TOUPPER(s[++i]));
+```
+
+(b)
+```
+strcpy(s, "0123");
+i = 0;
+putchar(TOUPPER(s[++i]));
+```
+
+### Solution
+I had to think about this one for a bit. The output I was getting was not matching to what I thought should be happening. Eventually, I realized the secret here is ... side effects! For (a) the expansion is as follows:
+
+`TOUPPER(s[++i]) = ('a' <= (s[++i]) && (s[++i]) <= 'z' ? (s[++i]) - 'a' + 'A' : (s[++i]))`
+
+Where we have three side effects (all prefix no less!). Therefore while the macro does what we expect, capitalization, it will actually capitalize `s[3]` not `s[1]` as expected.
+
+`TOUPPER(s[1]) = ('a' <= (s[1]) && (s[2]) <= 'z' ? (s[3]) - 'a' + 'A' : (s[N]))`
+
+Notice that the last `s[N]`, in the failing condition of the ternary operator. Oddly enough this is either `s[2]` or `s[3]`, depending on whether we short-circuit fail the AND statement. In (b) we fail the first condition, so it becomes `s[2]` which is 1.
+
+## E14.6
+### Statement
+(a) Write a macro `DISP(f,x)` that expands into a call of `printf` that displays the value of the function `f` when called with argument `x`. For example,
+
+`DISP(sqrt, 3.0);`
+
+should expand into 
+
+`printf("sqrt(%g) = %g\n", 3.0, sqrt(3.0));`
+
+(b) Write a macro `DISP2(f,x,y)` that's similar to `DISP` but works for functions with two arguments. 
+
+### Solution
+(a) `#define DISP(f,x) (printf(#f "(%g) = %g\n", (x), f(x)))`
+
+(b) `#define DISP(f,x,y) (printf(#f "(%g, %g) = %g\n", (x), (y), f(x,y)))`
+
+## E14.7
+### Statement
+Let `GENERIC_MAX` be the following macro:
+
+```
+#define GENERIC_MAX(type)       \
+type type##_max(type x, type y) \
+{                               \
+    return x > y ? x : y;       \
+}                               \
+```
+
+(a) Show the pre-processor's expansion of `GENERIC_MAX(long)`.
+
+(b) Explain why `GENERIC_MAX` doesn't work for basic types such as `unsigned long`.
+
+(c) Describe a technique that would allow us to use `GENERIC_MAX` with basic types such as `unsigned long`. Hint: Don't change the definition of `GENERIC_MAX`.
+
+### Solution
+(a) 
+
+```
+long long_max(long x, long y)
+{
+    return x > y ? x : y;
+}
+```
+
+(b) The expansion would be `unsigned long unsigned long_max` which is illegal.
+
+(c) We can use a `typedef` to shorten two word types into one word.
+
+## E14.8
+### Statement
+Suppose we want a macro that expands into a string containing the current line number and file name. In other words, we'd like to write
+
+`const char *str = LINE_FILE;`
+
+and have it expand into
+
+`const char *str = "Line 10 of file foo.c";`
+
+where `foo.c` is the file containing the program and 10 is the line on which the invocation of `LINE_FILE` appears. Warning: This exercise is for experts only. Be sure to read the Q&A section carefully before attempting!
+
+### Solution
+```
+#define TO_STRING(x) #x
+#define TO_STRING1(x) TO_STRING(x)
+#define LINE_FILE ("Line" TO_STRING1(__LINE__) " of file " __FILE__)
+```
+
+The Q&A section mentioned here does give the exact answer (writing a second macro to call to_string) since without it we just print `"__LINE__"` instead of the value of `__LINE__`. 
+
+I am unsure of why this works though... I would have thought that `TO_STRING1` just gets replaced by `TO_STRING` which is then replaced by `#__LINE__` which is just our original problem that doesn't work.
+
+## E14.9
+### Statement
+Write the following parameterized macros. 
+
+(a) `CHECK(x,y,n)` - Has the value 1 if both `x` and `y` fall between `0` and `n - 1`, inclusive. 
+
+(b) `MEDIAN(x,y,z)` - Finds the median of `x`, `y`, and `z`. 
+
+(c) `POLYNOMIAL(x)` - Computes the polynomial $$ 3x^5 + 2x^4 - 5x^3 - x^2 + 7x - 6 $$
+
+### Solution
+(a) `#define CHECK(x,y,n) ((x) >= 0 && (x) <= ((n)-1) && (y) >= 0 && (x) <= ((n)-1)  ? 1 : 0`
+
+(b) `define MEDIAN(x,y,z) ((x) >= (y) && (x) <= (z) ? x : ((y) >= (z)) && ((y) <= (x)) ? (y) : (z))` 
+
+(c) 
+```
+define POLYNOMIAL(x) (3 * (x) * (x) * (x) * (x) * (x)) \ 
+                     + (2 * (x) * (x) * (x) * (x))     \
+                     - (5- (5*(x)*(x)*(x))             \
+                     - ((x)*(x))                       \
+                     + (7*(x))                         \
+                     - 6))
+```
+
+## E14.10
+### Statement
+Functions can often -- but not always -- be written as parameterized macros. Discuss what characteristics of a function would make it unsuitable as a macro.
+
+### Solution
+There is a couple of cases where functions have an advantage over macros. First, recursion is not possible in a macro. Second, arguments in a macro are not type checked, which is quite unsafe. Third and final, macro arguments with side effects could be evaluated multiple times, as seen in exercise 5.
+
+## E14.11
+### Statement
+C programmers often use the `fprintf` function to write error messages:
+
+`fprintf(stderr, "Range error: index = %d\n", index);`
+
+`stderr` is C's “standard error" stream: the remaining arguments are the same as those for `printf`, starting with the format string. Write a macro named `ERROR` that generates the call of `fprintf` shown above when given a format string and the items to be displayed:
+
+`ERROR("Range error: index = %d\n", index);`
+
+### Solution
+`#define ERROR(s,... ) fprintf(stderr, (s), __VA_ARGS__)`
+
+## E14.12
+### Statement
+Suppose that the macro `M` has been defined as follows:
+
+`#define M 10`
+
+Which of the following tests will fail?
+
+(a) `#if M`
+
+(b) `#ifdef M`
+
+(c) `#ifndef M`
+
+(d) `#if defined(M)`
+
+(e) `#if !defined(M)`
+
+### Solution
+(c) and (e) fail as `M` has, in fact, been defined.
+
+## E14.13
+### Statement
+(a) Show what the following program will look like after preprocessing. You may ignore any lines added to the program as a result of including the `<stdio.h>` header.
+
+```
+#include <stdio.h>
+
+#define N 100
+
+void f(void);
+
+int main(void) {
+    f();
+#ifdef N
+#undef N
+#endif
+    return 0;
+}
+
+void f(void) {
+#if defined(N)
+    printf("N is %d\n", N);
+#else
+    printfC'N is undefined\n");
+#endif
+}
+```
+
+(b) What will be the output of this program?
+
+### Solution
+(a)
+
+```
+LINES ADDED BY STDIO.H
+void f(void);
+int main(void) 
+{
+    f();
+    return 0;
+}
+void f(void)
+{
+    printf("N is undefined\n");
+}
+```
+
+(b) This will of course print `"N is undefined"`.
+
+## E14.14
+### Statement
+Show what the following program will look like after preprocessing. Some lines of the program may cause compilation errors; find all such errors.
+
+```
+#define N = 10
+#define INC(x) x+1
+#define SUB (x,y) x-y
+#define SQR(x) ((x)*(x))
+#define CUBE(x) (SQR(x)*(x))
+#define Ml(x,y) x##y
+#define M2(x,y) #x #y
+
+int main(void) {
+    int a[N], i, j, k, m;
+#ifdef N
+    i = j;
+#else
+    j = i;
+#endif
+    i = 10 * INC(j);
+    i = SUB(j, k);
+    i = SQR(SQR(j));
+    i = CUBE(j);
+    i = Ml(j, k);
+    puts(M2(i, j));
+
+#undef SQR
+    i = SQR(j);
+#define SQR
+    i = SQR(j);
+
+    return 0;
+}
+```
+
+### Solution
+(a)
+
+```
+int main(void){
+    int a[=10], i, j, k, m;
+    i = j;
+    i = 10 * j + 1;
+    i = (x,y) x-y(j, k);
+    i = ((((j)*(j)))*(((j)*(j))));
+    i = (((j) *(j)) * (j));
+    i = jk;
+    puts("i" "j");
+    i = SQR(j);
+    i = (j);
+
+    return 0
+}
+```
+
+First error is due to the fact that `N` was given an equals sign in the definition, causing `a[=10]`.
+
+Second error is `i = (x,y) x-y(j, k);`, due to `SUB` having an extra space before the parameter list
+
+Third error is `i = jk`. `jk` has not been defined.
+
+Fourth error is `i = SQR(j)` as `SQR` has not been defined as a function.
+
+## E14.15
+### Statement
+Suppose that a program needs to display messages in either English, French, or Spanish.  Using conditional compilation, write a program fragment that displays one of the following three messages, depending on whether or not the specified macro is defined:
+
+```
+Insert Disk 1 (if ENGLISH is defined)
+Inserez Le Disque 1 (if FRENCH is defined)
+Inserte El Disco 1 (if SPANISH is defined)
+```
+
+### Solution
+```
+#ifdef ENGLISH
+#printf("Insert Disk 1")
+#elif defined FRENCH
+#printf("Inserez Le Disque 1")
+#elifdef SPANISH
+#printf("Inserte El Disco 1")
+#endif
+```
+
+## E14.16
+### Statement
+Assume that the following macro definitions are in effect:
+
+```
+#define IDENT(x) PRAGMA(ident #x)
+#define PRAGMA(x) _Pragma(#x)
+```
+
+What will the following line look like after macro expansion?
+
+`IDENT(foo)`
+
+### Solution
+`#pragma ident "foo"`
+
+# Conclusion
+A relatively short but quite confusing chapter. Hopefully I'll gain a better understanding as I see more of the macros used in actual programs. I'm quite comfortable with the definitions, and making sure macros execute properly, however, stuff like `pragma` and the double macro call to stringize the value `__LINE__` are still gaps in my knowledge.
