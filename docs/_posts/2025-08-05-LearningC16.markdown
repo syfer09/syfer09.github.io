@@ -1,0 +1,1436 @@
+---
+layout: default
+title: Chapter 16
+date: 2025-08-05 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc16
+---
+# Chapter 16
+# Exercises
+## E16.1
+### Statement
+In the following declarations, the `x` and `y` structures have members named `x` and `y`:
+
+```
+struct { int x, y; } x;
+struct { int x, y; } y;
+```
+
+Are these declarations legal on an individual basis? Could both declarations appear as shown in a program? Justify your answer.
+
+### Solution
+These declarations are legal both on an individual basis, as well as together. Justification comes from testing it myself.
+
+## E16.2
+### Statement
+(a) Declare structure variables named `c1`, `c2`, and `c3`, each having members real and imaginary of type `double`.
+
+(b) Modify the declaration in part (a) so that `c1`'s members initially have the values 0.0 and 1.0, while `c2`'s members are 1.0 and 0.0 initially. (`c3` is not initialized.)
+
+(c) Write statements that copy the members of `c2` into `c1`. Can this be done in one statement, or does it require two?
+
+(d) Write statements that add the corresponding members of `c1` and `c2`, storing the result in `c3`.
+
+### Solution
+(a)
+
+```
+struct {
+    double real;
+    double imaginary;
+} c1, c2, c3;
+```
+
+(b)
+
+```
+struct {
+    double real;
+    double imaginary;
+} c1 = {0.0, 1.0},
+    c2 = {1.0, 0.0}, 
+    c3;
+```
+
+(c)
+
+```
+c1.real = c2.real;
+c1.imaginary = c2.imaginary;
+```
+
+It can also be done with just `c1 = c2`.
+
+(d)
+
+```
+c3.real = c1.real + c2.real;
+c3.imaginary = c1.imaginary + c2.imaginary;
+```
+
+## E16.3
+### Statement
+(a) Show how to declare a tag named `complex` for a structure with two members, `real` and `imaginary`, of type `double`.
+
+(b) Use the complex tag to declare variables named `c1`, `c2`, and `c3`.
+
+(c) Write a function named `make_complex` that stores its two arguments (both of type `double`) in a `complex` structure, then returns the structure.
+
+(d) Write a function named `add_complex` that adds the corresponding members of its arguments (both `complex` structures), then returns the result (another `complex` structure).
+
+### Solution
+(a)
+
+```
+struct complex {
+    double real;
+    double imaginary;
+};
+```
+
+(b) `struct complex c1, c2, c3;`
+
+(c)
+
+```
+struct complex make_complex(double real, double imaginary){
+    struct complex ret;
+    ret.real = real;
+    ret.imaginary = imaginary;
+    return ret;
+}
+```
+
+(d)
+
+```
+struct complex add_complex(struct complex c1, struct complex c2){
+    struct complex ret;
+    ret.real = c1.real + c2.real;
+    ret.imaginary = c1.imaginary + c2.imaginary;
+    return ret;
+}
+```
+
+## E16.4
+### Statement
+Repeat Exercise 3, but this time using a type named `Complex`.
+
+### Solution
+(a)
+
+```
+typedef struct{
+    double real;
+    double imaginary;
+} Complex;
+```
+
+(b) `Complex c1, c2, c3;`
+
+(c)
+
+```
+Complex make_complex(double real, double imaginary){
+    Complex ret;
+    ret.real = real;
+    ret.imaginary = imaginary;
+    return ret;
+}
+```
+
+(d)
+
+```
+Complex add_complex(Complex c1, Complex c2){
+    Complex ret;
+    ret.real = c1.real + c2.real;
+    ret.imaginary = c1.imaginary + c2.imaginary;
+    return ret;
+}
+```
+
+## E16.5
+### Statement
+Write the following functions, assuming that the `date` structure contains three members: `month`, `day`, and `year` (all of type `int`).
+
+(a) `int day_of_year (struct date d);`
+
+Returns the day of the year (an integer between 1 and 366) that corresponds to the date `d`.
+
+(b) `int compare_dates(struct date dl, struct date d2);`
+
+Returns -1 if `d1` is an earlier date than `d2`. $$ +1 $$ if `d1` is a later date than `d2`, and 0 if `dl` and `d2` are the same.
+
+### Solution
+(a) 
+``` 
+int day_of_year (struct date d){
+    int day = d.day;
+    for(int i = 0; i < d.month; i++){
+        if (i == 1 || i == 3 || i == 5 || i == 7 || i == 8 || i == 10)
+            day += 31;
+        else if (i == 4 || i == 6 || i == 9 || i == 11)
+            day += 30;
+        else if (d.year % 4 == 0 && d.year % 100 != 0 || d.year % 400 == 0)
+            day += 29;
+        else
+            day += 28;
+    }
+    return day;
+}
+```
+
+(b)
+
+```
+int compare_dates(struct date d1, struct date d2){
+    if(d1.year < d2.year || d1.month < d2.month || d1.day < d2.day)
+        return -1;
+    else if (d1.year > d2.year || d1.month > d2.month || d1.day > d2.day)
+        return 1;
+    else
+        return 0;
+}
+```
+
+## E16.6
+### Statement
+Write the following function, assuming that the `time` structure contains three members: `hours`, `minutes`, and `seconds` (all of type `int`).
+
+`struct time split_time(long total_seconds);`
+
+`total_seconds` is a time represented as the number of seconds since midnight. The function returns a structure containing the equivalent time in hours (0-23), minutes (0-59), and seconds (0-59).
+
+### Solution
+```
+struct time split_time(long total_seconds){
+    struct time ret;
+    ret.hours = total_second / 360;
+    total_seconds -= total_seconds / 360 * 360;
+    ret.minutes = total_second / 60;
+    total_seconds -= total_seconds / 60 * 60;
+    ret.seconds = total_second;
+    return ret;
+}
+```
+
+## E16.7
+### Statement
+Assume that the `fraction` structure contains two members: `numerator` and `denominator` (both of type `int`). Write functions that perform the following operations on fractions: 
+
+(a) Reduce the fraction `f` to lowest terms. Hint: To reduce a fraction to lowest terms, first compute the greatest common divisor (GCD) of the numerator and denominator. Then divide both the numerator and denominator by the GCD. 
+
+(b) Add the fractions `f1` and `f2`. 
+
+(c) Subtract the fraction `f2` from the fraction `f1`. 
+
+(d) Multiply the fractions `f1` and `f2`. 
+
+(e) Divide the fraction `f1` by the fraction `f2`. 
+
+The fractions `f`, `f1`, and `f2` will be arguments of type `struct fraction`: each function will return a value of type `struct fraction`. The fractions returned by the functions in parts (b)-(e) should be reduced to lowest terms. Hint: You may use the function from part (a) to help write the functions in parts (b-e). 
+
+### Solution
+(a)
+
+```
+struct fraction reduce(struct fraction f){
+    int remainder;
+    struct fraction ret;
+    ret.numerator = f.numerator;
+    ret.denominator = f.denominator;
+
+    while (f.denominator > 0){
+        remainder = f.numerator % f.denominator;
+        f.numerator = f.denominator;
+        f.denominator = f.remainder;
+    }
+    ret.numerator /= numerator;
+    ret.denominator /= numerator;
+    return ret;
+}
+```
+
+(b)
+
+```
+struct fraction add(struct fraction f1, struct fraction f2){
+    struct fraction ret;
+    ret.numerator = f1.numerator * f2.denominator + f2.numerator * f1.denominator;
+    ret.denominator = f1.denominator * f2.denominator;
+    return reduce(ret);
+}
+```
+
+(c)
+
+```
+struct fraction subtract(struct fraction f1, struct fraction f2){
+    struct fraction ret;
+    ret.numerator = f1.numerator * f2.denominator - f2.numerator * f1.denominator;
+    ret.denominator = f1.denominator * f2.denominator;
+    return reduce(ret);
+}
+```
+
+(d)
+
+```
+struct fraction multiply(struct fraction f1, struct fraction f2){
+    struct fraction ret;
+    ret.numerator = f1.numerator * f2.numerator;
+    ret.denominator = f1.denominator * f2.denominator;
+    return reduce(ret);
+}
+```
+
+(e)
+
+```
+struct fraction divide(struct fraction f1, struct fraction f2){
+    struct fraction ret;
+    ret.numerator = f1.numerator * f2.denominator;
+    ret.denominator = f1.denominator * f2.numerator;
+    return reduce(ret);
+}
+```
+
+## E16.8
+### Statement
+Let `color` be the following structure:
+
+```
+struct color {
+    int red;
+    int green;
+    int blue;
+};
+```
+
+(a) Write a declaration for a `const` variable named `MAGENTA` of type `struct color` whose members have the values 255, 0, and 255, respectively.
+
+(b) (C99) Repeat part (a), but use a designated initializer that doesn't specify the value of `green`, allowing it to default to 0.
+
+### Solution
+(a)
+
+```
+const struct color MAGENTA = {255, 0, 255};
+```
+
+(b)
+
+```
+const struct color MAGENTA = {.red = 255, .blue = 255};
+```
+
+## E16.9
+### Statement
+Write the following functions. (The `color` structure is defined in Exercise 8.)
+
+(a) `struct color make_color(int red, int green, int blue);`
+
+Returns a `color` structure containing the specified red, green, and blue values. If any argument is less than zero, the corresponding member of the structure will contain zero instead. If any argument is greater than 255, the corresponding member of the structure will contain 255.
+
+(b) `int getRed(struct color c);`
+
+Returns the value of `c`'s red member.
+
+(c) `bool equal_color(struct color color1, struct color color2);`
+
+Returns `true` if the corresponding members of `color1` and `color2` are equal.
+
+(d) `struct color brighter(struct color c);`
+
+Returns a `color` structure that represents a brighter version of the color `c`. The structure is identical to `c`, except that each member has been divided by 0.7 (with the result truncated to an integer). However, there are three special cases: (1) If all members of `c` are zero, the function returns a color whose members all have the value 3. (2) If any member of `c` is greater than 0 but less than 3, it is replaced by 3 before the division by 0.7. (3) If dividing by 0.7 causes a member to exceed 255, it is reduced to 255.
+
+(e) `struct color darker (struct color c);`
+
+Returns a `color` structure that represents a darker version of the color `c`. The structure is
+identical to `c`, except that each member has been multiplied by 0.7 (with the result truncated to an integer).
+
+### Solution
+(a)
+
+```
+struct color make_color(int red, int green, int blue){
+   struct color ret;
+   ret.red = red > 0 ? red <= 255 ? ret : 255 : 0;
+   ret.green = green > 0 ? green <= 255 ? green : 255 : 0;
+   ret.blue = blue > 0 ? blue <= 255 ? ret : 255 : 0;
+   return ret;
+}
+```
+
+(b)
+
+```
+int getRed(struct color c){
+    return c.red;
+}
+```
+
+(c)
+
+```
+bool equal_color(struct color c1, struct color c2){
+    return c1.red == c2.red && c1.green == c2.green && c1.blue == c2.blue;
+}
+```
+
+(d)
+
+```
+struct color brighter(struct color c){
+    struct color ret;
+    if(c.red == 0 && c.green == 0 && c.blue == 0){
+        ret.red = 3;
+        ret.green = 3;
+        red.blue = 3;
+    }else{
+        ret.red = c.red == 1 || c.red == 2 ? 3 / 0.7 : c.red / 0.7;
+        ret.green = c.green == 1 || c.green == 2 ? 3 / 0.7 : c.green / 0.7;
+        ret.blue = c.blue == 1 || c.blue == 2 ? 3 / 0.7 : c.blue / 0.7;
+        if(ret.red > 255)
+            ret.red = 255;
+        if(ret.green > 255)
+            ret.green = 255;
+        if(ret.blue > 255)
+            ret.blue = 255;
+    }
+    return ret;
+}
+```
+
+(e)
+
+```
+struct color darker(struct color c){
+    struct color ret;
+    if(c.red == 0 && c.green == 0 && c.blue == 0){
+        ret.red = 3;
+        ret.green = 3;
+        red.blue = 3;
+    }else{
+        ret.red = c.red == 1 || c.red == 2 ? 3 * 0.7 : c.red * 0.7;
+        ret.green = c.green == 1 || c.green == 2 ? 3 * 0.7 : c.green * 0.7;
+        ret.blue = c.blue == 1 || c.blue == 2 ? 3 * 0.7 : c.blue * 0.7;
+        if(ret.red > 255)
+            ret.red = 255;
+        if(ret.green > 255)
+            ret.green = 255;
+        if(ret.blue > 255)
+            ret.blue = 255;
+    }
+    return ret;
+}
+```
+
+## E16.10
+### Statement
+The following structures are designed to store information about objects on a graphics screen:
+
+```
+struct point { int x, y; };
+struct rectangle { struct point upper_left, lower_right; };
+```
+
+A point structure stores the `x` and `y` coordinates of a point on the screen. A `rectangle` structure stores the coordinates of the upper left and lower right corners of a rectangle. Write functions that perform the following operations on a `rectangle` structure `r` passed as an argument:
+
+(a) Compute the area of `r`.
+
+(b) Compute the center of `r`, returning it as a `point` value. If either the `x` or `y` coordinate of the center isn't an integer, store its truncated value in the `point` structure.
+
+(c) Move `r` by `x` units in the `x` direction and `y` units in the `y` direction, returning the modified version of `r`. (`x` and `y` are additional arguments to the function.)
+
+(d) Determine whether a point `p` lies within `r`, returning `true` or `false`, (`p` is an additional argument of type `struct point`.)
+
+### Solution
+
+(a)
+
+```
+int area(struct rectangle r){
+    return (int) fabs((r.upper_left.x - r.lower_right.x) * (r.upper_left.y - r.lower_right.y));
+}
+```
+
+(b)
+
+```
+struct point center(struct rectangle r){
+    struct point ret;
+    ret.x = (int) fabs(r.upper_left.x - r.lower_right.x) / 2;
+    ret.y = (int) fabs(r.upper_left.y - r.lower_right.y) / 2;
+    return ret;
+}
+```
+
+(c) 
+
+```
+struct rectangle move(struct rectangle r, int x, int y){
+    r.upper_left.x +=x;
+    r.bottom_right.y +=y;
+    r.upper_left.y +=y;
+    r.bottom_right.x +=x;
+    return r;
+}
+```
+
+(d)
+
+```
+bool is_inside(struct rectangle r, struct point p){
+    return p.x > r.upper_left.x && p.x < r.bottom_right.x && p.y > r.bottom_right.y 
+        && p.y < r.upper_left.y;
+}
+```
+
+## E16.11
+### Statement
+Suppose that `s` is the following structure:
+
+```
+struct {
+    double a;
+    union {
+        char b[4];
+        double c;
+        int d;
+    } e;
+    char f[4];
+} s;
+```
+
+If `char` values occupy one byte, `int` values occupy four bytes, and `double` values occupy eight bytes, how much space will a C compiler allocate for `s`? (Assume that the compiler leaves no “holes” between members.)
+
+### Solution
+The structure will occupy 20 bytes. Eight come from the `double a`, eight more come from the largest member of the `union` (also a `double`), and finally one byte for each `char` in the array gives 20.
+
+## E16.12
+### Statement
+Suppose that `u` is the following union:
+
+```
+union {
+    double a;
+    struct {
+        char b [4] ;
+        double c;
+        int d ;
+    } e;
+    char f[4];
+} u;
+```
+
+If `char` values occupy one byte, `int` values occupy four bytes, and `double` values occupy eight bytes, how much space will a C compiler allocate for `u`? (Assume that the compiler leaves no “holes” between members.)
+
+### Solution
+The largest member of the union is the `struct` which has four `char` bytes, eight from the `double` and four more from the integer, giving 16 total bytes.
+
+## E16.13
+### Statement
+Suppose that `s` is the following structure (`point` is a structure tag declared in Exercise 10):
+
+```
+struct shape {
+    int shape_kind; /* RECTANGLE or CIRCLE */
+    struct point center; /* coordinates of center */
+    union {
+        struct {
+            int height, width;
+        } rectangle;
+        struct {
+            int radius;
+        } circle;
+    } u;
+} s;
+```
+If the value of `shape_kind` is `RECTANGLE`, the `height` and `width` members store the dimensions of a rectangle. If the value of shape kind is `CIRCLE`, the `radius` member stores the radius of a circle. Indicate which of the following statements are legal, and show how to repair the ones that aren't:
+
+(a) `s.shape_kind = RECTANGLE;`
+
+(b) `s.center.x = 10;`
+
+(c) `s.height = 25;`
+
+(d) `s.u.rectangle.width = 8;`
+
+(e) `s.u.circle = 5;`
+
+(f) `s.u.radius = 5;`
+
+### Solution
+(a) is legal
+
+(b) is legal
+
+(c) needs to add a `u` and a shape to access members of the union: `s.u.rectangle.height = 25`
+
+(d) is legal
+
+(e) needs to specify the radius variable: `s.u.circle.radius = 5`
+
+(f) needs to specify the shape: `s.u.circle.radius = 5`
+
+## E16.14
+### Statement
+Let `shape` be the structure tag declared in Exercise 13. Write functions that perform the following operations on a `shape` structure `s` passed as an argument:
+
+(a) Compute the area of `s`.
+
+(b) Move `s` by `x` units in the `x` direction and `y` units in the `y` direction, returning the modified version of `s`. (`x` and `y` are additional arguments to the function.)
+
+(c) Scale `s` by a factor of `c` (a `double` value), returning the modified version of `s`. (`c` is an additional argument to the function.)
+
+### Solution
+(a)
+
+```
+double area(struct shape s){
+    if(s.shape_kind == RECTANGLE)
+        return s.u.rectangle.width * s.u.rectangle.height;
+    else if (s.shape_kind == CIRCLE){
+        return 3.1415 * (double) (s.u.circle.radius * s.u.circle.radius);
+    }
+}
+```
+
+(b)
+
+```
+struct shape move(struct shape s, int x, int y){
+    s.center.x += x;
+    s.center.y += y;
+    return s;
+}
+```
+
+(c)
+
+```
+struct shape scale(struct shape s, double c){
+    if(s.shape_kind == RECTANGLE){
+        s.u.rectangle.height *= c;
+        s.u.rectangle.width *= c;
+    }else {
+        s.u.circle.radius *= c;
+    }
+    return s;
+}
+```
+
+## E16.15
+### Statement
+(a) Declare a tag for an enumeration whose values represent the seven days of the week.
+
+(b) Use `typedef` to define a name for the enumeration of part (a).
+
+### Solution
+(a)
+
+`enum weekdays {MON, TUE, WED, THU, FRI, SAT, SUN};`
+
+(b) 
+
+`typedef enum {MON, TUE, WED, THU, FRI, SAT, SUN} Weekdays `
+
+## E16.16
+### Statement
+Which of the following statements about enumeration constants are true?
+
+(a) An enumeration constant may represent any integer specified by the programmer.
+
+(b) Enumeration constants have exactly the same properties as constants created using `#define.`
+
+(c) Enumeration constants have the values 0, 1, 2,... by default.
+
+(d) All constants in an enumeration must have different values.
+
+(e) Enumeration constants may be used as integers in expressions.
+
+### Solution
+(a) is true
+
+(b) is false because enumeration constant can be affected by scope
+
+(c) is true
+
+(d) is false
+
+(e) is true
+
+## E16.17
+### Statement
+Suppose that `b` and `i` are declared as follows:
+
+```
+enum {FALSE, TRUE} b;
+int i; 
+```
+
+Which of the following statements are legal? Which ones arc “safe” (always yield a meaningful result)?
+
+(a) `b = FALSE;`
+
+(b) `b = i;`
+
+(c) `b++;`
+
+(d) `i = b;`
+
+(e) `i = 2 * b + 1;`
+
+### Solution
+(a) is legal and safe
+
+(b) is legal but unsafe unless `i`  is 0 or 1
+
+(c) is legal but unsafe unless `b=0`
+
+(d) is legal and safe
+
+(e) is legal and safe
+
+## E16.18
+### Statement
+(a) Each square of a chessboard can hold one piece -- a pawn, knight, bishop, rook, queen, or king -- or it may be empty. Each piece is either black or white. Define two enumerated types: `Piece`, which has seven possible values (one of which is “empty"), and `Color`, which has two.
+
+(b) Using the types from part (a), define a structure type named `Square` that can store both the type of a piece and its color.
+
+(c) Using the Square type from part (b), declare an 8 x 8 array named `board` that can store the entire contents of a chessboard.
+
+(d) Add an initializer to the declaration in part (c) so that board's initial value corresponds to the usual arrangement of pieces at the start of a chess game. A square that's not occupied by a piece should have an “empty" piece value and the color black.
+
+### Solution
+(a)
+
+```
+typedef enum {EMPTY, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING} Piece;
+typedef enum {BLACK, WHITE} Color;
+```
+
+(b) 
+
+```
+typedef struct{
+    Piece piece;
+    Color color;
+}Square;
+```
+
+(c)
+
+`Square board[8][8]`
+
+(d)
+
+I could just copy and paste the solution here, but writing it out is just not worth my time.
+
+In general it will just be sets of `{WHITE,ROOK},{BLACK,KNIGHT}`, etc.
+
+## E16.19
+### Statement
+Declare a structure with the following members whose tag is `pinball_machine`: 
+
+`name` - a string of up to 40 characters
+
+`year` - an integer (representing the year of manufacture)
+
+`type` - an enumeration with the values `EM` (electromechanical) and `SS` (solid state)
+
+`players` - an integer (representing the maximum number of players)
+
+### Solution
+```
+struct pinball_machine{
+    char name[40];
+    int year;
+    enum {EM, SS} type;
+    int players;
+}
+```
+
+## E16.20
+### Statement
+Suppose that the `direction` variable is declared in the following way: `enum {NORTH, SOUTH, EAST, WEST} direction;`
+
+Let `x` and `y` be int variables. Write a `switch` statement that tests the value of `direction`, incrementing `x` if direction is `EAST`, decrementing `x` if direction is `WEST`, incrementing `y` if direction is `SOUTH`, and decrementing `y` if direction is `NORTH`.
+
+### Solution
+```
+switch (direction){
+    case EAST : x++ ; 
+                break;
+    case WEST : x--;
+                 break;
+    case SOUTH : y++ ; 
+                break;
+    case NORTH : y--;
+                 break;
+}
+```
+
+## E16.21
+### Statement
+What are the integer values of the enumeration constants in each of the following declarations?
+
+(a) `enum {NUL, SOH, STX, ETX};`
+
+(b) `enum {VT = 11, FF, CR};`
+
+(c) `enum {SO = 14, SI, DLE, CAN = 24, EM};`
+
+(d) `enum {ENQ = 45, ACK, BEL, LF = 37, ETB, ESC};`
+
+### Solution
+
+(a) `0, 1, 2, 3`
+
+(b) `11, 12, 13`
+
+(c) `14, 15, 16, 24, 25`
+
+(d) `45, 46, 47, 37, 38, 39`
+
+## E16.22
+### Statement
+Let `chess_pieces` be the following enumeration:
+
+`enum chess_pieces {KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};`
+
+(a) Write a declaration (including an initializer) for a constant array of integers named `piece_value` that stores the numbers 200, 9, 5, 3, 3, and 1, representing the value of each chess piece, from king to pawn. (The king's value is actually infinite, since "capturing” the king (checkmate) ends the game, but some chess-playing software assigns the king a large value such as 200.)
+
+(b) (C99) Repeat part (a), but use a designated initializer to initialize the array. Use the enumeration constants in `chess_pieces` as subscripts in the designators. (Hint: See the last question in Q&A for an example.)
+
+### Solution
+(a)
+
+`const int piece_value = {200, 9, 5, 3, 3, 1};`
+
+(b)
+```
+const int piece_value[] = {
+    [KING] = 200, 
+    [QUEEN] = 9,
+    [ROOK] = 5, 
+    [BISHOP] = 3,
+    [KNIGHT] = 3,
+    [PAWN] = 1
+};
+```
+
+# Projects
+## P16.1
+### Statement
+Write a program that asks the user to enter an international dialing code and then looks it up in the `country_codes` array (see Section 16.3). If it finds the code, the program should display the name of the corresponding country: if not, the program should print an error message. 
+
+### Code
+```
+// Filename: p1.c
+// Purpose: Returns the name of a country based on its international dialing code
+// Author: syfer
+// Date: August 6th, 2025
+
+#include <stdio.h>
+
+const struct {
+    char *country;
+    int code;
+} country_codes[] =
+    {{"Argentina",            54}, {"Bangladesh",     889},
+     {"Brazil",               55}, {"Burma (Myanmar)", 95},
+     {"China",                86}, {"Colombia",        57},
+     {"Congo, Dem. Rep. of", 243}, {"Egypt",           20},
+     {"Ethiopia",            251}, {"France",          33},
+     {"Germany",              49}, {"India",           91},
+     {"Indonesia",            62}, {"Iran",            98},
+     {"Italy",                39}, {"Japan",           81},
+     {"Mexico",               52}, {"Nigeria",        234},
+     {"Pakistan",             92}, {"Philippines",     63},
+     {"Poland",               48}, {"Russia",           7},
+     {"South Africa",         27}, {"South Korea",     82},
+     {"Spain",                34}, {"Sudan",          249},
+     {"Thailand",             66}, {"Turkey",          90},
+     {"Ukraine",             380}, {"United Kingdom",  44},
+     {"United States",         1}, {"Vietnam",         84}};
+
+int main(){
+
+    int code;
+
+    printf("Enter an international dialing code: ");
+    scanf("%d", &code);
+
+    for(int i = 0; i < (int) (sizeof(country_codes) / sizeof(country_codes[0]));i++){
+        if(country_codes[i].code == code){
+            printf("The code %d corresponds to %s\n", code, country_codes[i].country);
+            return 0;
+        }
+
+    } 
+    printf("Could not find a country with code %d\n", code);
+    return 0;
+}
+
+```
+
+## P16.2
+### Statement
+Modify the `inventory.c` program of Section 16.3 so that the `p` (print) operation displays the parts sorted by part number.
+
+### Code
+
+```
+// Filename: inventory.c
+// Purpose: manages an inventory of parts
+// Author: syfer
+// Date: August 6th, 2025
+
+#include <stdio.h> 
+#include "readline.h" 
+
+#define NAME_LEN 25 
+#define MAX_PARTS 100 
+
+struct part { 
+    int number; 
+    char name[NAME_LEN+1]; 
+    int on_hand; 
+} inventory[MAX_PARTS]; 
+
+int num_parts = 0; /* number of parts currently stored */ 
+
+int find_part(int number); 
+void insert(void); 
+void search(void); 
+void update(void); 
+void print(void); 
+void quicksort (struct part a[], int low, int high);
+int split (struct part a[], int low, int high);
+
+int main(void) { 
+    char code; 
+
+    for (;;) { 
+        printf("Enter operation code: "); 
+        scanf(" %c", &code); 
+
+        while (getchar() != '\n') /* skips to end of line */ 
+            ;
+
+        switch (code) { 
+            case 'i': insert(); break; 
+            case 's': search(); break; 
+            case 'u': update(); break; 
+            case 'p': print(); break; 
+            case 'q': return 0; 
+            default: printf("Illegal code\n"); 
+        } 
+        printf("\n"); 
+    } 
+} 
+
+
+int find_part(int number) {
+    int i; 
+    for (i = 0; i < num_parts; i++) 
+        if (inventory[i].number == number) 
+            return i; 
+    return -1; 
+} 
+
+void insert(void) { 
+    int part_number; 
+
+    if (num_parts == MAX_PARTS) { 
+        printf("Database is full; can't add more parts.\n"); 
+        return; 
+    }
+    printf("Enter part number: "); 
+    scanf("%d", &part_number); 
+
+    if (find_part(part_number) >= 0) { 
+        printf("Part already exists.\n"); 
+        return; 
+    } 
+
+    inventory[num_parts].number = part_number; 
+    printf("Enter part name: "); 
+
+    read_line(inventory[num_parts].name, NAME_LEN); 
+    printf("Enter quantity on hand: "); 
+    scanf("%d", &inventory[num_parts].on_hand); 
+    num_parts++; 
+
+}
+
+void search(void) { 
+    int i, number;
+
+    printf("Enter part number: "); 
+    scanf("%d", &number); 
+    i = find_part(number); 
+    if (i >= 0) { 
+        printf("Part name: %s\n", inventory[i].name); 
+        printf("Quantity on hand: %d\n", inventory[i].on_hand); 
+    } else 
+
+    printf("Part not found.\n") ; 
+}
+void update(void)
+{
+  int i, number, change;
+
+  printf("Enter part number: ");
+  scanf("%d", &number);
+  i = find_part(number);
+  if (i >= 0) {
+    printf("Enter change in quantity on hand: ");
+    scanf("%d", &change);
+    inventory[i].on_hand += change;
+  } else
+    printf("Part not found.\n");
+}
+
+void print(void)
+{
+  int i;
+
+  quicksort (inventory, 0, num_parts - 1);
+  printf("Part Number   Part Name                  "
+         "Quantity on Hand\n");
+  for (i = 0; i < num_parts; i++)
+    printf("%7d       %-25s%11d\n", inventory[i].number,
+           inventory[i].name, inventory[i].on_hand);
+}
+
+void quicksort (struct part a[], int low, int high) {
+    int middle;
+
+    if (low >= high) return; 
+    middle = split(a, low, high); 
+    quicksort(a, low, middle - 1) ; 
+    quicksort(a, middle + 1 , high); 
+}
+
+int split (struct part a[], int low, int high) {
+    int part_element = a[low].number; 
+    struct part tmp = a[low];
+    for (;;) { 
+        while (low < high && part_element <= a[high].number) 
+            high--; 
+
+        if (low >= high) break; 
+        a[low++] = a[high]; 
+
+        while (low < high && a[low].number <= part_element) 
+            low++;
+        if (low >= high) break; 
+            a[high--] = a[low]; 
+    } 
+    a[high] = tmp; 
+    return high; 
+}
+```
+
+### Thoughts
+Only the `iventory.c` file was included here, since `readline.h` and `readline.c` were not modified.
+
+The easiest solution I could think of was to use the `quicksort` functions that we had already written several times. I decided to just put everything in the same file for simplicity, since I would have had to not only write a `quicksort.h` but create a `inventory.h` so that the inventory structure that we declared could be seen by `quicksort.c`. 
+
+Once I put everything in the same file it was just a matter of adapting the `quicksort` function to work with the structure. In particular every comparison needed to add `.number` while every assignment stayed the same. Consequently I added an extra temp structure to store the partition element. 
+
+It would have also been possible to just make `part_element` a `struct part` and then just call `part_element.number` when I wanted comparisons.
+
+## P16.3
+### Statement
+Modify the `inventory.c` program of Section 16.3 by making `inventory` and `num_parts` local to the `main` function. 
+
+### Code
+```
+// Filename: inventory.c
+// Purpose: manages an inventory of parts
+// Author: syfer
+// Date: August 6th, 2025
+
+#include <stdio.h> 
+#include "readline.h" 
+
+#define NAME_LEN 25 
+#define MAX_PARTS 100 
+
+
+struct part { 
+    int number; 
+    char name[NAME_LEN+1]; 
+    int on_hand; 
+};
+
+int find_part(int number, const struct part inv[], int np);
+void insert(struct part inv[], int *np);
+void search(const struct part inv[], int np);
+void update(struct part inv[], int np);
+void print(const struct part inv[], int np);
+
+int main(void) { 
+    struct part inventory[MAX_PARTS]; 
+
+    int num_parts = 0; /* number of parts currently stored */ 
+    char code; 
+
+    for (;;) { 
+        printf("Enter operation code: "); 
+        scanf(" %c", &code); 
+
+        while (getchar() != '\n') /* skips to end of line */ 
+            ;
+
+        switch (code) { 
+            case 'i': insert(inventory, &num_parts); break; 
+            case 's': search(inventory, num_parts); break; 
+            case 'u': update(inventory, num_parts); break; 
+            case 'p': print(inventory, num_parts); break; 
+            case 'q': return 0; 
+            default: printf("Illegal code\n"); 
+        } 
+        printf("\n"); 
+    } 
+} 
+int find_part(int number, const struct part inv[], int np){
+    int i; 
+    for (i = 0; i < np; i++) 
+        if (inv[i].number == number) 
+            return i; 
+    return -1; 
+} 
+void insert(struct part inv[], int *np){
+    int part_number; 
+
+    if (*np == MAX_PARTS) { 
+        printf("Database is full; can't add more parts.\n"); 
+        return; 
+    }
+    printf("Enter part number: "); 
+    scanf("%d", &part_number); 
+
+    if (find_part(part_number, inv, *np) >= 0) { 
+        printf("Part already exists.\n"); 
+        return; 
+    } 
+
+    inv[*np].number = part_number; 
+    printf("Enter part name: "); 
+
+    read_line(inventory[num_parts].name, NAME_LEN); 
+    printf("Enter quantity on hand: "); 
+    scanf("%d", &inventory[num_parts].on_hand); 
+    *np++; 
+}
+
+void search(const struct part inv[], int np){
+    int i, number;
+
+    printf("Enter part number: "); 
+    scanf("%d", &number); 
+    i = find_part(number, inv, &np); 
+    if (i >= 0) { 
+        printf("Part name: %s\n", inv[i].name); 
+        printf("Quantity on hand: %d\n", inv[i].on_hand); 
+    } else 
+        printf("Part not found.\n") ; 
+}
+
+void update(struct part inv[], int np) {
+  int i, number, change;
+
+  printf("Enter part number: ");
+  scanf("%d", &number);
+  i = find_part(number, inv, &np);
+  if (i >= 0) {
+    printf("Enter change in quantity on hand: ");
+    scanf("%d", &change);
+    inv[i].on_hand += change;
+  } else
+    printf("Part not found.\n");
+}
+
+void print(const struct part inv[], int np) {
+  int i;
+
+  printf("Part Number   Part Name                  "
+         "Quantity on Hand\n");
+  for (i = 0; i < np; i++)
+    printf("%7d       %-25s%11d\n", inv[i].number,
+           inv[i].name, inv[i].on_hand);
+}
+```
+
+### Thoughts
+Simple, if time consuming. Every function argument list was changed to include being able to  pass `inventory[]` and `num_parts`. 
+
+Note that since `insert` has to modify `num_parts` we pass a pointer to `num_parts` rather than by value.
+
+## P16.4
+### Statement
+Modify the `inventory.c` program of Section 16.3 by adding a `price` member to the `part` structure. The `insert` function should ask the user for the price of a new item. The `search` and `print` functions should display the price. Add a new command that allows the user to change the price of a part.
+
+### Code
+```
+// Filename: inventory.c
+// Purpose: manages an inventory of parts
+// Author: syfer
+// Date: August 6th, 2025
+
+#include <stdio.h> 
+#include "readline.h" 
+
+#define NAME_LEN 25 
+#define MAX_PARTS 100 
+
+struct part { 
+    int number; 
+    char name[NAME_LEN+1]; 
+    int on_hand; 
+    double price;
+} inventory[MAX_PARTS]; 
+
+int num_parts = 0; /* number of parts currently stored */ 
+
+int find_part(int number); 
+void insert(void); 
+void changePrice(void); 
+void search(void); 
+void update(void); 
+void print(void); 
+void quicksort (struct part a[], int low, int high);
+int split (struct part a[], int low, int high);
+
+int main(void) { 
+    char code; 
+
+    for (;;) { 
+        printf("Enter operation code: "); 
+        scanf(" %c", &code); 
+
+        while (getchar() != '\n') /* skips to end of line */ 
+            ;
+
+        switch (code) { 
+            case 'i': insert(); break; 
+            case 's': search(); break; 
+            case 'u': update(); break; 
+            case 'p': print(); break; 
+            case 'c': changePrice(); break; 
+            case 'q': return 0; 
+            default: printf("Illegal code\n"); 
+        } 
+        printf("\n"); 
+    } 
+} 
+
+int find_part(int number) {
+    int i; 
+    for (i = 0; i < num_parts; i++) 
+        if (inventory[i].number == number) 
+            return i; 
+    return -1; 
+} 
+
+void insert(void) { 
+    int part_number; 
+
+    if (num_parts == MAX_PARTS) { 
+        printf("Database is full; can't add more parts.\n"); 
+        return; 
+    }
+    printf("Enter part number: "); 
+    scanf("%d", &part_number); 
+
+    if (find_part(part_number) >= 0) { 
+        printf("Part already exists.\n"); 
+        return; 
+    } 
+
+    inventory[num_parts].number = part_number; 
+    printf("Enter part name: "); 
+
+    read_line(inventory[num_parts].name, NAME_LEN); 
+    printf("Enter quantity on hand: "); 
+    scanf("%d", &inventory[num_parts].on_hand); 
+    printf("Enter price: ")
+    scanf("%lf", &inventory[num_parts].price); 
+    num_parts++; 
+}
+
+void search(void) { 
+    int i, number;
+
+    printf("Enter part number: "); 
+    scanf("%d", &number); 
+    i = find_part(number); 
+    if (i >= 0) { 
+        printf("Part name: %s\n", inventory[i].name); 
+        printf("Quantity on hand: %d\n", inventory[i].on_hand); 
+        printf("Price: %lf\n", inventory[i].price); 
+    } else 
+        printf("Part not found.\n") ; 
+}
+void update(void)
+{
+  int i, number, change;
+
+  printf("Enter part number: ");
+  scanf("%d", &number);
+  i = find_part(number);
+  if (i >= 0) {
+    printf("Enter change in quantity on hand: ");
+    scanf("%d", &change);
+    inventory[i].on_hand += change;
+  } else
+    printf("Part not found.\n");
+}
+
+void print(void)
+{
+  int i;
+
+  printf("Part Number   Part Name                  "
+         "Quantity on Hand      Price\n");
+  for (i = 0; i < num_parts; i++)
+    printf("%7d       %-25s%11d           $%.2lf\n", inventory[i].number,
+           inventory[i].name, inventory[i].on_hand, inventory[i].price);
+}
+void changePrice(){
+    int i, number;
+
+    printf("Enter part number: ");
+    scanf("%d", &number);
+    i = find_part(number);
+    if (i >= 0) {
+        printf("Enter new price: ");
+        scanf("%lf", &inventory[i].price);
+    } else
+        printf("Part not found.\n");
+}
+```
+
+### Thoughts
+## P16.5
+### Statement
+Modify Programming Project 8 from Chapter 5 so that the times are stored in a single array.  The elements of the array will be structures, each containing a departure time and the corresponding arrival time. (Each time will be an integer, representing the number of minutes since midnight.) The program will use a loop to search the array for the departure time closest to the time entered by the user.
+
+### Code
+
+```
+// Filename: p5.c
+// Purpose: Displays departure and arrival time that are closest to a user entered time
+// Author: syfer
+// Date: August 6th, 2025
+
+#include <stdio.h>
+#include <math.h>
+
+#define SIZE 8
+#define MIN_PER_DAY 24 * 60
+
+void print(int dep, int arr);
+int main(){
+    struct {
+        int dep;
+        int arr;
+    } times[] = {{480, 616}, {583, 712}, {679, 811}, {767, 900},
+        {840, 968}, {945, 1075}, {1140, 1280}, {1305, 1438}};
+
+    int hour, min, time, interval = MIN_PER_DAY, index = 0;
+
+    printf("Enter a 24-hour time: ");
+    scanf("%d:%d", &hour, &min);
+    
+    time = hour * 60 + min;
+    for(int i = 0; i < SIZE; i++){
+        if(fabs(time - times[i].dep) <= interval){
+            interval = fabs(time - times[i].dep);
+            index = i;
+        }
+    }
+    print(times[index].dep, times[index].arr);
+    return 0;
+
+}
+void print(int dep, int arr) {
+    printf("%d:%.2d %c.m., arriving at %d:%.2d %c.m.\n", 
+           dep/60 > 12 ? dep / 60 - 12 : dep / 60,
+           dep%60, dep > 719 ? 'p' : 'a', 
+           arr/60 > 12 ? arr / 60 - 12 : arr/60,
+           arr%60, arr > 719 ? 'p' : 'a');
+}
+```
+
+### Thoughts
+## P16.6
+### Statement
+Modify Programming Project 9 from Chapter 5 so that each date entered by the user is stored in a date structure (see Exercise 5). Incorporate the `compare_dates` function of Exercise 5 into your program.
+
+### Code
+
+```
+// Filename: p6.c
+// Purpose: Calculates which of two user given dates is earlier on the calendar
+// Author: syfer
+// Date: August 6th, 2025
+
+#include <stdio.h>
+struct date{
+
+    int day;
+    int month;
+    int year;
+};
+
+int compare_dates(struct date d1, struct date d2);
+
+int main(){
+
+    struct date d1, d2;
+
+    printf("Enter first date (mm/dd/yy): ");
+    scanf("%d/%d/%d", &d1.month, &d1.day, &d1.year);
+
+    printf("Enter second date (mm/dd/yy): ");
+    scanf("%d/%d/%d", &d2.month, &d2.day, &d2.year);
+    int ret = compare_dates(d1,d2);
+    if(ret == 1){
+        printf("%.2d/%.2d/%.2d is earlier than %.2d/%.2d/%.2d\n", d1.month, d1.day, d1.year,
+                d2.month, d2.day, d2.year);
+    } else if (!ret){
+        printf("%.2d/%.2d/%.2d is earlier than %.2d/%.2d/%.2d\n", d1.month, d1.day, d1.year,
+                d2.month, d2.day, d2.year);
+    }else{
+        printf("%.2d/%.2d/%.2d is earlier than %.2d/%.2d/%.2d\n", d2.month, d2.day, d2.year,
+                d1.month, d1.day, d1.year);
+    }
+
+    return 0;
+}
+
+int compare_dates(struct date d1, struct date d2){
+    if(d1.year < d2.year || d1.month < d2.month || d1.day < d2.day)
+        return -1;
+    else if (d1.year > d2.year || d1.month > d2.month || d1.day > d2.day)
+        return 1;
+    else
+        return 0;
+}
+```
+
+# Conclusion
+Structures feel like a very important and necessary feature. They're really all that C has for anything resembling object oriented programming. They make data storage much simpler and more organized, and there's a lot of cool things you can do with nested structures as well as unions.
+
+That being said, I really disliked the projects for this chapter. Modification after modification, most of the time was spent trying to figure out what the code did originally and then inserting my own modifications while having to deal with someone else's style and conventions. The exercises were okay for the most part.
+
+At least I finally am aware that all of the book code is available online, before I was formatting and copying it myself, so hopefully that will save me time.
+
+Finally, either this or the next chapter feel like the last which introduce fundamental concepts, and the rest move on into specifics. In the interest of time, I'll be starting to skip certain problems as well as potentially entire chapters. Onward!
