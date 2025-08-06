@@ -1341,8 +1341,8 @@ int main(){
     struct {
         int dep;
         int arr;
-    } times[] = {{480, 616}, {583, 712}, {679, 811}, {767, 900},
-        {840, 968}, {945, 1075}, {1140, 1280}, {1305, 1438}};
+    } times[] = CURLY_BRACE_HERE{480, 616}, {583, 712}, {679, 811}, {767, 900},
+        {840, 968}, {945, 1075}, {1140, 1280}, {1305, 1438}CLOSE_CURLY_HERE;
 
     int hour, min, time, interval = MIN_PER_DAY, index = 0;
 
