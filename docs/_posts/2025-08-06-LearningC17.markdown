@@ -1,0 +1,990 @@
+---
+layout: default
+title: Chapter 17
+date: 2025-08-06 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc17
+---
+# Chapter 17
+# Exercises
+## E17.1
+### Statement
+Having to check the return value of `malloc` (or any other memory allocation function) each time we call it can be an annoyance. Write a function named `my_malloc` that serves as a “wrapper” for `malloc`. When we call `my_malloc` and ask it to allocate `n` bytes, it in turn calls `malloc`, tests to make sure that `malloc` doesn't return a null pointer, and then returns the pointer from `malloc`. Have `my_malloc` print an error message and terminate the program if `malloc` returns a null pointer.
+
+### Solution
+```
+void *my_malloc(size_t size){
+    void *ret = malloc(size);
+    if(ret == NULL){
+        printf("Error malloc failed to allocate\n");
+        exit(EXIT_FAILURE);
+    }
+    return ret;
+}
+```
+
+## E17.2
+### Statement
+Write a function named `duplicate` that uses dynamic storage allocation to create a copy of a string. For example, the call
+
+`p = duplicate(str);`
+
+would allocate space for a string of the same length as `str`, copy the contents of `str` into the new string, and return a pointer to it. Have `duplicate` return a null pointer if the memory allocation fails.
+
+### Solution
+```
+void *duplicate(char* str){
+    void *ret = malloc(strlen(str));
+    if(ret == NULL)
+        return NULL;
+    strcpy(ret,str);
+    return ret;
+}
+```
+
+
+## E17.3
+### Statement
+Write the following function:
+
+`int *create_array(int n, int initial_value);`
+
+The function should return a pointer to a dynamically allocated `int` array with `n` members, each of which is initialized to `initial_value`. The return value should be `NULL` if the array can't be allocated.
+
+### Solution
+```
+int *create_array(int n, int initial_value){
+    int *ret = malloc(sizeof(int) * n);
+    if(*ret == NULL)
+        return NULL;
+    for(int *p =  ret; p < ret + n;p++)
+        *p = intial_value;
+    return ret;
+}
+```
+
+## E17.4
+### Statement
+Suppose that the following declarations are in effect:
+
+```
+struct point { int x, y; };
+struct rectangle { struct point upper_left, lower_right; };
+struct rectangle *p;
+```
+
+Assume that we want `p` to point to a `rectangle` structure whose upper left corner is at $$(10, 25)$$ and whose lower right corner is at $$(20, 15)$$. Write a series of statements that allocate such a structure and initialize it as indicated.
+
+### Solution
+```
+p = malloc(sizeof(struct rectangle));
+p->upper_left.x = 10;
+p->upper_left.y = 25;
+p->lower_right.x = 20;
+p->lower_right.y = 15;
+```
+
+## E17.5
+### Statement
+Suppose that `f` and `p` are declared as follows:
+
+```
+struct {
+    union {
+        char a, b;
+        int c;
+    } d;
+    int e[5];
+} f, *p = &f;
+```
+
+Which of the following statements are legal?
+
+(a) `p->b = ' ';`
+
+(b) `p->e[3] = 10;`
+
+(c) `(*p).d.a = '*';`
+
+(d) `p->d->c = 20;`
+
+### Solution
+(a) is illegal, because `b` is a member of the union `d` which needs to be specified
+
+(b) is legal
+
+(c) is legal
+
+(d) is illegal because `d` is not a pointer so `d->c` does not work.
+
+## E17.6
+### Statement
+Modify the `delete_from_list` function so that it uses only one pointer variable instead of two (`cur` and `prev`).
+
+### Solution
+A bit convoluted but we got there in the end:
+
+```
+struct node *delete_fromlist(struct node *list, int n){
+    struct node *cur; 
+
+    for(cur = list; cur->next != NULL && cur->next.value != n; cur = cur->next);
+        ;
+    if(cur->next == NULL && cur->value == n){
+        struct node temp;
+        temp->next = list;
+        list = list->next; /* n is first node */
+        free(temp->next);
+    }
+    else if (cur->next == NULL)
+        return list; /* n was not found */
+    else if (cur->next.value == n){
+        struct node temp;
+        temp->next = cur->next;
+        cur = cur->next->next;
+        free(temp->next);
+    }
+
+    return list;
+}
+```
+
+## E17.7
+### Statement
+The following loop is supposed to delete all nodes from a linked list and release the memory that they occupy. Unfortunately, the loop is incorrect. Explain what’s wrong with it and show how to fix the bug.
+
+```
+for (p = first; p != NULL; p = p->next)
+    free(p);
+```
+
+### Solution
+Once we `free(p)` we no longer have a `p->next` to go to, meaning we delete the first element and not much else. Fixed with a temp:
+
+```
+struct node *temp;
+for (p = first; p != NULL;){
+    temp = p;
+    p = p->next;
+    free(temp);
+}
+```
+
+## E17.8
+### Statement
+Section 15.2 describes a file, `stack.c`, that provides functions for storing integers in a stack. In that section, the stack was implemented as an array. Modify `stack.c` so that a stack is now stored as a linked list. Replace the `contents` and `top` variables by a single variable that points to the first node in the list (the "top" of the stack). Write the functions in `stack.c` so that they use this pointer. Remove the `is_full` function, instead having `push` return either `true` (if memory was available to create a node) or `false` (if not).
+
+### Solution
+
+```
+// Filename: stack.c
+// Purpose: stacks revisited, this time with pointers
+// Author: syfer
+// Date: August 7th, 2025
+
+#include <stdio.h>
+#include <stdbool.h>
+#include "stack.h"
+#include <stdlib.h>
+
+#define STACK_SIZE 100 
+
+/* external variables */ 
+struct node {
+    int value;
+    struct node *next;
+};
+
+struct node *top = NULL;
+
+void make_empty(void) { 
+    struct node *temp;
+    while (top != NULL) {
+        temp = top;
+        top = top->next;
+        free(temp);
+    }
+} 
+
+bool is_empty(void) { 
+    return top == NULL; 
+} 
+
+bool push(int i) { 
+    struct node *add = malloc(sizeof(struct node));
+    if(add == NULL)
+        return false;
+    add->value = i;
+    add->next = top;
+    top = add;
+    return true;
+} 
+
+int pop(void) { 
+    struct node *temp;
+    int ret;
+    if(is_empty()){
+        printf("Stack underflow");
+        exit(EXIT_FAILURE);
+    }
+    ret = top->value;
+    temp = top;
+    top = top->next;
+    free(temp);
+
+    return ret; // so that C doesn't yell at me, but we never get here 
+} 
+```
+
+## E17.9
+### Statement
+True or false: If `x` is a structure and `a` is a member of that structure, then `(&x)->a` is the same as `x.a`. Justify your answer.
+
+### Solution
+True, `&x` is a pointer to `x` meaning we can use the `->` operator.
+
+## E17.10
+### Statement
+Modify the `print_part` function of Section 16.2 so that its parameter is a pointer to a `part` structure. Use the `->` operator in your answer.
+
+### Solution
+```
+void print_part(struct part *p) {
+    printf("Part number: %d\n", p->number);
+    printf("Part name: %s\n", p->name) ;
+    printf("Quantity on hand: %d\n", p->on_hand);
+}
+```
+## E17.11
+### Statement
+Write the following function:
+
+`int count_occurrences(struct node *list, int n);`
+
+The `list` parameter points to a linked list; the function should return the number of times that `n` appears in this list. Assume that the `node` structure is the one defined in Section 17.5.
+
+### Solution
+```
+int count_occurrences(struct node *list, int n){
+     int ret = 0;
+     for(; list != null; list = list->next)
+         if (list->value == n)
+             ret++;
+     return ret;
+}
+```
+
+## E17.12
+### Statement
+Write the following function:
+
+`struct node *find_last(struct node *list, int n);`
+
+The list parameter points to a linked `list`. The function should return a pointer to the last node that contains `n`: it should return `NULL` if `n` doesn't appear in the list. Assume that the `node` structure is the one defined in Section 17.5.
+
+### Solution
+```
+struct node *find_last(struct node *list, int n){
+    struct node *ret = NULL;
+    for(;list != NULL;list = list->next)
+        if (list->value == n)
+            ret = list;
+    return ret;
+}
+```
+
+## E17.13
+### Statement
+The following function is supposed to insert a new node into its proper place in an ordered list, returning a pointer to the first node in the modified list. Unfortunately, the function doesn't work correctly in all cases. Explain what's wrong with it and show how to fix it. Assume that the `node` structure is the one defined in Section 17.5.
+
+```
+struct node *insert_into_ordered_list(struct node *list, struct node *new_node){
+
+    struct node *cur = list, *prev = NULL;
+    while (cur->value <= new_node->value) {
+        prev = cur;
+        cur = cur->next;
+    }
+    prev->next = new_node;
+    new_node->next = cur;
+    return list;
+}
+```
+
+### Solution
+We fail in two specific cases: first and last. If we need to insert the node first, and `new_node->value`  is smaller than every other value, the `while` loop will not be entered at all, and `prev` will remain a null pointer, meaning that `prev->next` will fail.
+
+If we need to insert the node last, and `new_node->value` is greater than every other value, the `while` loop will not stop and end up setting `cur` to a `NULL`, meaning that `new_node->value = cur` will fail.
+
+To fix we add the appropriate checks:
+
+```
+struct node *insert_into_ordered_list(struct node *list, struct node *new_node){
+
+    struct node *cur = list, *prev = NULL;
+    while (cur != NULL && cur->value <= new_node->value) {
+        prev = cur;
+        cur = cur->next;
+    }
+    if(prev == NULL)
+        list = new_node;
+    else
+        prev->next = new_node;
+
+    new_node->next = cur;
+    return list;
+}
+```
+
+## E17.14
+### Statement
+Modify the `delete_from_list` function (Section 17.5) so that its first parameter has type `struct node **` (a pointer to a pointer to the first node in a list) and its return type is `void`. `delete_from_list` must modify its first argument to point to the list after the desired node has been deleted.
+
+### Solution
+```
+void delete_fromlist(struct node **list, int n){
+    struct node *cur, *prev;
+    for (cur = *list, prev = NULL; cur != NULL && cur->value != n; 
+            prev = cur, cur = cur->next)
+        ;
+
+    if (cur == NULL)
+        return;
+    if (prev == NULL)
+        *list = (*list)->next; /* n is in the first node */
+    else
+        prev->next = cur->next; /* n is in some other node */
+    free(cur);
+}
+```
+
+## E17.15
+### Statement
+Show the output of the following program and explain what it does.
+
+```
+#include <stdio.h>
+
+int fl(int (*f)(int));
+int f2(int i);
+
+int main(void) {
+    printf("Answer: %d\n", f1(f2));
+    return 0 ;
+}
+int fl(int (*f)(int)) {
+    int n = 0;
+
+    while ((*f)(n)) n++;
+
+    return n;
+}
+
+int f2(int i) {
+    return i * i + i - 12;
+}
+```
+
+### Solution
+The output is `Answer: 3`. 
+
+`f1` gets called in the print statement, and in turn it calls `f2(n)` from inside itself, with ever increasing values for `n`, until `f2(n))` is `false` (0). This happens when $$ i * i + i - 12 = 0$$, which is when $$ i = 3 $$.
+
+## E17.16
+### Statement
+Write the following function. The call `sum(g, i, j)` should return $$g(i) + ...+g(j)$$.  
+
+`int sum(int (*f)(int), int start, int end);`
+
+### Solution
+
+```
+int sum(int (*f), int start, int end){
+    int ret = 0;
+    for(int i = start; i < end; i++){
+        ret+=(*f)(i);
+    }
+    return ret;
+}
+```
+
+## E17.17
+### Statement
+Let `a` be an array of 100 integers. Write a call of `qsort` that sorts only the last 50 elements in `a`. (You don't need to write the comparison function).
+
+### Solution
+`qsort(a + 50, 50, sizeof(a[0]), compare)`
+
+## E17.18
+### Statement
+Modify the `compare_parts` function so that parts are sorted with their numbers in descending order. 
+
+### Solution
+```
+int compare_parts(const void *p, const void *q) {
+
+    const struct part *p1 = p;
+    const struct part *q1 = q;
+
+    if (q1->number < p1->number)
+        return -1;
+    else if (p1->number == q1->number)
+        return 0;
+    else
+        return 1;
+}
+```
+
+## E17.19
+### Statement
+Write a function that, when given a string as its argument, searches the following array of structures for a matching command name, then calls the function associated with that name.
+
+```
+struct { 
+    char *cmd_name; 
+    void (*cmd_pointer)(void); 
+} file_cmd[] = EXTRA_CURLY_HERE{"new",new_cmd},  
+           {"open", open_cmd}, 
+            {"close", close_cmd}, 
+            {"close all", close_all_cmd}, 
+            {" save", save_cmd}, 
+            {"save as", save_as_cmd}, 
+            {"save all", save_all_cmd}, 
+            {"print", print_cmd}, 
+            {"exit", exit_cmd}CLOSE_CURLY_HERE
+```
+
+### Solution
+```
+void find_and_call(char *str){
+    for(int i = 0; i < sizeof(file_cmd) / sizeof(file_cmd[0]);i++){
+        if(strcmp(str,file_cmd[i]) == 0){
+            file_cmd[i].cmd_pointer();
+        }
+    }
+}
+```
+
+# Projects
+## P17.1
+### Statement
+Modify the `inventory.c` program of Section 16.3 so that the `inventory` array is allocated dynamically and later reallocated when it fills up. Use `malloc` initially to allocate enough space for an array of 10 `part` structures. When the array has no more room for new parts, use `realloc` to double its size. Repeat the doubling step each time the array becomes full.
+
+### Code
+
+```
+// Filename: inventory.c
+// Purpose: manages an inventory of parts
+// Author: syfer
+// Date: August 7th, 2025
+
+#include <stdio.h> 
+#include <stdlib.h> 
+#include "readline.h" 
+
+#define NAME_LEN 25 
+#define INITIAL_SIZE 10
+
+struct part { 
+    int number; 
+    char name[NAME_LEN+1]; 
+    int on_hand; 
+}; 
+
+struct part *inventory;
+int num_parts = 0; /* number of parts currently stored */ 
+int current_size = INITIAL_SIZE;
+
+int find_part(int number); 
+void insert(void); 
+void search(void); 
+void update(void); 
+void print(void); 
+void quicksort (struct part a[], int low, int high);
+int split (struct part a[], int low, int high);
+
+int main(void) { 
+    char code; 
+
+    inventory = malloc(current_size * sizeof(struct part));
+    if(inventory == NULL){
+        printf("malloc failed for inventory\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (;;) { 
+        printf("Enter operation code: "); 
+        scanf(" %c", &code); 
+
+        while (getchar() != '\n') /* skips to end of line */ 
+            ;
+
+        switch (code) { 
+            case 'i': insert(); break; 
+            case 's': search(); break; 
+            case 'u': update(); break; 
+            case 'p': print(); break; 
+            case 'q': return 0; 
+            default: printf("Illegal code\n"); 
+        } 
+        printf("\n"); 
+    } 
+} 
+
+
+int find_part(int number) {
+    int i; 
+    for (i = 0; i < num_parts; i++) 
+        if (inventory[i].number == number) 
+            return i; 
+    return -1; 
+} 
+
+void insert(void) { 
+    int part_number; 
+    struct part *temp;
+
+    if(num_parts == current_size){
+        current_size *= 2;
+        temp = realloc(inventory, current_size * sizeof(struct part));
+        if(temp == NULL){
+            printf("malloc failed for reallocation\n");
+            exit(EXIT_FAILURE);
+        }
+        inventory = temp;
+    }
+
+    printf("Enter part number: "); 
+    scanf("%d", &part_number); 
+
+    if (find_part(part_number) >= 0) { 
+        printf("Part already exists.\n"); 
+        return; 
+    } 
+
+    inventory[num_parts].number = part_number; 
+    printf("Enter part name: "); 
+
+    read_line(inventory[num_parts].name, NAME_LEN); 
+    printf("Enter quantity on hand: "); 
+    scanf("%d", &inventory[num_parts].on_hand); 
+    num_parts++; 
+
+}
+
+void search(void) { 
+    int i, number;
+
+    printf("Enter part number: "); 
+    scanf("%d", &number); 
+    i = find_part(number); 
+    if (i >= 0) { 
+        printf("Part name: %s\n", inventory[i].name); 
+        printf("Quantity on hand: %d\n", inventory[i].on_hand); 
+    } else 
+
+    printf("Part not found.\n") ; 
+}
+void update(void)
+{
+  int i, number, change;
+
+  printf("Enter part number: ");
+  scanf("%d", &number);
+  i = find_part(number);
+  if (i >= 0) {
+    printf("Enter change in quantity on hand: ");
+    scanf("%d", &change);
+    inventory[i].on_hand += change;
+  } else
+    printf("Part not found.\n");
+}
+
+void print(void)
+{
+  int i;
+
+  quicksort (inventory, 0, num_parts - 1);
+  printf("Part Number   Part Name                  "
+         "Quantity on Hand\n");
+  for (i = 0; i < num_parts; i++)
+    printf("%7d       %-25s%11d\n", inventory[i].number,
+           inventory[i].name, inventory[i].on_hand);
+}
+
+void quicksort (struct part a[], int low, int high) {
+    int middle;
+
+    if (low >= high) return; 
+    middle = split(a, low, high); 
+    quicksort(a, low, middle - 1) ; 
+    quicksort(a, middle + 1 , high); 
+}
+
+int split (struct part a[], int low, int high) {
+    int part_element = a[low].number; 
+    struct part tmp = a[low];
+    for (;;) { 
+        while (low < high && part_element <= a[high].number) 
+            high--; 
+
+        if (low >= high) break; 
+        a[low++] = a[high]; 
+
+        while (low < high && a[low].number <= part_element) 
+            low++;
+        if (low >= high) break; 
+            a[high--] = a[low]; 
+    } 
+    a[high] = tmp; 
+    return high; 
+}
+```
+
+### Thoughts
+Not as complicated as I thought originally. Since `inventory` was originally an array, changing it to a pointer meant I did not have to do any substitutions in its usage, since subscripting works for pointers as well. 
+
+The `temp` pointer during reallocation is a big question mark. When comparing my solution to the one provided by the author, `temp` was the only difference. It seems to me that we have it here to make the program safer by ensuring we don't set the `inventory` array to `NULL` should reallocation fail.
+
+Based on what I found online and my own intuition, this is good practice but not necessary here. The program exits anyways after a failed allocation, so it does not matter whether or not we preserve the array. It would, however matter if we added functionality to continue modifying `inventory` if it was full and reallocation failed.
+
+I also kept in the `quicksort` algorithm from previous projects.
+
+## P17.2
+### Statement
+Modify the `inventory.c` program of Section 16.3 so that the `p`(print) command calls `qsort` to sort the `inventory` array before it prints the parts.
+
+### Code
+See above, replacing the `quicksort` call with `qsort(inventory, num_parts, sizeof(struct part), compare);` and writing:
+
+```
+int compare_parts(const void *p, const void *q){
+    return ((struct part *) p)->number - ((struct part *) q)->number;
+}
+```
+Finally, remove the `quicksort` and `split` functions.
+
+## P17.3
+### Statement
+Modify the `inventory2.c` program of Section 17.5 by adding an `e`(erase) command that allows the user to remove a part from the database.
+
+### Code
+```
+void erase(void){
+    int n;
+    struct part *cur = inventory, *prev = NULL;
+    printf("Enter part number: ");
+    scanf("%d", &n);
+
+    for(;cur != NULL; cur = cur->next){
+        if(cur->number == n)
+            break;
+    }
+    if(cur == NULL){
+        printf("Part not found\n");
+        return;
+    }
+    if(prev == NULL)
+        inventory = inventory->next;
+    else
+        prev->next = cur->next;
+    free(cur);
+}
+```
+
+## P17.4
+### Statement
+Modify the `justify` program of Section 15.3 by rewriting the `line.c` file so that it stores the current line in a linked list. Each node in the list will store a single word. The `line` array will be replaced by a variable that points to the node containing the first word.  This variable will store a null pointer whenever the line is empty. 
+
+### Code
+```
+// Filename: line.c
+// Purpose: Reads in a full line, one word at a time
+// Author: syfer
+// Date: August 5th, 2025
+
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <string.h> 
+#include <stdbool.h> 
+#include "line.h" 
+
+#define MAX_LINE_LEN 60 
+
+struct node{
+    struct node *next;
+    char c[];
+};
+
+struct node *line = NULL;
+int line_len = 0; 
+int num_words = 0; 
+bool togglespace = false;
+
+void clear_line(void) { 
+    struct node *temp;
+    for(;line !=NULL;){
+        temp = line;
+        line = line->next;
+        free(temp);
+    }
+
+    line_len = 0; 
+    num_words = 0; 
+} 
+
+void add_word(const char *word) {
+    struct node *new, *p;
+    new = malloc(sizeof(struct node) + strlen(word) + 1);
+    strcpy(new->c, word);
+    new->next = NULL;
+
+    if (num_words > 0) { 
+        line_len++; 
+        //add to list
+        for(p = line;p->next != NULL; p = p->next)
+            ;
+
+        p->next = new;
+    } 
+
+    line_len += strlen(word); 
+    num_words++; 
+} 
+
+int space_remaining(void) { 
+    return MAX_LINE_LEN - line_len; 
+} 
+
+void write_line(void) { 
+    int extra_spaces, spaces_to_insert, j; 
+    struct node *p;
+
+    extra_spaces = MAX_LINE_LEN - line_len; 
+    for (p = line; p != NULL; p = p->next) { 
+        printf("%s", p->c);
+        if(num_words > 1){
+            spaces_to_insert = extra_spaces / (num_words - 1);
+
+            for (j = 1; j <= spaces_to_insert + 1; j++) 
+                putchar(' '); 
+            extra_spaces -= spaces_to_insert; 
+        }
+        num_words--; 
+    } 
+    putchar('\n'); 
+} 
+
+void flush_line(void) { 
+    if (line_len > 0) {
+        printf("%s", line->c);
+        for(struct node *p = line->next; p != NULL; p = p->next){
+            printf(" %s", p->c);
+        }
+    }
+    putchar('\n');
+}
+```
+
+### Thoughts
+Complicated, frustrating, and barely works. 
+
+So tired of modifying code that I did not write.
+
+## P17.5
+### Statement
+Write a program that sorts a series of words entered by the user: 
+
+```
+Enter word: foo 
+Enter word: bar 
+Enter word: baz 
+Enter word: quux 
+Enter word: 
+
+In sorted order: bar baz foo quux 
+```
+
+Assume that each word is no more than 20 characters long. Stop reading when the user enters an empty word (i.e., presses Enter without entering a word). Store each word in a dynamically allocated string, using an array of pointers to keep track of the strings, as in the `remind2.c` program (Section 17.2). After all words have been read, sort the array (using any sorting technique) and then use a loop to print the words in sorted order. Hint: Use the `read_line` function to read each word, as in `remind2.c`. 
+
+### Code
+
+```
+// Filename: p5.c
+// Purpose: sorts a series of words entered by the user
+// Author: syfer
+// Date: August 7th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define INITIAL_MAX 10
+#define WORD_MAX 20
+int read_line(char str[], int n);
+int compare(const void *word1, const void *word2);
+
+int main(){
+    int numwords = 0, current_max = INITIAL_MAX;
+    char **words = malloc(INITIAL_MAX * sizeof(char *));
+    char word[WORD_MAX];
+    
+    for (;;){
+        printf("Enter word: ");
+        int len = read_line(word, WORD_MAX);
+        if(len == 0) 
+            break;
+        if(numwords == current_max){
+            current_max *=2;
+            words = realloc(words, current_max * sizeof(char*));
+        }
+        words[numwords]  = malloc(len + 1);
+        strcpy(words[numwords], word);
+        numwords++;
+    }
+    qsort(words, numwords, sizeof(char *), compare);
+
+    printf("In sorted order: ");
+    for(int i = 0;i < numwords;i++){
+        printf(" %s", words[i]);
+    }
+    printf("\n");
+    
+    return 0;
+}
+int compare(const void *word1, const void *word2) {
+    const char **w1 = word1;
+    const char **w2 = word2;
+	return strcmp(*w1, *w2);
+}
+
+int read_line(char str[], int n)
+{
+  int ch, i = 0;
+
+  while ((ch = getchar()) != '\n')
+    if (i < n)
+      str[i++] = ch;
+  str[i] = '\0';
+  return i;
+}
+```
+
+### Thoughts
+This project felt good to write for the most part (all original code, no modifications, finally!!). 
+
+The only issue came with implementing `qsort`'s compare function. The function needs to work to a sort an array of `char` pointers. My intuition was that if two arguments passed to the function were `void` pointers then all that was needed was to cast them to `char` pointers (which are the elements of the array I'm sorting) and then compare the values. The issue with that is that there was an extra layer of pointers that I was missing.
+
+When sorting a `int` array, you get two `int` pointers disguised as `void` pointers. For a `double` you get two `double` pointers, etc. For a array of `char` pointers therefore you get two pointers to pointers to `char`, i.e. `char**`. This means that we actually need to cast it as a `char **` and then dereference once in the `strcmp` to get the end result of `char*`.
+
+## P17.6
+### Statement
+Modify Programming Project 5 so that it uses `qsort` to sort the array of pointers. 
+
+### Code
+See above
+
+### Thoughts
+Previous problem said any method to sort, before reading this one I used `qsort` anyways. Lucky me.
+
+## P17.7
+### Statement
+Modify the `remind2.c` program of Section 17.2 so that each element of the `reminders` array is a pointer to a `vstring` structure (see Section 17.9) rather than a pointer to an ordinary string.
+
+### Code
+```
+/*********************************************************
+ * From C PROGRAMMING: A MODERN APPROACH, Second Edition *
+ * By K. N. King                                         *
+ * Copyright (c) 2008, 1996 W. W. Norton & Company, Inc. *
+ * All rights reserved.                                  *
+ * This program may be freely distributed for class use, *
+ * provided that this copyright notice is retained.      *
+ *********************************************************/
+
+/* remind2.c (Chapter 17, page 418) */
+/* Prints a one-month reminder list (dynamic string version) */
+
+// --------------------------------------------------
+// MODIFIED BY SYFER ON AUGUST 7TH 2025
+// -------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_REMIND 50   /* maximum number of reminders */
+#define MSG_LEN 60      /* max length of reminder message */
+
+struct vstring{
+    int len;
+    char chars[];
+};
+
+int read_line(char str[], int n);
+
+int main(void)
+{
+  struct vstring *reminders[MAX_REMIND];
+  char day_str[3], msg_str[MSG_LEN+1];
+  int day, i, j, num_remind = 0;
+
+  for (;;) {
+    if (num_remind == MAX_REMIND) {
+      printf("-- No space left --\n");
+      break;
+    }
+
+    printf("Enter day and reminder: ");
+    scanf("%2d", &day);
+    if (day == 0)
+      break;
+    sprintf(day_str, "%2d", day);
+    read_line(msg_str, MSG_LEN);
+
+    for (i = 0; i < num_remind; i++)
+      if (strcmp(day_str, reminders[i]->chars) < 0)
+        break;
+    for (j = num_remind; j > i; j--)
+      reminders[j] = reminders[j-1];
+
+    reminders[i] = malloc(2 + strlen(msg_str) + 1);
+    if (reminders[i] == NULL) {
+      printf("-- No space left --\n");
+      break;
+    }
+
+    strcpy(reminders[i]->chars, day_str);
+    strcat(reminders[i]->chars, msg_str);
+
+    num_remind++;
+  }
+
+  printf("\nDay Reminder\n");
+  for (i = 0; i < num_remind; i++)
+    printf(" %s\n", reminders[i]->chars);
+
+  return 0;
+}
+
+int read_line(char str[], int n)
+{
+  int ch, i = 0;
+
+  while ((ch = getchar()) != '\n')
+    if (i < n)
+      str[i++] = ch;
+  str[i] = '\0';
+  return i;
+}
+```
+
+### Thoughts
+Very simple, we already used a `vstring` type structure in a previous project, and this just involved replacing `reminder[i]` with `reminder[i]->chars` where appropriate.
+
+# Conclusion
+`Malloc` as a concept is incredibly interesting, and the control it lets you have over memory management is fundamental to C. Most of this chapter was new to me but I'm happy to note that I felt good about the information all the way through.
+
+When reading the chapter I was also thinking of variable length arrays introduced in C99. In terms of memory allocation, they do effectively the same thing as using `malloc`. What I found out through research was that there are a couple differences in the objects created by both. One big advantage of `malloc` is that we can later `realloc` to change the size on the fly, something a variable length array will not be able to do. Additionally, `malloc` type arrays can be passed through a function's return while variable length arrays cannot. The only advantage I could think of for variable length arrays was that they might be safer, and slightly faster due to their heap(?) allocation.
+
+Another fundamental chapter done, not much left now.
