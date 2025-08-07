@@ -20,6 +20,7 @@ For each of the following declarations, identify the storage class, type qualifi
 (d) `static const char token_buf[] = "";`
 
 ### Solution
+
 |Storage class|Type qualifiers|Type specifier|Declarators|Initializers|
 |-|-|-|-|-|
 |`static`|none|`char **`|`lookup(int level)`|none|
