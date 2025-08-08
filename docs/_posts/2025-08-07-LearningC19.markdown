@@ -1,0 +1,511 @@
+---
+layout: default
+title: Chapter 19
+date: 2025-08-07 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc19
+---
+# Chapter 19
+# Exercises
+## E19.1
+### Statement
+A queue is similar to a stack, except that items are added at one end but removed from the other in a FIFO (first-in, first-out) fashion. Operations on a queue might include:
+
+Inserting an item at the end of the queue
+
+Removing an item from the beginning of the queue
+
+Returning the first item in the queue (without changing the queue)
+
+Returning the last item in the queue (without changing the queue)
+
+Testing whether the queue is empty
+
+Write an interface for a queue module in the form of a header file named `queue.h`.
+
+### Solution
+```
+// Filename queue.h
+#ifndef QUEUE_H
+#define QUEUE_H
+
+#include <stdbool.h>
+
+typedef int Item;
+typedef struct queue_t *Queue;
+
+void append(Queue, Item i);
+void remove(Queue);
+int first(Queue);
+int last(Queue);
+bool is_empty(Queue);
+#endif
+```
+
+## E19.2
+### Statement
+Modify the `stack2.c` file to use the `PUBLIC` and `PRIVATE` macros.
+
+### Solution
+```
+/*********************************************************
+ * From C PROGRAMMING: A MODERN APPROACH, Second Edition *
+ * By K. N. King                                         *
+ * Copyright (c) 2008, 1996 W. W. Norton & Company, Inc. *
+ * All rights reserved.                                  *
+ * This program may be freely distributed for class use, *
+ * provided that this copyright notice is retained.      *
+ *********************************************************/
+
+/* stack2.c (Chapter 19, page 489) */
+
+//-------------------------------------------------------
+// MODIFIED BY SYFER ON AUGUST 7th 2025
+//-------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "stack.h"
+
+#define PUBLIC //empty
+#define PRIVATE static
+
+struct node {
+  int data;
+  struct node *next;
+};
+
+PRIVATE struct node *top = NULL;
+
+PRIVATE void terminate(const char *message)
+{
+  printf("%s\n", message);
+  exit(EXIT_FAILURE);
+}
+
+PUBLIC void make_empty(void)
+{
+  while (!is_empty())
+    pop();
+}
+
+PUBLIC bool is_empty(void)
+{
+  return top == NULL;
+}
+
+PUBLIC bool is_full(void)
+{
+  return false;
+}
+
+PUBLIC void push(int i)
+{
+  struct node *new_node = malloc(sizeof(struct node));
+  if (new_node == NULL)
+    terminate("Error in push: stack is full.");
+
+  new_node->data = i;
+  new_node->next = top;
+  top = new_node;
+}
+
+PUBLIC int pop(void)
+{
+  struct node *old_top;
+  int i;
+
+  if (is_empty())
+    terminate("Error in pop: stack is empty.");
+
+  old_top = top;
+  i = top->data;
+  top = top->next;
+  free(old_top);
+  return i;
+}
+```
+
+## E19.3
+### Statement
+(a) Write an array based implementation of the queue module described in Exercise 1. Use three integers to keep track of the queue’s status, with one integer storing the position of the first empty slot in the array (used when an item is inserted), the second storing the position of the next item to be removed, and the third storing the number of items in the queue. An insertion or removal that would cause either of the first two integers to be incremented past the end of the array should instead reset the variable to zero, thus causing it to “wrap around" to the beginning of the array.
+
+(b) Write a linked-list implementation of the queue module described in Exercise 1. Use two pointers, one pointing to the first node in the list and the other pointing to the last node.  When an item is inserted into the queue, add it to the end of the list. When an item is removed from the queue, delete the first node in the list.
+
+### Solution
+
+```
+#include <stdbool.h>
+
+#define QUEUE_SIZE 100
+
+struct queue_t{
+    Item contents[QUEUE_SIZE];
+    int top; //first empty index
+    int bottom;  //last
+    int num_items;
+};
+
+void append(Queue q, Item i){
+   if (q->num_items < QUEUE_SIZE) {
+       q->contents[q->top++] = i;
+   }
+}
+void remove(Queue q){
+    if (!is_empty(q)){
+        q->bottom++;
+        q->num_items--;
+    }
+
+}
+int first(Queue q){
+    if(!is_empty(q))
+        return q->contents[first];
+}
+int last(Queue q){
+    if(!is_empty(q)){
+        return q->contents[top - 1];
+    }
+}
+bool is_empty(Queue q){
+    return q->num_items == 0;
+}
+```
+
+(b)
+
+```
+
+static struct node {
+    Item item;
+    struct node *next;
+} *head = NULL, *last = NULL;
+
+static int items = 0;
+
+void append(Item i)
+{
+    struct node *new_node = new_node = malloc(sizeof(struct node));
+    if (() == NULL) {
+        printf("Error: malloc failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    new_node->item = i;
+    new_node->next = NULL;
+    items++;
+
+    if (head == NULL)
+        head = last = new_node;
+    else {
+        last->next = new_node;
+        last = new_node;
+    }
+}
+
+void remove_head(void) {
+    if (!is_empty()) {
+        struct node *temp = head;
+        head = head->next;
+        free(temp);
+        items--;
+    }
+}
+
+Item head(void) {
+    if (!queue_is_empty())
+        return head->item;
+}
+
+Item last(void)
+{
+    if (!is_empty())
+        return tail->item;
+}
+
+bool is_empty() {
+    return items == 0;
+}
+```
+
+## E19.4
+### Statement
+(a) Write an implementation of the `Stack` type, assuming that `Stack` is a structure containing a fixed-length array.
+
+(b) Redo the `Stack` type, this time using a linked-list representation instead of an array. (Show both `stack.h` and `stack.c`.)
+
+### Solution
+#### (a) stack.c
+
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include "stackADT.h"
+
+#define STACK_SIZE 100
+
+struct stack_type {
+  int contents[STACK_SIZE];
+  int top;
+};
+
+static void terminate(const char *message) {
+  printf("%s\n", message);
+  exit(EXIT_FAILURE);
+}
+
+Stack create(void) {
+  Stack s = malloc(sizeof(struct stack_type));
+  if (s == NULL)
+    terminate("Error in create: stack could not be created.");
+  s->top = 0;
+  return s;
+}
+
+void destroy(Stack s) {
+  free(s);
+}
+
+void make_empty(Stack s) {
+  s->top = 0;
+}
+
+bool is_empty(Stack s) {
+  return s->top == 0;
+}
+
+bool is_full(Stack s) {
+  return s->top == STACK_SIZE;
+}
+
+void push(Stack s, int i) {
+  if (is_full(s))
+    terminate("Error in push: stack is full.");
+  s->contents[s->top++] = i;
+}
+
+int pop(Stack s) {
+  if (is_empty(s))
+    terminate("Error in pop: stack is empty.");
+  return s->contents[--s->top];
+}
+
+```
+#### (a) stack.h
+```
+#ifndef STACKADT_H
+#define STACKADT_H
+
+#include <stdbool.h>   /* C99 only */
+
+typedef int Item;
+
+typedef struct stack_type *Stack;
+
+Stack create(void);
+void destroy(Stack s);
+void make_empty(Stack s);
+bool is_empty(Stack s);
+bool is_full(Stack s);
+void push(Stack s, Item i);
+Item pop(Stack s);
+
+#endif
+```
+
+#### (b) stack.c
+```
+/*********************************************************
+ * From C PROGRAMMING: A MODERN APPROACH, Second Edition *
+ * By K. N. King                                         *
+ * Copyright (c) 2008, 1996 W. W. Norton & Company, Inc. *
+ * All rights reserved.                                  *
+ * This program may be freely distributed for class use, *
+ * provided that this copyright notice is retained.      *
+ *********************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include "stackADT.h"
+
+struct node {
+  Item data;
+  struct node *next;
+};
+
+struct stack_type {
+  struct node *top;
+};
+
+static void terminate(const char *message) {
+  printf("%s\n", message);
+  exit(EXIT_FAILURE);
+}
+
+Stack create(void) {
+  Stack s = malloc(sizeof(struct stack_type));
+  if (s == NULL)
+    terminate("Error in create: stack could not be created.");
+  s->top = NULL;
+  return s;
+}
+
+void destroy(Stack s) {
+  make_empty(s);
+  free(s);
+}
+
+void make_empty(Stack s) {
+  while (!is_empty(s))
+    pop(s);
+}
+
+bool is_empty(Stack s) {
+  return s->top == NULL;
+}
+
+bool is_full(Stack s)
+{
+  return false;
+}
+
+void push(Stack s, Item i) {
+  struct node *new_node = malloc(sizeof(struct node));
+  if (new_node == NULL)
+    terminate("Error in push: stack is full.");
+
+  new_node->data = i;
+  new_node->next = s->top;
+  s->top = new_node;
+}
+
+Item pop(Stack s) {
+  struct node *old_top;
+  Item i;
+
+  if (is_empty(s))
+    terminate("Error in pop: stack is empty.");
+
+  old_top = s->top;
+  i = old_top->data;
+  s->top = old_top->next;
+  free(old_top);
+  return i;
+}
+```
+#### (b) stack.h
+```
+/*********************************************************
+ * From C PROGRAMMING: A MODERN APPROACH, Second Edition *
+ * By K. N. King                                         *
+ * Copyright (c) 2008, 1996 W. W. Norton & Company, Inc. *
+ * All rights reserved.                                  *
+ * This program may be freely distributed for class use, *
+ * provided that this copyright notice is retained.      *
+ *********************************************************/
+
+#ifndef STACKADT_H
+#define STACKADT_H
+
+#include <stdbool.h>   /* C99 only */
+
+typedef int Item;
+
+typedef struct stack_type *Stack;
+
+Stack create(int size);
+void destroy(Stack s);
+void make_empty(Stack s);
+bool is_empty(Stack s);
+bool is_full(Stack s);
+void push(Stack s, Item i);
+Item pop(Stack s);
+
+#endif
+
+```
+
+## E19.5
+### Statement
+Modify the `queue.h` header of Exercise 1 so that it defines a `Queue` type, where `Queue` is a structure containing a fixed-length array (see Exercise 3(a)). Modify the functions in `queue.h` to take a `Queue *` parameter.
+
+### Solution
+```
+#ifndef QUEUE_H
+#define QUEUE_H
+
+#include <stdbool.h>  /* C99+ only */
+
+typedef int Item;
+typedef struct queue_t *Queue;
+
+void append(Queue, Item i);
+void remove(Queue);
+Item head(Queue);
+Item last(Queue);
+bool is_empty(Queue);
+
+#endif
+```
+
+## E19.6
+### Statement
+(a) Add a `peek` function to `stackADT.c`. This function will have a parameter of type `Stack`. When called, it returns the top item on the stack but doesn't modify the stack.
+
+(b) Repeat part (a), modifying `stackADT2.c` this time.
+
+(c) Repeat part (a), modifying `stackADT3.c` this time.
+
+### Solution
+(a)
+
+```
+int peek(Stack s){
+    if(is_empty(s))
+        terminate("Error in peek: stack is empty");
+    return s->contents[s->top - 1];
+}
+```
+
+(b)
+```
+Item peek(Stack s){
+    if(is_empty(s))
+        terminate("Error in peek: stack is empty");
+    return s->contents[s->top - 1];
+}
+```
+
+(c)
+```
+Item peek(Stack s){
+    if (is_empty(s))
+        terminate("Error in peek: stack is empty");
+    return s->top->data;
+}
+```
+
+## E19.7
+### Statement
+Modify `stackADT2.c` so that a stack automatically doubles in size when it becomes full.  Have the `push` function dynamically allocate a new array that’s twice as large as the old one and then copy the stack contents from the old array to the new one. Be sure to have push deallocate the old array once the data has been copied.
+
+### Solution
+```
+void push(Stack s, Item i)
+{
+  if (is_full(s)){
+      Item *new 
+      s->size *=2;
+      new  = realloc(s->contents, s->size * sizeof(item));
+      if(new == NULL)
+          terminate("Error in push: Stack is full");
+      s->contents = new;
+  }
+  s->contents[s->top++] = i;
+}
+```
+
+# Conclusion
+
+There are 7 more projects after the exercises for me to do. Most of them (except for one) are just modifications of existing code to involve abstract data types. The one that is not, has already been mostly done in exercise 3(a). I am still missing a `queueclient.c` type file to actually test what I wrote. 
+
+In the interest of time and, well, interest, I'm going to move on from the projects. I've implemented enough queues, linked lists and stacks in other languages that do it much better. Finally, I can clearly see that most of what I'm doing with C (OSdev, Linux container dev) will involve them extensively, meaning I'll get much more practice with them doing something fun, rather than tedious.
