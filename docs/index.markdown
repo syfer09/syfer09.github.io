@@ -6,6 +6,9 @@ layout: default
 ---
 # Technical Journal
 
+## Competitive Coding Summaries
+[Codeforces Round 1024 (Div 3)]()/round1024div3summary
+
 ## HTB Boxes that I've solved
 
 [Meow (2025-05-21)](/meow)
