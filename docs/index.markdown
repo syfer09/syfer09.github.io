@@ -7,7 +7,7 @@ layout: default
 # Technical Journal
 
 ## Competitive Coding Summaries
-[Codeforces Round 1024 (Div 3)](/round1024div3summary)
+[Codeforces Round 1024 (Div 3) (2025-08-10)](/round1024div3summary)
 
 ## HTB Boxes that I've solved
 
