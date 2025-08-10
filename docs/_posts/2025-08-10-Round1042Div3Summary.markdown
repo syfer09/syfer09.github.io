@@ -77,7 +77,7 @@ int main() {
 ### [Statement Summary](https://codeforces.com/contest/2131/problem/B)
 We call an array $$a$$ good if each $$a_i * a_{i+1}$$ is negative, and every sub-array of consecutive elements has a positive sum.
 
-For each array size $$n$$, find the smallest possible array that satisfies these conditions. We say array $a$ is smaller than $$b$$ if $$a_i$$ $$a_i\leq b_i$$ in the first place where $$a$$ and $$b$$ differ.
+For each array size $$n$$, find the smallest possible array that satisfies these conditions. We say array $$a$$ is smaller than $$b$$ if $$a_i$$ $$a_i\leq b_i$$ in the first place where $$a$$ and $$b$$ differ.
 
 ### Solution
 We try to build each array from the start. The smallest first element that we can put is $$-1$$. If we put $$1$$ as the first element, the second would have to be negative, and the subarray of the first two elements not have a positive sum since the next element would have to be *at least* negative 1, which would give a sum of 0 (which not positive).
@@ -134,7 +134,7 @@ Given two arrays $$S$$ and $$T$$, along with an integer $$k$$, we are allowed to
 
 Our first operation is to take some element in $$S$$ and add $$k$$ to it.
 
-Our second operation is to take some element $$x\in S$$ and replace it with $$|x-k|$$.
+Our second operation is to take some element $$x\in S$$ and replace it with $$\lvert x-k\rvert$$.
 
 For every given test case, write "Yes" or "No" as to whether it is possible to use any number of these operations to set $$S$$ equal to $$T$$.
 
