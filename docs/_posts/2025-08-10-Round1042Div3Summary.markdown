@@ -13,7 +13,7 @@ permalink: /round1024div3summary
 
 First contest in a while, in fact this is my first time doing one since division 3 was added. Division 3 is supposed to be an easier version of the contests for people with a lower rating. 
 
-Being really out of practice, I was quite happy to solve both A and B, however C ended up escaping me during the solution. After the contest ended I was able to see which test case failed and fix my code accordingly to get a submission. 
+Being really out of practice, I was quite happy to solve both A and B, however trying and failing C took the rest of the time. After the contest ended I was able to see which test case failed and fix my code accordingly to get a submission. 
 
 Although I am happy with getting two solutions, I solved C really early on as well, and spent the rest of the time trying to implement my solution.
 
@@ -77,7 +77,7 @@ int main() {
 ### [Statement Summary](https://codeforces.com/contest/2131/problem/B)
 We call an array $$a$$ good if each $$a_i * a_{i+1}$$ is negative, and every sub-array of consecutive elements has a positive sum.
 
-For each array size $$n$$, find the smallest possible array that satisfies these conditions. We say array $$a$$ is smaller than $$b$$ if $$a_i$$ $$a_i\leq b_i$$ in the first place where $$a$$ and $$b$$ differ.
+For each array size $$n$$, find the smallest possible array that satisfies these conditions. We say array $$a$$ is smaller than $$b$$ if $$a_i\leq b_i$$ in the first place where $$a$$ and $$b$$ differ.
 
 ### Solution
 We try to build each array from the start. The smallest first element that we can put is $$-1$$. If we put $$1$$ as the first element, the second would have to be negative, and the subarray of the first two elements not have a positive sum since the next element would have to be *at least* negative 1, which would give a sum of 0 (which not positive).
@@ -200,7 +200,7 @@ int main() {
 ```
 
 ### Further Thoughts on C
-This was a very frustrating problem. I realized the modulo trick within the first 10 minutes of looking at the problem, and rest was implementation. At first I was considering going through $$T$$ for every element in $$S$$ and doing it manually. This would however result in a complexity of $$O(n^2)$$ which would have surely failed  the timed tests.
+I had fun solving this, but looking back I am a bit frustrated at how slow I was at every part of the process. I realized the modulo trick within the first 10 minutes of looking at the problem, and rest was implementation. At first I was considering going through $$T$$ for every element in $$S$$ and doing it manually. This would however result in a complexity of $$O(n^2)$$ which would have surely failed  the timed tests.
 
 Next I decided to hash, and count every element of $$T$$ in that hash. This is the code that I was able to eventually get working after the contest end. 
 
@@ -254,9 +254,10 @@ int main(int argc, char *argv[]){
     return 0;
 }
 ```
+
 Eventually through testing, I was able to find the cases that I failed in, and with 10 minutes left in the contest I found the missing `%` sign.
 
-That however was not my only bug. Turns out I was missing an additional check, to print "No" if I was trying to kill an element whose occurences had already been reduced to 0. I was only checking to see if I was trying to kill an element that did not exist, and printing no in that case.
+That however was not my only bug. Turns out I was missing an additional check, to print "No" if I was trying to kill an element whose occurences had already been reduced to 0. I was only checking to see if I was trying to kill an element that did not exist, and printing "No" in that case.
 
 Now that I think about it, my generator was testing "Yes" cases only, and I did not have time to test the "No"'s meaning that I was getting false positives. Most likely if I had more time, I could have tested all the random "No" cases, and came away with a fix for that bug. 
 

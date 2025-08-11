@@ -1,0 +1,1792 @@
+---
+layout: default
+title: Chapter 22
+date: 2025-08-08 16:00:00 +0000
+categories: jekyll update
+permalink: /learningc22
+---
+# Chapter 22
+# Exercises
+## E22.1
+### Statement
+Indicate whether each of the following files is more likely to contain text data or binary
+data:
+
+(a) A file of object code produced by a C compiler
+
+(b) A program listing produced by a C compiler
+
+(c) An email message sent from one computer to another
+
+(d) A file containing a graphics image
+
+### Solution
+(a) binary
+
+(b) text
+
+(c) text
+
+(d) binary
+
+## E22.2
+### Statement
+Indicate which mode string is most likely to be passed to `fopen` in each of the following situations:
+
+(a) A database management system opens a file containing records to be updated.
+
+(b) A mail program opens a file of saved messages so that it can add additional messages to the end.
+
+(c) A graphics program opens a file containing a picture to be displayed on the screen.
+
+(d) An operating system command interpreter opens a "shell script" (or "batch file") containing commands to be executed.
+
+### Solution
+(a) `"rb+"`
+
+(b) `"a"`
+
+(c) `rb`
+
+(d) `r`
+
+## E22.3
+### Statement
+Find the error in the following program fragment and show how to fix it.
+
+```
+FILE *fp;
+
+if (fp = fopen(filename, "r")) {
+   // read characters until end-of-file
+}
+fclose(fp);
+```
+
+### Solution
+If for some reason the file fails to open and `fp` returns a `NULL` pointer, the `if` condition will not be entered as expected, however we failed to account for the `fclose`, which will throw an error attempting to close a `NULL` pointer instead of a file.
+
+```
+FILE *fp;
+
+if (fp == NULL){
+    printf("Error failed to open file\n");
+    exit(EXIT_FAILURE);
+}
+if (fp = fopen(filename, "r")) {
+   // read characters until end-of-file
+}
+fclose(fp);
+```
+
+## E22.4
+### Statement
+Show how each of the following numbers will look if displayed by `printf` with `%#012.5g` as the conversion specification:
+
+(a) 83.7361
+
+(b) 29748.6607
+
+(c) 1054932234.0
+
+(d) 0.0000235218
+
+### Solution
+
+The conversion is as follows:
+
+|Field|Meaning|
+|-|-|
+|`#`|Trailing zeroes aren't removed from numbers printed with `g`|
+|`12`|Minimum field width|
+|`.5`|Precision|
+|`g`|Converts doubles into `e` notation if exponent would be $$\leq -4$$ or $$\geq 5$$|
+
+(a) `00000083.736`
+
+(b) `00000029748.`
+
+(c) `001.0549e+09`
+
+(d) `002.3521e-05`
+
+## E22.5
+### Statement
+Is there any difference between the `printf` conversion specifications `%.4d` and `%04d`? If so, explain what it is.
+
+### Solution
+The effect is the same, we pad an integer with leading zeroes if necessary.
+
+## E22.6
+### Statement
+Write a call of `printf` that prints
+
+`1 widget`
+
+if the `widget` variable (of type `int`) has the value 1, and
+
+`n widgets`
+
+otherwise, where `n` is the value of `widget`. You are not allowed to use the `if` statement or any other statement; the answer must be a single call of `printf`.
+
+### Solution
+`printf(widget == 1 ? "%d widget" : "%d widgets", widget)`
+
+## E22.7
+### Statement
+Suppose that we call `scanf` as follows:
+
+`n = scanf("%d%f%d", &i, &x, &j);`
+
+(`i`, `j`, and `n` are `int` variables and `x` is a `float` variable.) Assuming that the input stream contains the characters shown, give the values of `i`, `j`, `n`, and `x` after the call. In addition, indicate which characters were consumed by the call. `*` indicates a whitespace and `\n` indicates Enter being pressed.
+
+(a) `10*20*30\n`
+
+(b) `1.0*2.0*3.0\n`
+
+(C) `0.1*0.2*0.3\n`
+
+(d) `.1*.2*.30\n`
+
+### Solution
+(a) 
+```
+i = 10
+x = 20.0
+j = 30
+n = 3
+```
+
+(b)
+```
+i = 1
+x = 0.0
+j = 2
+n = 3
+```
+
+(c)
+```
+i = 0
+x = 0.1
+j = 0
+n = 3
+```
+
+(d)
+```
+i = 1
+x = 0.2
+j = 30
+n = 3
+```
+
+## E22.8
+### Statement
+In previous chapters, we've used the `scanf` format string `" %c"` when we wanted to skip white-space characters and read a non-blank character. Some programmers use `"%ls"` instead. Are the two techniques equivalent? If not, what are the differences?
+
+### Solution
+No, the techniques are not equivalent as one returns a non-whitespace `char` while the other one returns a string.
+
+## E22.9
+### Statement
+Which one of the following calls is not a valid way of reading one character from the standard input stream? 
+
+(a) `getch()` 
+
+(b) `getchar()`
+
+(c) `getc(stdin)`
+
+(d) `fgetc(stdin)` 
+
+### Solution
+`getch()` is not a valid function.
+
+## E22.10
+### Statement
+The `fcopy.c` program has one minor flaw: it doesn't check for errors as it's writing to the destination file. Errors during writing are rare, but do occasionally occur (the disk might become full, for example). Show how to add the missing error check to the program, assuming that we want it to display a message and terminate immediately if an error occurs.
+
+### Solution
+```
+/*********************************************************
+ * From C PROGRAMMING: A MODERN APPROACH, Second Edition *
+ * By K. N. King                                         *
+ * Copyright (c) 2008, 1996 W. W. Norton & Company, Inc. *
+ * All rights reserved.                                  *
+ * This program may be freely distributed for class use, *
+ * provided that this copyright notice is retained.      *
+ *********************************************************/
+
+/* fcopy.c (Chapter 22, page 568) */
+/* Copies a file */
+
+//---------------------------------------------------------
+// MODIFIED BY SYFER ON AUGUST 9th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[])
+{
+  FILE *source_fp, *dest_fp;
+  int ch;
+
+  if (argc != 3) {
+    fprintf(stderr, "usage: fcopy source dest\n");
+    exit(EXIT_FAILURE);
+  }
+
+  if ((source_fp = fopen(argv[1], "rb")) == NULL) {
+    fprintf(stderr, "Can't open %s\n", argv[1]);
+    exit(EXIT_FAILURE);
+  }
+
+  if ((dest_fp = fopen(argv[2], "wb")) == NULL) {
+    fprintf(stderr, "Can't open %s\n", argv[2]);
+    fclose(source_fp);
+    exit(EXIT_FAILURE);
+  }
+
+  while ((ch = getc(source_fp)) != EOF){
+    if(putc(ch, dest_fp) == EOF){
+        fprintf(stderr, "Can't write %s\n", argv[2]);
+        exit(EXIT_FAILURE);
+    }
+  }
+
+  fclose(source_fp);
+  fclose(dest_fp);
+  return 0;
+}
+```
+
+## E22.11
+### Statement
+The following loop appears in the `fcopy.c` program:
+
+```
+while ((ch = getc(source_fp)) != EOF)
+putc(ch, dest_fp);
+```
+
+Suppose that we neglected to put parentheses around `ch = getc (sourcefp)`:
+
+```
+while (ch = getc(source_fp) != EOF)
+putc(ch, dest_fp);
+```
+
+Would the program compile without an error? If so, what would the program do when it’s run?
+
+### Solution
+The program would compile without issue since there is no syntax error. Unfortunately, since the `!=` operator takes higher precedence than the assignment operator, at best we can only have 0's and 1's as the value of `ch`.
+
+## E22.12
+### Statement
+Find the error in the following function and show how to fix it.
+
+```
+int count_periods(const char *filename) {
+    FILE *fp;
+    int n = 0;
+
+    if ((fp = fopen(filename, "r")) != NULL) {
+        while (fgetc(fp) != EOF)
+            if (fgetc(fp) == '.')
+                n++;
+        fclose(fp);
+    }
+    return n;
+}
+```
+
+### Solution
+`fgetc` gets called twice, once to check the `while` loop condition, and once more in the `if` statement. To fix:
+
+```
+int count_periods(const char *filename) {
+    FILE *fp;
+    int n = 0;
+    char ch;
+
+    if ((fp = fopen(filename, "r")) != NULL) {
+        while ((ch=fgetc(fp)) != EOF)
+            if (ch == '.')
+                n++;
+        fclose(fp);
+    }
+    return n;
+}
+```
+
+## E22.13
+### Statement
+Write the following function:
+
+`int line_length(const char *filename, int n);`
+
+The function should return the length of line `n` in the text file whose name is `filename` (assuming that the first line in the file is line 1). If the line doesn't exist, the function should return 0.
+
+### Solution
+
+```
+int line_length(const char *filename, int n){
+    FILE *fp;
+    char ch;
+    int ret = 0;
+
+    if((fp = fopen(filename, "r")) == NULL){
+        fprintf(stderr, "Error opening file");
+        exit(EXIT_SUCESS);
+    }
+    for(int i = 0;i < n;i++){
+        if (fscanf(fp, "%*[^\n]\n") == EOF){
+            return 0; // line n not found
+        }
+        while((ch = getc(fp)) != EOF){
+            if(ch == '\n')
+                break;
+            ret++;
+        }
+    }
+    fclose(fp);
+    return ret;
+}
+```
+
+The "skip line" regex `%*[^\n]\n` was new to me.
+
+## E22.14
+### Statement
+(a) Write your own version of the `fgets` function. Make it behave as much like the real `fgets` function as possible; in particular, make sure that it has the proper return value. To avoid conflicts with the standard library, don't name your function `fgets`.
+
+(b) Write your own version of `fputs`, following the same rules as in part (a).
+
+### Solution
+#### (a)
+
+```
+char *my_fgets(char * restrict s, int n, FILE * restrict stream){
+    int ch, i;
+    for(i = 0; i < n; i++){
+        if((ch = getc(stream)) == EOF){
+            if (i == 0 || ferror(stream))
+                return NULL;
+            break; //Should be here at successful EOF
+        }
+        s[i] = ch;
+    }
+    s[i];
+    return s;
+}
+```
+#### (b)
+```
+int my_fputs(const char * restrict s, FILE * restrict stream){
+    for(;*s != '\0';s++)
+        if(putc(*s,stream) == EOF || ferror(stream))
+            return EOF;
+    return 0;
+}
+```
+
+## E22.15
+### Statement
+Write calls of `fseek` that perform the following file-positioning operations on a binary file whose data is arranged in 64-byte "records." Use `fp` as the file pointer in each case.
+
+(a) Move to the beginning of record n. (Assume that the first record in the file is record 0.)
+
+(b) Move to the beginning of the last record in the file.
+
+(c) Move forward one record.
+
+(d) Move backward two records.
+
+### Solution
+(a) `fseek(fp, n * 64, SEEK_SET);`
+
+(b) `fseek(fp, -64, SEEK_END);`
+
+(c) `fseek(fp, 64, SEEK_CUR);`
+
+(d) `fseek(fp, -128, SEEK_CUR)`
+
+## E22.16
+### Statement
+Assume that `str` is a string that contains a “sales rank" immediately preceded by the `#` symbol (other characters may precede the `#` and/or follow the sales rank). A sales rank is a series of decimal digits possibly containing commas, such as the following examples:
+
+```
+989
+24,675
+1,162,620
+```
+
+Write a call of `sscanf` that extracts the sales rank (but not the `#` symbol) and stores it in a string variable named sales_rank.
+
+### Solution
+`sscanf(sales_rank, "%*[^#]#%[0-9,])`, where we first skip everything up to the `#` then, skip the `#` and finally grab digits and commas.
+
+# Projects
+## P22.1
+### Statement
+Extend the `canopen.c` program of Section 22.2 so that the user may put any number of file names on the command line:
+
+`canopen foo bar baz`
+
+The program should print a `separate can be opened` or `can't be opened message` for each file. Have the program terminate with status `EXIT_FAILURE` if one or more of the files can’t be opened.
+
+### Code
+```
+/*********************************************************
+ * From C PROGRAMMING: A MODERN APPROACH, Second Edition *
+ * By K. N. King                                         *
+ * Copyright (c) 2008, 1996 W. W. Norton & Company, Inc. *
+ * All rights reserved.                                  *
+ * This program may be freely distributed for class use, *
+ * provided that this copyright notice is retained.      *
+ *********************************************************/
+
+/* canopen.c (Chapter 22, page 547) */
+/* Checks whether a file can be opened for reading */
+
+//---------------------------------
+// MODIFIED BY SYFER ON AUGUST 9th, 2025
+//---------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[])
+{
+  FILE *fp;
+
+  if (argc < 2) {
+    printf("usage: canopen filename\n");
+    exit(EXIT_FAILURE);
+  }
+
+  for(int i = 1; i < argc; i++){
+      if ((fp = fopen(argv[i], "r")) == NULL) {
+        printf("%s can't be opened\n", argv[i]);
+        exit(EXIT_FAILURE);
+      }
+      printf("%s can be opened\n", argv[i]);
+      fclose(fp);
+  }
+
+  return 0;
+}
+```
+
+## P22.2
+### Statement
+Write a program that converts all letters in a file to upper case. (Characters other than letters shouldn't be changed.) The program should obtain the file name from the command line and write its output to `stdout`.
+
+### Code
+```
+// Filename: p2.c
+// Purpose: converts all characters in a file to uppercase
+// Author: syfer
+// Date: August 9th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[]){
+
+    FILE *fp;
+
+    if(argc != 2){
+        printf("Bad usage\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp = fopen(argv[1], "r")) == NULL){
+        fprintf(stderr, "Failed to open file\n");
+        exit(EXIT_FAILURE);
+    }
+
+    char ch;
+    while((ch = getc(fp)) != EOF){
+        if(isalpha(ch))
+            putchar(toupper(ch));
+        else
+            putchar(ch);
+    }
+    fclose(fp);
+
+    return 0;
+}
+
+```
+
+## P22.3
+### Statement
+Write a program named `fcat` that “concatenates” any number of files by writing them to standard output, one after the other, with no break between files. For example, the following command will display the files `f1.c`, `f2.c`, and `f3.c` on the screen:
+
+`fcat fl.c f2.c f3.c`
+
+`fcat` should issue an error message if any file can’t be opened. Hint: Since it has no more than one file open at a time, `fcat` needs only a single file pointer variable. Once it’s finished with a file, `fcat` can use the same variable when it opens the next file.
+
+### Code
+
+```
+// Filename: p3.c
+// Purpose: concats files by writing them to stdout
+// Author: syfer
+// Date: August 9th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[]){
+
+    FILE *fp;
+
+    if(argc < 2){
+        printf("Bad usage\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp = fopen(argv[1], "r")) == NULL){
+        fprintf(stderr, "Failed to open file\n");
+        exit(EXIT_FAILURE);
+    }
+
+    char ch;
+    for(int i = 1; i < argc; i++){
+        if ((fp = fopen(argv[i], "r")) == NULL) {
+              printf("%s can't be opened\n", argv[i]);
+              exit(EXIT_FAILURE);
+        }
+        while((ch = getc(fp)) != EOF){
+            putchar(ch);
+        }
+        fclose(fp);
+    }
+    return 0;
+}
+```
+
+## P22.4
+### Statement
+(a) Write a program that counts the number of characters in a text file.
+
+(b) Write a program that counts the number of words in a text file. (A “word" is any sequence of non-white-space characters.)
+
+(c) Write a program that counts the number of lines in a text file.
+
+Have each program obtain the file name from the command line.
+
+### Code
+#### (a)
+```
+// Filename: p4a.c
+// Purpose: Counts the number of characters in a text file.
+// Author: syfer
+// Date: August 9th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[]){
+
+    FILE *fp;
+
+    int n = 0;
+
+    if(argc != 2){
+        printf("Bad usage\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp = fopen(argv[1], "r")) == NULL){
+        fprintf(stderr, "Failed to open file\n");
+        exit(EXIT_FAILURE);
+    }
+
+    char ch;
+    while((ch = getc(fp)) != EOF){
+        if(!isspace(ch))
+            n++;
+    }
+
+    fclose(fp);
+    printf("There are %d characters in the file\n", n);
+
+    return 0;
+}
+```
+
+#### (b)
+```
+// Filename: p4b.c
+// Purpose: Counts the number of words in a text file.
+// Author: syfer
+// Date: August 9th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[]){
+
+    FILE *fp;
+
+    int n = 0;
+
+    if(argc != 2){
+        printf("Bad usage\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp = fopen(argv[1], "r")) == NULL){
+        fprintf(stderr, "Failed to open file\n");
+        exit(EXIT_FAILURE);
+    }
+
+    char ch, ch2;
+    while((ch = getc(fp)) != EOF){
+        if(!isspace(ch)){
+            ch2 = getc(fp);
+            if(ch2 != EOF && isspace(ch2))
+                n++;
+            ungetc(ch2,fp);
+        }
+    }
+
+    fclose(fp);
+    printf("There are %d words in the file\n", n);
+
+    return 0;
+}
+```
+
+#### (c)
+
+```
+// Filename: p4c.c
+// Purpose: Counts the number of lines in a text file.
+// Author: syfer
+// Date: August 9th, 2025
+
+#include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[]){
+
+    FILE *fp;
+
+    int n = 0;
+
+    if(argc != 2){
+        printf("Bad usage\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp = fopen(argv[1], "r")) == NULL){
+        fprintf(stderr, "Failed to open file\n");
+        exit(EXIT_FAILURE);
+    }
+
+    char ch;
+    while((ch = getc(fp)) != EOF){
+        if (ch == '\n')
+            n++;
+    }
+
+    fclose(fp);
+    printf("There are %d lines in the file\n", n);
+
+    return 0;
+}
+```
+
+## P22.5
+### Statement
+The `xor.c` program of Section 20.1 refuses to encrypt bytes that -- in original or encrypted form -- are control characters. We can now remove this restriction. Modify the program so that the names of the input and output files are command-line arguments. Open both files in binary mode, and remove the test that checks whether the original and encrypted characters are printing characters.
+
+### Code
+
+```
+/*********************************************************
+ * From C PROGRAMMING: A MODERN APPROACH, Second Edition *
+ * By K. N. King                                         *
+ * Copyright (c) 2008, 1996 W. W. Norton & Company, Inc. *
+ * All rights reserved.                                  *
+ * This program may be freely distributed for class use, *
+ * provided that this copyright notice is retained.      *
+ *********************************************************/
+
+/* xor.c (Chapter 20, page 515) */
+/* Performs XOR encryption */
+
+// -------------------------------------
+// MODIFIED BY SYFER ON AUGUST 9th 2025
+// -------------------------------------
+
+#include <ctype.h>
+#include <stdio.h>
+
+#define KEY '&'
+
+int main(int argc, char *argv[]) {
+    int orig_char, new_char;
+    FILE *fp1, *fp2;
+
+    if((fp = fopen(argv[1], "rb")) == EOF){
+        fprintf(stderr, "Error: %s cannot be opened\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+    if((fp2 = fopen(argv[1], "wb")) == NULL){
+        fprintf(stderr, "Error: %s cannot be opened\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+    while ((orig_char = getc(fp1)) != EOF) {
+        new_char = orig_char ^ KEY;
+        putc(new_char, fp2);
+    }
+
+    fclose(fp1);
+    fclose(fp2);
+
+    return 0;
+}
+```
+
+### Thoughts
+## P22.6
+### Statement
+Write a program that displays the contents of a file as bytes and as characters. Have the user specify the file name on the command line. Here’s what the output will look like when the program is used to display the `pun.c` file of Section 2.1:
+
+```
+Offset              Bytes              Characters
+------  -----------------------------  ----------
+     0 23 69 6E 63 6C 75 64 65 20 3C  # i n c l u d e   < 
+    10 73 74 64 69 6F 2E 68 3E 0A 0A  s t d i o . h > . . 
+    20 69 6E 74 20 6D 61 69 6E 28 76  i n t   m a i n ( v 
+    30 6F 69 64 29 0A 7B 0A 20 20 70  o i d ) . { .     p 
+    40 72 69 6E 74 66 28 22 54 6F 20  r i n t f ( " T o   
+    50 43 2C 20 6F 72 20 6E 6F 74 20  C ,   o r   n o t   
+    60 74 6F 20 43 3A 20 74 68 61 74  t o   C :   t h a t 
+    70 20 69 73 20 74 68 65 20 71 75    i s   t h e   q u 
+    80 65 73 74 69 6F 6E 2E 5C 6E 22  e s t i o n . \ n " 
+    90 29 3B 0A 20 20 72 65 74 75 72  ) ; .     r e t u r 
+   100 6E 20 30 3B 0A 7D 0A           n   0 ; . } . 
+```
+
+Each line shows 10 bytes from the file, as hexadecimal numbers and as characters. The number in the `Offset` column indicates the position within the file of the first byte on the line. Only printing characters (as determined by the `isprint` function) are displayed; other characters are shown as periods. Note that the appearance of a text file may vary, depending on the character set and the operating system. The example above assumes that `pun.c` is a Windows file, so `0D` and `OA` bytes (the ASCII carriage-return and line-feed characters) appear at the end of each line. Hint: Be sure to open the file in `"rb"` mode. 
+
+### Code
+
+```
+// Filename: p6.c
+// Purpose: Displays the contents of a file as bytes and characters.
+// Author: syfer
+// Date:
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+int main(int argc, char *argv[]){
+
+    FILE *fp;
+    int n;
+    char buffer[10];
+
+    if (argc != 2) {
+        fprintf(stderr, "USAGE: %s filename\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp = fopen(argv[1], "rb")) == NULL) {
+        fprintf(stderr, "Error: %s cannot be opened\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Offset              Bytes              Characters\n");
+    printf("------  -----------------------------  ----------\n");
+
+    for(int ofs = 0;;ofs+=10){
+        n = fread(buffer, 1, 10, fp);
+        if(n == 0)
+            break; // aka EOF
+
+        printf("%6d ", ofs);
+        for(int i = 0; i < n;i++)
+            printf("%.2X ", buffer[i]);
+        for(int i = n; i < 10;i++)
+            printf("   "); // 3 spaces, two for the hex, one after
+        printf(" "); //space before the Characters print
+
+        for(int i = 0;i < n;i++){
+            if(!isprint(buffer[i]))
+                buffer[i] = '.';
+            printf("%c ", buffer[i]);
+        }
+        printf("\n");
+    }
+    fclose(fp);
+    return 0;
+}
+```
+
+### Thoughts
+Probably the coolest project in the entire book. Not necessarily because of the code, which was fairly straightforward if a bit buggy to properly figure out formatting, but because of the result which can even be used to help debug programs.
+
+## P22.7
+### Statement
+Of the many techniques for compressing the contents of a file, one of the simplest and fastest is known as run-length encoding. This technique compresses a file by replacing sequences of identical bytes by a pair of bytes: a repetition count followed by a byte to be repeated. For example, suppose that the file to be compressed begins with the following sequence of bytes (shown in hexadecimal): 
+
+`46 6F 6F 20 62 61 72 21 21 21 20 20 20 20 20 `
+
+The compressed file will contain the following bytes: 
+
+`01 46 02 6F 01 20 01 62 01 61 01 72 03 21 05 20` 
+
+Run-length encoding works well if the original file contains many long sequences of identical bytes. In the worst case (a file with no repeated bytes), run-length encoding can actually double the length of the file. 
+
+(a) Write a program named `compress_file` that uses run-length encoding to compress a file. To run `compress_file`, we’d use a command of the form 
+
+`compress_file original-file` 
+
+`compress_file` will write the compressed version of original-file to original `file.rle`. 
+
+For example, the command 
+
+`compress_file foo.txt` 
+
+will cause `compress_file` to write a compressed version of `foo.txt` to a file named 
+`foo.txt.rle`. Hint: The program described in Programming Project 6 could be useful for debugging. 
+
+(b) Write a program named `uncompress_file` that reverses the compression performed by the `compress_file` program. The `uncompress_file` command will have the form 
+
+`uncompress_file compressed-file` 
+
+`compressed-file` should have the extension `.rle`. For example, the command 
+
+`uncompress_file foo.txt.rle` 
+
+will cause `uncompress_file` to open the file `foo.txt.rle` and write an uncompressed version of its contents to `foo.txt.uncompress_file` should display an error message if its command-line argument doesn’t end with the `.rle` extension. 
+
+### Code
+#### (a)
+```
+// Filename: p7.c
+// Purpose: Compresses file using run length encoding
+// Author: syfer
+// Date: August 9th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+int main(int argc, char *argv[]){
+
+    FILE *fp1, *fp2;
+
+    if((fp1 = fopen(argv[1], "rb")) == NULL){
+        fprintf(stderr, "Error: %s cannot be opened\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+    char *outname = malloc(sizeof(argv[1]) + 5); // .rle and null char make 5
+
+    strcpy(outname, argv[1]);
+    strcat(outname, ".rle");
+
+    if((fp2 = fopen(outname, "wb")) == NULL){
+        fprintf(stderr, "Error: %s cannot be opened\n", outname);
+        exit(EXIT_FAILURE);
+    }
+
+    free(outname);
+    unsigned char byte, nbyte;
+    while(fread(&byte, sizeof(unsigned char), 1, fp1) > 0){
+        int a = 1, pos = ftell(fp1);
+
+        while(fread(&nbyte, sizeof(unsigned char), 1, fp1) > 0 && byte == nbyte)
+            a++;
+
+        fwrite(&a, sizeof(unsigned char), 1, fp2);
+        fwrite(&byte, sizeof(unsigned char), 1, fp2);
+        fseek(fp1, pos + a - 1, SEEK_SET); // get to next unique byte
+    }
+    fclose(fp1);
+    fclose(fp2);
+    return 0;
+}
+
+```
+#### (b)
+```
+// Filename: p7.c
+// Purpose: Compresses file using run length encoding
+// Author: syfer
+// Date: August 9th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+int main(int argc, char *argv[]){
+
+    FILE *fp1, *fp2;
+
+    if((fp1 = fopen(argv[1], "rb")) == NULL){
+        fprintf(stderr, "Error: %s cannot be opened\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+
+    char *outname = malloc(sizeof(argv[1]) - 4); 
+    strncpy(outname, argv[1],strlen(argv[1] - 4));
+
+    if((fp2 = fopen(outname, "wb")) == NULL){
+        fprintf(stderr, "Error: %s cannot be opened\n", outname);
+        exit(EXIT_FAILURE);
+    }
+
+    free(outname);
+    unsigned char byte, nbyte;
+    int pos = 0, a = 0;
+    while(fread(&byte, sizeof(unsigned char), 1, fp1) > 0){
+        if(pos % 2 == 0){
+            a = byte;
+        } else{
+            for(int i = 0; i < a; i++){
+                fwrite(&byte, sizeof(unsigned char), 1, fp2);
+            }
+        }
+        pos++;
+    }
+    fclose(fp1);
+    fclose(fp2);
+    return 0;
+}
+
+```
+### Thoughts
+This project was much less fun. Not quite sure what to do about the input as well. The sample input/output is in bytes, and yet the files that I make are in text, meaning that it is very hard to test things.
+
+For example if I write "FD FD" in the input file, the program will read it as 5 separate characters, each of which has its own hex and has nothing to do with the fact that I wanted "FD" a byte by itself. In this way I could technically represent everything with characters.
+
+Additionally I'm still having trouble writing to the files using `fread`.
+
+## P22.8
+### Statement
+Modify the inventory.c program of Section 16.3 by adding two new operations:
+
+1. Save the database in a specified file.
+
+2. Load the database from a specified file.
+
+Use the codes `d` (dump) and `r` (restore), respectively, to represent these operations. The interaction with the user should have the following appearance:
+
+```
+Enter operation code: d
+Enter name of output file: inventory.dat
+Enter operation code: r
+Enter name of input file: inventory.dat
+```
+
+Hint: Use `fwrite` to write the array containing the parts to a binary file. Use `fread` to restore the array by reading it from a file.
+
+### Code
+```
+void dump(void){
+    char name[100];
+    printf("Enter the name of the output file: ");
+    read_line(name, 100);
+    FILE *fp;
+
+    if((fp = fopen(name, "wb")) == NULL){
+        fprintf(stderr, "Error: file %s cannot be written\n", filename);
+        return;
+    }
+    fwrite(inventory, sizeof(struct part), num_parts, fp);
+    fclose(fp);
+}
+
+void restore(void){
+    char name[100];
+    printf("Enter the name of the output file: ");
+    read_line(name, 100);
+    FILE *fp;
+
+    if((fp = fopen(name, "rb")) == NULL){
+        fprintf(stderr, "Error: file %s cannot be read\n", filename);
+        return;
+    }
+    num_parts = fread(inventory, sizeof(struct part), MAX_PARTS, fp);
+    fclose(fp);
+}
+```
+
+As well as adding the appropriate commands/calls into the main `for` loop.
+
+### Thoughts
+## P22.9
+### Statement
+Write a program that merges two files containing part records stored by the `inventory.c` program (see Programming Project 8). Assume that the records in each file are sorted by part number, and that we want the resulting file to be sorted as well. If both files have a part with the same number, combine the quantities stored in the records. (As a consistency check, have the program compare the part names and print an error message if they don't match.) Have the program obtain the names of the input files and the merged file from the command line.
+
+### Code
+
+```
+// Filename: p9.c
+// Purpose: Combines two databases from the inventory.c program
+// Author: syfer
+// Date: August 9th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct part {
+  int number;
+  char name[NAME_LEN+1];
+  int on_hand;
+} inventory[MAX_PARTS];
+
+int main(int argc, char *argv[]){
+
+    FILE *infp1, *infp2, *outfp;
+    struct part p1, p2;
+
+    if((infp1 = fopen(argv[1], "rb")) == NULL){
+        fprintf(stderr, "Error: file %s cannot be read\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+    if((infp2 = fopen(argv[2], "rb")) == NULL){
+        fprintf(stderr, "Error: file %s cannot be read\n", argv[2]);
+        exit(EXIT_FAILURE);
+    }
+    if((infp3 = fopen(argv[3], "wb")) == NULL){
+        fprintf(stderr, "Error: file %s cannot be read\n", argv[3]);
+        exit(EXIT_FAILURE);
+    }
+
+    int n1 = fread(&p1, sizeof(struct part), 1, infp1);
+    int n2 = fread(&p2, sizeof(struct part), 2, infp2);
+
+    while(n1 == 1 && n2 == 1){
+        // Read both parts, need to write lesser part first
+        if (n1 > n2){
+            fwrite(&p2, sizeof(struct part), 2, outfp);
+            n2 = fread(&p2, sizeof(struct part), 2, infp2);
+        } else if (n2 > n1){
+            fwrite(&p1, sizeof(struct part), 1, outfp);
+            n1 = fread(&p1, sizeof(struct part), 1, infp1);
+        } else {
+            // n1 == n2
+            if (strcmp(p1.name,p2.name)){
+                fprintf(stderr, "Error part names have the same number but don't match");
+                printf("Using %s as name", p1.name);
+            }
+            p1.on_hand += p2.on_hand;
+            fwrite(&p1, sizeof(struct part), 1, outfp);
+            n1 = fread(&p1, sizeof(struct part), 1, infp1);
+            n2 = fread(&p2, sizeof(struct part), 2, infp2);
+        }
+    }
+    while (n1 == 1){
+        fwrite(&p1, sizeof(struct part), 1, outfp);
+        n1 = fread(&p1, sizeof(struct part), 1, infp1);
+    }
+    while (n2 == 1){
+        fwrite(&p2, sizeof(struct part), 2, outfp);
+        n2 = fread(&p2, sizeof(struct part), 2, infp2);
+    }
+    fclose(infp1);
+    fclose(infp2);
+    fclose(outfp);
+
+    return 0;
+}
+```
+
+### Thoughts
+The project looked hard at first glance, but it was actually pretty satisfying to go through the logic of the program, and I like the solution of writing the tail ends of both files, since after `(n1 == 1 && n2 == 1)` fails, it must be true that only one of the while loops will be entered.
+
+## P22.10
+### Statement
+Modify the `inventory2.c` program of Section 17.5 by adding the `d` (dump) and `r` (restore) operations described in Programming Project 8. Since the part structures aren't stored in an array, the `d` operation can’t save them all by a single call of `fwrite`. Instead, it will need to visit each node in the linked list, writing the part number, part name, and quantity on hand to a file. (Don't save the `next` pointer; it won’t be valid once the program terminates.) As it reads parts from a file, the `r` operation will rebuild the list one node at a time. 
+
+### Code
+```
+void dump(void){
+    FILE *fp;
+    char filename[100];
+    printf("Enter name of output file: ");
+    read_line(filename, 100);
+
+    if((fp = fopen(filename, "wb")) == NULL){
+        fprintf(stderr, "Error: file %s cannot be read\n", filename);
+        exit(EXIT_FAILURE);
+    }
+    for(struct part *cur = inventory; cur != NULL;cur = cur->next){
+        fwrite(*cur, sizeof(struct part), 1, fp);
+    }
+    fclose(fp);
+}
+
+void restore(void){
+    FILE *fp;
+    char filename[100];
+    struct part *cur = inventory, prev;
+    struct part read;
+    printf("Enter name of output file: ");
+    read_line(filename, 100);
+
+    if((fp = fopen(filename, "wb")) == NULL){
+        fprintf(stderr, "Error: file %s cannot be opened\n", filename);
+        exit(EXIT_FAILURE);
+    }
+    // Find end of list
+    while(cur != NULL){
+        cur = cur->next;
+        if(cur != NULL)
+            prev = prev->next;
+    }
+
+    while(fread(&read, sizeof(struct part) sizeof(struct part *), 1, fp) == 1){
+        cur = malloc(sizeof(struct part));
+        if (cur == NULL){
+            fprintf(stderr, "Error, malloc failed on restore");
+            exit(EXIT_FAILURE);
+        }
+        cur->number = read.number;
+        strcpy(cur->name, read.name);
+        cur->on_hand = read.on_hand;
+        cur->next = NULL;
+        prev->next = cur;
+    }
+    fclose(fp);
+}
+```
+
+### Thoughts
+Thankfully that's the last time I'll ever have to work with this `inventory` program.
+
+## P22.11
+### Statement
+Write a program that reads a date from the command line and displays it in the following form: 
+
+`September 13, 2010` 
+
+Allow the user to enter the date as either 9-13-2010 or 9/13/2010; you may assume that there are no spaces in the date. Print an error message if the date doesn't have one of the specified forms. Hint: Use `sscanf` to extract the month, day, and year from the command-line argument. 
+
+### Code
+
+```
+// Filename: p11.c
+// Purpose: Reads a date from command line arguments and displays it a certain way.
+// Author: syfer
+// Date: August 10th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[]){
+
+    int month, day, year;
+    const char* months[12] = {"January", "February", "March", "April",
+                              "May", "June", "July", "August", "September",
+                              "October", "November", "December"};
+
+    int n = sscanf(argv[1], "%d%*[-/]%d%*[-/]%d", &month, &day, &year);
+    if(n!=3){
+        fprintf(stderr, "Error, please use the correct format (mm/dd/yyyy or mm-dd-yyyy)\n");
+        exit(EXIT_FAILURE);
+    }
+    printf("%s %.2d, %.4d\n", months[month - 1], day, year);
+       
+    return 0;
+}
+
+```
+
+### Thoughts
+Short and sweet. I liked figuring out the format string.
+
+## P22.12
+### Statement
+Modify Programming Project 2 from Chapter 3 so that the program reads a series of items from a file and displays the data in columns. Each line of the file will have the following form:
+
+`item, price , mm/dd/yyyy`
+
+For example, suppose that the file contains the following lines:
+
+```
+583,13.5,10/24/2005
+3912,599.99,7/27/2008
+```
+
+The output of the program should have the following appearance:
+
+```
+Item    Unit      Purchase
+        Price     Date
+583     $13.50    10/24/2005
+3912    $599.99   7/27/2008
+```
+
+Have the program obtain the file name from the command line.
+
+### Code
+
+```
+// Filename: p12.c
+// Purpose: Reads and displays purchasing information from a file
+// Author: syfer
+// Date: August 10th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int read_line(char *str, int n, FILE *fp);
+
+int main(int argc, char *argv[]){
+
+    FILE *fp;
+    if(argc < 2){
+        printf("Error bad usage");
+        exit(EXIT_FAILURE);
+    }
+
+    if((fp = fopen(argv[1], "r")) == NULL){
+        printf("Error opening file %s\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+    char line[100];
+    printf("Item\t\tUnit\t\tPurchase\n");
+    printf("\t\tPrice\t\tDate\n");
+    while (read_line(line, 100, fp) != 0){
+        int item, month, day, year;
+        float price;
+
+        sscanf(line, "%d%*[,]%f%*[,]%d%*[/]%d%*[/]%d", 
+                &item, &price,&month, &day, &year);
+
+        printf("%d\t\t$%.2f\t\t%.2d/%.2d/%.4d\n", item, price, month, day, year);
+    }
+
+    fclose(fp);
+    return 0;
+}
+
+int read_line(char *str, int n, FILE *fp){
+    int ch, i = 0;
+    ch = getc(fp);
+
+    while(ch != EOF && ch !='\n'){
+        if(i < n)
+            str[i++] = ch;
+        ch = getc(fp);
+    }
+    str[i] = '\0';
+    return i;
+}
+```
+
+### Thoughts
+Ended up writing my own `read_line` function, could probably have used `fread` but that felt more complicated. The function I wrote is basically the same as we've seen time and again in the book.
+
+## P22.13
+### Statement
+Modify Programming Project 8 from Chapter 5 so that the program obtains departure and arrival times from a file named `flights.dat`. Each line of the file will contain a departure time followed by an arrival time, with one or more spaces separating the two. Times will be expressed using the 24-hour clock. For example, here’s what `flights.dat`  might look like if it contained the flight information listed in the original project:
+
+```
+8:00 10:16
+9:43 11:52
+11:19 13:31
+12:47 15:00
+14:00 16:08
+15:45 17:55
+19:00 21:20
+21:45 23:58
+```
+
+### Code
+
+```
+// Filename: p13.c
+// Purpose: Displays the closest flight time to a user entered time
+// Author: syfer
+// Date: August 10th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+int read_line(char *str, int n, FILE *fp);
+int compare(const void *a, const void *b);
+
+int main(){
+
+    FILE *fp;
+    if ((fp = fopen("flights.dat", "r")) == NULL) {
+        fprintf(stderr, "Error: flights.dat cannot be read\n");
+        exit(EXIT_FAILURE);
+    }
+    int ntimes = 0;
+    int dphr, arrhr, dpmin, arrmin, dep[MAX_TIMES], arr[MAX_TIMES];
+
+    char line[100];
+
+    while((read_line(line, 100, fp)) != 0){
+        sscanf(line, "%d:%d %d:%d", &dephr, &depmin, &arrhr, &arrmin);
+        dep[ntimes] = (dephr * 60) + depmin;
+        arr[ntimes] = (arrhr * 60) + arrmin;
+        ntimes++;
+    }
+    qsort(dep, ntimes, sizeof(int), compare);
+    qsort(arr, ntimes, sizeof(int), compare);
+
+    int time, hour, min;
+    printf("Enter departure time in 24-hour format (HH:mm): ");
+    scanf("%d :%d", &hour, &min);
+    time = (60 * hour) + min;
+
+    for (int i = 0; i < ntimes; i++)
+    {
+        if ((abs(time - dep[i])) <= (abs(time - dep[i+1])))
+        {
+            break;
+        }
+    }
+    printf("Closest departure time: %.2d:%.2d, arriving at %.2d:%.2d\n", dep[i] / 60, dep[i] % 60,
+           arr[i] / 60, arr[i] % 60);
+    fclose(fp);
+
+    return 0;
+}
+
+int compare(const void *a, const void *b)
+{
+    return (*(int *)a - *(int *)b);
+}
+int read_line(char *str, int n, FILE *fp){
+    int ch, i = 0;
+    ch = getc(fp);
+
+    while(ch != EOF && ch !='\n'){
+        if(i < n)
+            str[i++] = ch;
+        ch = getc(fp);
+    }
+    str[i] = '\0';
+    return i;
+}
+```
+
+## P22.14
+### Statement
+Modify Programming Project 15 from Chapter 8 so that the program prompts the user to enter the name of a file containing the message to be encrypted:
+
+```
+Enter name of file to be encrypted: message.txt
+Enter shift amount (1-25): 3
+```
+
+The program then writes the encrypted message to a file with the same name but an added extension of `.enc`. In this example, the original file name is `message.txt`, so the encrypted message will be stored in a file named `message.txt.enc`. There’s no limit on the size of the file to be encrypted or on the length of each line in the file.
+
+### Code
+
+```
+// Filename: p14.c
+// Purpose: Encrypts a file with the Ceaser cipher
+// Author: syfer
+// Date: August 11th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+int main(){
+    FILE *fp1, *fp2;
+    char filename[100];
+
+    printf("Enter name of file to be encrypted: ");
+    scanf("%s", filename);
+
+    if((fp1 = fopen(filename, "r")) == NULL){
+        fprintf(stderr, "Error: %s cannot be opened\n", filename);
+        exit(EXIT_FAILURE);
+    }
+
+    char *outname = malloc(sizeof(filename + 5)); // .enc and null char make 5
+
+    strcpy(outname, filename);
+    strcat(outname, ".enc");
+
+    if((fp2 = fopen(outname, "w")) == NULL){
+        fprintf(stderr, "Error: %s cannot be opened\n", outname);
+        exit(EXIT_FAILURE);
+    }
+
+    free(outname);
+    int shift;
+    printf("Enter shift amount: ");
+    scanf("%d", &shift);
+    int c;
+
+    while ((c = getc(fp1)) != EOF){
+        if (c == ' ' || c == '.' || c == '!' || c == ',' || c == '?'){
+            putc(c, fp2);
+            continue;
+        }
+        if (toupper(c) == c)
+            putc(((c - 'A') + shift) % 26 + 'A', fp2);
+        else
+            putc(((c - 'a') + shift) % 26 + 'a', fp2);
+    }
+    fclose(fp1);
+    fclose(fp2);
+    
+    return 0;
+}
+```
+
+### Thoughts
+Meat of the project was the same as P7. Unfortunate.
+
+## P22.15
+### Statement
+Modify the `justify` program of Section 15.3 so that it reads from one text file and writes to another. Have the program obtain the names of both files from the command line.
+
+### Thoughts
+Skipping this one. Nothing new in the project, and just requires changing everything to accept a file pointer.
+
+## P22.16
+### Statement
+Modify the `fcopy.c` program of Section 22.4 so that it uses `fread` and `fwrite` to copy the tile in blocks of 512 bytes. (The last block may contain fewer than 512 bytes, of course.)
+
+### Code
+
+```
+/*********************************************************
+ * From C PROGRAMMING: A MODERN APPROACH, Second Edition *
+ * By K. N. King                                         *
+ * Copyright (c) 2008, 1996 W. W. Norton & Company, Inc. *
+ * All rights reserved.                                  *
+ * This program may be freely distributed for class use, *
+ * provided that this copyright notice is retained.      *
+ *********************************************************/
+
+/* fcopy.c (Chapter 22, page 568) */
+/* Copies a file */
+
+// -------------------------------------------------------
+// MODIFIED BY SYFER ON AUGUST 11th, 2025
+// -------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define BUFFER_SIZE 512
+
+int main(int argc, char *argv[])
+{
+  FILE *source_fp, *dest_fp;
+
+  if (argc != 3) {
+    fprintf(stderr, "usage: fcopy source dest\n");
+    exit(EXIT_FAILURE);
+  }
+
+  if ((source_fp = fopen(argv[1], "rb")) == NULL) {
+    fprintf(stderr, "Can't open %s\n", argv[1]);
+    exit(EXIT_FAILURE);
+  }
+
+  if ((dest_fp = fopen(argv[2], "wb")) == NULL) {
+    fprintf(stderr, "Can't open %s\n", argv[2]);
+    fclose(source_fp);
+    exit(EXIT_FAILURE);
+  }
+
+  int read;
+  char buffer[BUFFER_SIZE];
+
+  while((read = fread(buffer, sizeof(char), BUFFER_SIZE, source_fp)) > 0){
+      frwite(buffer, sizeof(char), read, dest_fp);
+  }
+
+  fclose(source_fp);
+  fclose(dest_fp);
+  return 0;
+}
+```
+
+### Thoughts
+## P22.17
+### Statement
+Write a program that reads a series of phone numbers from a file and displays them in a standard format. Each line of the file will contain a single phone number, but the numbers may be in a variety of formats. You may assume that each line contains 10 digits, possibly mixed with other characters (which should be ignored). For example, suppose that the file contains the following lines:
+
+```
+404.817.6900
+(215) 686-1776
+312-746-6000
+877 275 5273
+6173434200
+```
+The output of the program should have the following appearance:
+
+```
+(404) 817-6900
+(215) 686-1776
+(312) 746-6000
+(877) 275-5273
+(617) 343-4200
+```
+
+Have the program obtain the file name from the command line.
+
+### Code
+
+```
+// Filename: p17.c
+// Purpose: Displays a series of phone numbers, read from a file
+// Author: syfer
+// Date: August 11th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+int read_line(char *str, int n, FILE *fp);
+
+int main(int argc, char *argv[]){
+
+    FILE *fp;
+
+    if (argc != 2)
+    {
+        fprintf(stderr, "USAGE: %s filename\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp = fopen(argv[1], "r")) == NULL)
+    {
+        fprintf(stderr, "Error: %s cannot be read\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+    char line[100];
+    char p1[3 + 1], p2[3 + 1], p3[4 + 1];
+    int pos1 = 0, pos2 = 0;
+    int len;
+    while((len = read_line(line, 100, fp)) != 0){
+        for(int i = 0; i < len; i++){
+            int ch = line[i];
+            if(isspace(ch) || ch == ')' ||ch == '.'|| ch == '-' || ch == EOF || ch == '\n'){
+                if(pos1 == 0) continue;
+                pos1 = 0;
+                pos2++;
+                if(pos2 == 0) p1[3] = '\0';
+                else if(pos2 == 1) p2[3] = '\0';
+                else if(pos2 == 2) p3[4] = '\0';
+            } else if (isdigit(ch) && pos2 == 0){
+                if (pos1 == 3){
+                    p1[3] = '\0';
+                    pos2++;
+                    pos1 = 0;
+                } else
+                    p1[pos1++] = ch;
+            }
+            else if (isdigit(ch) && pos2 == 1){
+                if (pos1 == 3){
+                    p2[3] = '\0';
+                    pos2++;
+                } else
+                    p2[pos1++] = ch;
+            }
+            else if (isdigit(ch) && pos2 == 2){
+                if (pos1 == 4){
+                    p3[4] = '\0';
+                    pos2++;
+                } else
+                    p3[pos1++] = ch;
+            }
+        }
+        printf("(%s) %s-%s\n", p1, p2, p3);
+        pos1 = 0;
+        pos2 = 0;
+    }
+    return 0;
+}
+
+int read_line(char *str, int n, FILE *fp){
+    int ch, i = 0;
+    ch = getc(fp);
+
+    while(ch != '\n' && ch !=EOF){
+        if(i < n)
+            str[i++] = ch;
+        ch = getc(fp);
+    }
+    str[i] = '\0';
+    return i;
+}
+```
+
+### Thoughts
+Surprisingly more complicated than I had thought originally. Since we read in data as a string, we could have either tried to run a `sscanf` regex string to pattern match the various phone number formats, or do it manually as I chose to do here, keeping track of which position and part of the phone number we're on.
+
+## P22.18
+### Statement
+Write a program that reads integers from a text file whose name is given as a command-line argument. Each line of the file may contain any number of integers (including none) separated by one or more spaces. Have the program display the largest number in the file, the smallest number, and the median (the number closest to the middle if the integers were sorted). If the file contains an even number of integers, there will be two numbers in the middle; the program should display their average (rounded down). You may assume that the file contains no more than 10.000 integers. Hint: Store the integers in an array and then sort the array.
+
+### Code
+
+```
+// Filename: p18.c
+// Purpose: Displays the largest, smallest and median from a file of integers
+// Author: syfer
+// Date: August 11th, 2025
+
+#include <stdio.h>
+
+#define MAX_NUMBERS 10000
+int compare (const void *a, const *void *b)
+int main(){
+
+    FILE *fp;
+    int n[MAX_NUMBERS];
+    int i = 0;
+
+    if (argc != 2) {
+        fprintf(stderr, "USAGE: %s filename\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp = fopen(argv[1], "r")) == NULL) {
+        fprintf(stderr, "Error: file %s cannot be read\n", argv[1]);
+    }
+
+    while(!feof(fp)){
+        fscanf(fp, " %d", &nums[i++]);
+    }
+    qsort(n,i,compare);
+
+    if(i % 2 == 0){
+        printf("Maximum: %d, Minimum: %d, Median: %d\n", n[i-1], n[0], 
+                (n[(i/2)] - n[i/2 - 1]) / 2);
+    }else {
+        printf("Maximum: %d, Minimum: %d, Median: %d\n", n[i-1], n[0], n[i/2]);
+    }
+    
+    return 0;
+}
+
+int compare (const void *a, const *void *b){
+    return *((int *) a) - *((int *) b);
+}
+```
+
+## P22.19
+### Statement
+(a) Write a program that converts a Windows text file to a UNIX text file. (See Section 22.1 for a discussion of the differences between Windows and UNIX text files.)
+
+(b) Write a program that converts a UNIX text file to a Windows text file.
+
+In each case, have the program obtain the names of both files from the command line. Hint:
+Open the input file in `"rb"` mode and the output file in `"wb"` mode.
+
+### Code
+#### (a)
+```
+// Filename: p19.c
+// Purpose: Converts a Windows text file to a UNIX text file
+// Author: syfer
+// Date: August 11th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[])
+{
+    FILE *fp1, *fp2;
+    char c;
+
+    if (argc != 3) {
+        fprintf(stderr, "USAGE: %s input-file output-file\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp1 = fopen(argv[1], "rb")) == NULL)
+    {
+        fprintf(stderr, "Error: file %s cannot be read\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp2 = fopen(argv[2], "wb")) == NULL)
+    {
+        fprintf(stderr, "Error: file %s cannot be written\n", argv[2]);
+        exit(EXIT_FAILURE);
+    }
+
+    while ((c = getc(fp1)) != EOF) {
+        if (c != '\x0d' && c != '\x1a')
+            fputc(c, fp2);
+    }
+
+    fclose(fp1);
+    fclose(fp2);
+
+    exit(EXIT_SUCCESS);
+}
+```
+
+#### (b)
+```
+// Filename: p19.c
+// Purpose: Converts a UNIX text file to a Windows text file
+// Author: syfer
+// Date: August 11th, 2025
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[])
+{
+    FILE *fp1, *fp2;
+    char c;
+
+    if (argc != 3) {
+        fprintf(stderr, "USAGE: %s input-file output-file\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp1 = fopen(argv[1], "rb")) == NULL)
+    {
+        fprintf(stderr, "Error: file %s cannot be read\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp2 = fopen(argv[2], "wb")) == NULL)
+    {
+        fprintf(stderr, "Error: file %s cannot be written\n", argv[2]);
+        exit(EXIT_FAILURE);
+    }
+
+    while ((c = getc(fp1)) != EOF) {
+        if (c == '\x0a')
+            fputc('\x0d', fp2);
+        fputc(c, fp2);
+    }
+
+    fclose(fp1);
+    fclose(fp2);
+
+    exit(EXIT_SUCCESS);
+}
+```
