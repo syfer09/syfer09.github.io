@@ -1,0 +1,172 @@
+---
+layout: default
+title: Chapter 3 and 4
+date: 2025-08- 16:00:00 +0000
+categories: jekyll update
+permalink: /tlpic3-4
+---
+# Chapters  3 and 4
+# Exercises
+## E3.1
+### Statement
+When using the Linux-specific `reboot()` system call to reboot the system, the second argument, `magic2`, must be specified as one of a set of magic numbers (e.g., `LINUX_REBOOT_MAGIC2`). What is the significance of these numbers? (Converting them to hexadecimal provides a clue.)
+
+### Solution
+`LINUX_REBOOT_MAGIC1` becomes `0xFEE1DEAD` which as far as I can tell is just a funny reference to rebooting a computer, while `LINUX_REBOOT_MAGIC2` converts to `0x28121969` which is Linus Torvalds's birthday.
+
+From what I could find in my research on this topic, these are just an extra layer of security to make sure that a command which is so significant(`reboot` will shut the program and the operating system down) does not get executed accidentally. 
+
+Accidentally in this case, refers to a very specific situation, if we call another system call that accidentally gets its memory bits corrupted to turn into `reboot()`. In that specific case, the call would still fail since the magic numbers would not be included in our original call, which got corrupted.
+
+### Thoughts
+## E4.1
+### Statement
+The `tee` command reads its standard input until end-of-file, writing a copy of the input to standard output and to the file named in its command-line argument. (We show an example of the use of this command when we discuss FIFOs in Section 44.7.) Implement `tee` using I/O system calls. By default, `tee` overwrites any existing file with the given name. Implement the `–a` command-line option (`tee –a file`), which causes `tee` to append text to the end of a file if it already exists. (Refer to Appendix B for a description of the `getopt()` function, which can be used to parse command-line options.)
+
+### Solution
+```
+// Filename: tee.c
+// Purpose: Replicates the functionality of the tee Linux command
+// Author: syfer
+// Date: August 12th, 2025
+
+#include <sys/stat.h>
+#include <fcntl.h>
+#include "tlpi_hdr.h"
+#include <stdbool.h>
+
+#define BUF_SIZE 1024
+
+int main(int argc, char *argv[]){
+
+    int outputFd, numRead, openFlags, opt;
+    mode_t filePerms;
+    char buf[BUF_SIZE];
+    bool append = false;
+
+    if (argc < 2 || strcmp(argv[1], "--help") == 0)
+        usageErr("%s old-file new-file\n", argv[0]);
+
+    openFlags = O_CREAT | O_WRONLY;
+    while ((opt = getopt (argc, argv, "a")) != -1){
+        switch(opt){
+            case 'a':
+                append = true;
+                break;
+        }
+    }
+    if(append)
+        openFlags |= O_APPEND;
+    else
+        openFlags |= O_TRUNC;
+
+    filePerms = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+    int fn = append ? 2 : 1;
+    outputFd = open(argv[fn], openFlags, filePerms);
+    if(outputFd == -1)
+        errExit("opening file %s", argv[fn]);
+
+    while((numRead = read(STDIN_FILENO, buf, BUF_SIZE)) > 0){
+        if(write(outputFd, buf, numRead) != numRead)
+            fatal("write() to file returned error or partial write occured");
+        if(write(STDOUT_FILENO, buf, numRead) != numRead)
+            fatal("write() to stdout returned error or partial write occured");
+    }
+    if (numRead == -1)
+        errExit("read");
+
+    if (close(outputFd) == -1)
+        errExit("close output");
+    
+    return 0;
+}
+```
+
+### Thoughts
+Enjoyable to implement. I was very recently doing similar projects with the standard library wrapper functions (`fopen` etc) and it's interesting to see what's "under the hood" so to speak.
+
+The only bug I had was what I thought `O_APPEND` failing, but in reality was me missing a check that the `-a` argument was added, and not using it as the filename since I was just opening a file at `argv[1]`. To be honest the solution I implemented with an extra integer `fn` and a ternary operator is still not great. If we run `./tee file -a` the program will use `-a` as the name of the file again. A potential solution would be to modify `argv` and potentially replace/remove the `-a` command once it has been read. This would best be done by copying `argv` to a separate array.
+
+## E4.2
+### Statement
+Write a program like `cp` that, when used to copy a regular file that contains holes (sequences of null bytes), also creates corresponding holes in the target file.
+
+### Solution
+```
+// Filename: holecp.c
+// Purpose: Extends the cp command to allow for copying files with holes
+// Author: syfer
+// Date: August 12th, 2025
+
+#include <sys/stat.h>
+#include <fcntl.h>
+#include "tlpi_hdr.h"
+
+#ifndef BUF_SIZE        /* Allow "cc -D" to override definition */
+#define BUF_SIZE 1024
+#endif
+
+int main(int argc, char *argv[]) {
+
+    int inputFd, outputFd, openFlags;
+    mode_t filePerms;
+    ssize_t numRead;
+    char buf[BUF_SIZE];
+    char nullBuf[BUF_SIZE]; //uninitialized on purpose to compare with
+
+    if (argc != 3 || strcmp(argv[1], "--help") == 0)
+        usageErr("%s old-file new-file\n", argv[0]);
+
+    /* Open input and output files */
+
+    inputFd = open(argv[1], O_RDONLY);
+    if (inputFd == -1)
+        errExit("opening file %s", argv[1]);
+
+    openFlags = O_CREAT | O_WRONLY | O_TRUNC;
+    filePerms = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |
+                S_IROTH | S_IWOTH;      /* rw-rw-rw- */
+    outputFd = open(argv[2], openFlags, filePerms);
+    if (outputFd == -1)
+        errExit("opening file %s", argv[2]);
+
+    /* Transfer data until we encounter end of input or an error */
+
+    while ((numRead = read(inputFd, buf, BUF_SIZE)) > 0){
+        if(memcmp(buf, nullBuf, numRead) == 0){
+            //Hole found no copy
+            lseek(outputFd, numRead, SEEK_CUR);
+        }else{
+            if (write(outputFd, buf, numRead) != numRead)
+                fatal("write() returned error or partial write occurred");
+        }
+    }
+    if (numRead == -1)
+        errExit("read");
+
+    if (close(inputFd) == -1)
+        errExit("close input");
+    if (close(outputFd) == -1)
+        errExit("close output");
+
+    exit(EXIT_SUCCESS);
+}
+```
+
+### Thoughts
+The main trick here is that we can compare our data that we read in, with an uninitialized array of the same size to find out whether they were null bytes. 
+
+While cool, I did not figure this out myself. See original code [here](https://github.com/rmascarenhas/lpi/blob/master/chap04/hcp.c).
+
+# Note
+All programs use the following headers/libraries, created by Michael Kerrisk for the book
+
+|NAME/LINK|Description|
+|-|-|
+|[tlpi_hdr.h](https://man7.org/tlpi/code/online/dist/lib/tlpi_hdr.h.html)|Contains the majority of the includes as well as min/max macros|
+|[error_functions.h](https://man7.org/tlpi/code/online/dist/lib/error_functions.h.html)| Headers for different error functions which can be called upon checking a system call|
+|[error_functions.c](https://man7.org/tlpi/code/online/dist/lib/error_functions.c.html)| Implementation for the error functions|
+|[ename.c.inc](https://man7.org/tlpi/code/online/dist/lib/ename.c.inc.html)|Array of strings to converts `errno` numeric values to text|
+|[gen_num.h](https://man7.org/tlpi/code/online/dist/lib/get_num.h.html)|Header file for functions that convert numbers to strings for easy printing of non-standard types (example: `mode_t`)|
+|[gen_num.c](https://man7.org/tlpi/code/online/dist/lib/get_num.c.html)|Implementation of the conversion functions|
+

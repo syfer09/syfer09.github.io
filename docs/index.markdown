@@ -17,7 +17,10 @@ layout: default
 
 [Second Track (2025-06-20)](/intro2)
 
-## Learning C (King)
+## The Linux Programming Interface (Michael Kerrisk)
+[Chapter 3 and 4 (2025-08-12)](/tlpic3-4)
+
+## Learning C (K. N. King)
 [Chapter 2 (2025-07-22)](/learningc2)
 
 [Chapter 3 (2025-07-23)](/learningc3)
