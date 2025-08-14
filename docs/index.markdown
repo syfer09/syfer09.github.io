@@ -9,16 +9,10 @@ layout: default
 ## Competitive Coding Summaries
 [Codeforces Round 1024 (Div 3) (2025-08-10)](/round1024div3summary)
 
-## HTB Boxes that I've solved
-
-[Meow (2025-05-21)](/meow)
-
-[First Track (2025-06-03)](/intro)
-
-[Second Track (2025-06-20)](/intro2)
-
 ## The Linux Programming Interface (Michael Kerrisk)
 [Chapter 3 and 4 (2025-08-12)](/tlpic3-4)
+
+[Chapter 5](/tlpic5)
 
 ## Learning C (K. N. King)
 [Chapter 2 (2025-07-22)](/learningc2)
@@ -60,6 +54,14 @@ layout: default
 [Chapter 20 (2025-08-08)](/learningc20);
 
 [Chapter 22 (2025-08-11)](/learningc22);
+
+## HTB Boxes that I've solved
+
+[Meow (2025-05-21)](/meow)
+
+[First Track (2025-06-03)](/intro)
+
+[Second Track (2025-06-20)](/intro2)
 
 ## Notes
 [Personal pentesting notes](/pentestnotes)

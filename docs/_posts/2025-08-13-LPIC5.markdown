@@ -1,0 +1,361 @@
+---
+layout: default
+title: Chapter 5
+date: 2025-08-13 16:00:00 +0000
+categories: jekyll update
+permalink: /lpic5
+---
+# Chapters 5
+# Exercises
+## E5.1
+### Statement
+Modify the program in Listing 5-3 to use standard file I/O system calls (`open()` and `lseek()`) and the `off_t` data type. Compile the program with the `_FILE_OFFSET_BITS` macro set to 64, and test it to show that a large file can be successfully created.
+
+### Solution
+```
+// Filename: large_file.c
+// Purpose: Demonstrate the use of the (obsolete) Large File System API.
+// Author: Michael Kerrisk, modified by syfer
+// Date: August 13th, 2025
+
+#define _LARGEFILE64_SOURCE
+#define _FILE_OFFSET_BITS 64
+#include <sys/stat.h>
+#include <fcntl.h>
+#include "tlpi_hdr.h"
+
+int
+main(int argc, char *argv[]) {
+    int fd;
+    off_t off;
+
+    if (argc != 3 || strcmp(argv[1], "--help") == 0)
+        usageErr("%s pathname offset\n", argv[0]);
+
+    fd = open(argv[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    if (fd == -1)
+        errExit("open");
+
+    off = atoll(argv[2]);
+    if (lseek(fd, off, SEEK_SET) == -1)
+        errExit("lseek");
+
+    if (write(fd, "test", 4) == -1)
+        errExit("write");
+    exit(EXIT_SUCCESS);
+}
+```
+
+### Thoughts
+A simple exercise, since all that was required was to replace the `open64` versions with their regular `open` functions, as well as adding the macro `_FILE_OFFSET_BITS`. The program compiles and is able to create large files.
+
+This is when I got curious and decided to try creating a massive file while commenting out the macro definition. To my surprise, it was able to do so, with the resulting file being the same as before to my knowledge. I was expecting an error thrown.
+
+I have a feeling that this is due to the book primarily working in 32 bit architecture while my machine is 64 bit. There does not seem to be any `open128` function equivalents to set the offset bits macro. Additionally I found forums from fairly recently (implying they're most likely on 64 bit architecture as well) complaining about problems with large files, so it seems like the check is there on some level. Not sure where it is for me, and I am fairly confident I tested it on very large files (50gB+). 
+
+## E5.2
+### Statement
+Write a program that opens an existing file for writing with the `O_APPEND` flag, and then seeks to the beginning of the file before writing some data. Where does the data appear in the file? Why?
+
+### Solution
+
+```
+// Filename: append_exer.c
+// Purpose: tests what the O_APPEND flag does when seeking to beginning of a file
+// Author: syfer
+// Date: August 13th, 2025
+
+#include "tlpi_hdr.h"
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#ifndef BUF_SIZE        /* Allow "cc -D" to override definition */
+#define BUF_SIZE 1024
+#endif
+
+int main(int argc, char *argv[]) {
+
+    int fp;
+    if(argc != 2){
+        puts("Bad Usage");
+        exit(EXIT_FAILURE);
+    }
+    
+    fp = open(argv[1], O_APPEND | O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+    if(fp == -1)
+        errExit("open");
+
+    if(lseek(fp, 0, SEEK_CUR) == -1)
+        errExit("lseek");
+
+    if(write(fp, "this", 4) == -1)
+        errExit("write");
+
+    return 0;
+}
+```
+
+### Thoughts
+The answer to the question is that `lseek` does absolutely nothing, and the `O_APPEND` flag overwrittes(?) the action. Regardless of where we place the offset we end up appending anyways.
+
+## E5.3
+### Statement
+This exercise is designed to demonstrate why the atomicity guaranteed by opening a file with the `O_APPEND` flag is necessary. Write a program that takes up to three command-line arguments:
+
+`$ atomic_append filename num-bytes [x]`
+
+This file should open the specified filename (creating it if necessary) and append `num-bytes` bytes to the file by using `write()` to write a byte at a time. By default, the program should open the file with the `O_APPEND` flag, but if a third command-line argument `(x)` is supplied, then the `O_APPEND` flag should be omitted, and instead the program should perform an `lseek(fd, 0, SEEK_END)` call before each `write()`. Run two instances of this program at the same time without the `x` argument to write 1 million bytes to the same file:
+
+`$ atomic_append f1 1000000 & atomic_append f1 1000000`
+
+Repeat the same steps, writing to a different file, but this time specifying the `x` argument:
+
+`$ atomic_append f2 1000000 x & atomic_append f2 1000000 x`
+
+List the sizes of the files `f1` and `f2` using `ls –l` and explain the difference.
+
+### Solution
+#### Code
+
+```
+// Filename: atomic_append.c
+// Purpose: Demonstrate why atomicity is necessary when opening a file with the O_APPEND flag.
+// Author: syfer
+// Date: August 13th, 2025
+
+#include "tlpi_hdr.h"
+#include <sys/stat.h>
+#include <stdbool.h>
+#include <fcntl.h>
+
+int main(int argc, char *argv[]){
+
+    bool append = true;
+    int fp, flags;
+    const char byte = 'a';
+    if(argc != 4 && argc != 3){
+        puts("Bad Usage");
+        exit(EXIT_FAILURE);
+    }
+    flags = O_CREAT | O_WRONLY;
+    if (argc == 4){
+        puts("Here");
+        append = false;
+    } else
+        flags |= O_APPEND;
+
+    int numBytes = getInt(argv[2], GN_ANY_BASE, "numBytes");
+
+    fp = open(argv[1], flags, S_IRUSR | S_IWUSR);
+    if(fp == -1)
+        errExit("open");
+    for(int i = 0; i < numBytes; i++){
+        if(!append)
+            lseek(fp, 0, SEEK_END);
+        if(write(fp, &byte, 1) == -1)
+            errExit("Write failed on %d", i);
+    }
+
+    if(close(fp) == -1)
+        errExit("close");
+    
+    return 0;
+}
+```
+
+#### ls -l output
+```
+-rw------- 1 syfer syfer 2000000 Aug 13 15:53 f1
+-rw------- 1 syfer syfer 1000444 Aug 13 15:53 f2
+```
+
+### Thoughts
+We can see a big difference in file sizes. In particular, with two processes acting at the same time, some of the writes ended up happening one after another, before the call to `lseek` which is meant to be called before *every* write. With the `O_APPEND` flag, the writes are atomic, and therefore always go at the end regardless of file offset as demonstrated in EX2.
+
+## E5.4
+### Statement
+Implement `dup()` and `dup2()` using `fcntl()` and, where necessary, `close()`. (You may ignore the fact that `dup2()` and `fcntl()` return different `errno` values for some error cases.) For `dup2()`, remember to handle the special case where `oldfd` equals `newfd`. In this case, you should check whether `oldfd` is valid, which can be done by, for example, checking if `fcntl(oldfd, F_GETFL)` succeeds. If `oldfd` is not valid, then the function should return –1 with `errno` set to `EBADF`.
+
+### Solution
+#### dup()
+```
+int my_dup(int oldfd){
+    int newfd = fcntl(oldfd, F_DUPFD) == -1;
+    if(newfd == -1)
+        errExit("fcntl");
+    return newfd;
+}
+```
+
+#### dup2()
+```
+int my_dup2(int oldfd, int newfd){
+    int flags = fcntl(oldfd, F_GETFL);
+    // check if oldfd is valid
+    if(flags == -1)
+        errExit("File descriptor %d is not a valid file descriptor", oldfd);
+    //close newfd if necessary
+    flags = fcntl(newfd, F_GETFL);
+    if (flags != -1){
+        if(close(newfd) == -1)
+            errExit("Failed to close file descriptor %d\n", newfd);
+    }
+    int nextfd = fcntl(oldfd, F_DUPFD, newfd);
+    if(nextfd != newfd)
+        errExit("fcntl");
+    return nextfd;
+}
+```
+
+### Thoughts
+Everything was pretty simple but upon looking at solutions I realized that I was missing a multitude of error-checks in addition to the `close` check I had already had.
+
+This seems to be a common theme with this book, every piece of code that involves a system call gets exhaustively error checked. I have to keep in mind to also check for every possible error. In particular I did not realize I needed to check that `oldfd` and `newfd` were valid file identifiers. 
+
+Thinking about this more, I am unsure how we would distinguish the file descriptors not being valid versus the `fcntl` function failing to fetch the flags in the first place, since both values would presumably evaluate to -1. Perhaps `errno` would be updated properly, but it is hard to test how `fcntl` would fail while `oldfd` is valid.
+
+## E5.5
+### Statement
+Write a program to verify that duplicated file descriptors share a file offset value and open file status flags.
+
+### Solution
+
+```
+// Filename: dup_flags.c
+// Purpose: Shows flags related to duplicating a file descriptor
+// Author: syfer
+// Date: August 13th, 2025
+
+#include "tlpi_hdr.h"
+#include <sys/stat.h>
+#include <fcntl.h>
+
+int main(int argc, char *argv[]) {
+
+    int fd, fdup, flags, dupFlags;
+    if(argc != 2){
+        puts("Bad Usage");
+        exit(EXIT_FAILURE);
+    }
+    fd = open(argv[1], O_RDONLY, S_IRUSR | S_IWUSR);
+    if(fd == -1)
+        errExit("Failed to open %s\n", argv[1]);
+
+    fdup = dup(fd);
+    flags = fcntl(fd, F_GETFL);
+    dupFlags = fcntl(fd, F_GETFL);
+    if(dupFlags != flags){
+        errExit("Flags are not the same for duplicate descriptors");
+    } else
+        printf("Flags are the same, Yay!\n");
+
+    if(close(fd) == -1)
+        errExit("Failure to close file %d\n", fd);
+    if(close(fdup) == -1)
+        errExit("Failure to close file %d\n", fdup);
+
+    return 0;
+}
+```
+
+### Thoughts
+Output: `Flags are the same, Yay!`
+
+## E5.6
+### Statement
+After each of the calls to `write()` in the following code, explain what the content of the output file would be, and why:
+
+```
+fd1 = open(file, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+fd2 = dup(fd1);
+fd3 = open(file, O_RDWR);
+write(fd1, "Hello,", 6);
+write(fd2, "world", 6);
+lseek(fd2, 0, SEEK_SET);
+write(fd1, "HELLO,", 6);
+write(fd3, "Gidday", 6);
+```
+
+### Solution
+Since `fd1` is missing the `O_APPEND` flag, after the first call of write we have `Hello,` in `fd1`. Next, since `fd2` refers to the same file as `fd1`, we write `world`. Since duplicate file descriptors share the same offset, this will be appended after the contents of `fd1`. After that we seek to the start of the file to overwrite the lowercase with the uppercase `HELLO,`. After that, althought we open the same file with `fd3`, we end up having our own offset, meaning that we overrite `HELLO,wordld` with `Giddayworld`.
+
+## E5.7
+### Statement
+Implement `readv()` and `writev()` using `read()`, `write()`, and suitable functions from the `malloc` package (Section 7.1.2).
+
+### Solution
+#### readv()
+```
+ssize_t my_readv(int fd, const struct *iov, int iovcnt){
+    int numRead, memNeed = 0;
+
+    void *buf;
+    //Calculate size of memory needed
+    for(int i = 0; i < iovcnt; i++){
+        memNeed+=iov[i].iov_len;
+    }
+
+    buf = malloc(memNeed);
+    if(buf == NULL)
+        errExit("malloc failed to allocate buffer");
+    numRead = read(fd, buf, memSize);
+    if(numRead == -1)
+        errExit("read fail");
+
+    int count = 0;
+    for(int i = 0; i < iovcnt; i++){
+        memcpy(iov[i].iov_base, buf + count, iov[i].len);
+        count += iov[i].len;
+    }
+    free(buf);
+    return numRead;
+}
+```
+
+#### writev()
+```
+ssize_t my_writev(int fd, const struct *iov, iovcnt){
+    int numWritten, memNeed = 0;
+    
+    void *buf;
+
+    for(int i = 0; i < iovcnt; i++){
+        memNeed+=iov[i].iov_len;
+    }
+
+    buf = malloc(memNeed);
+    if(buf == NULL)
+        errExit("malloc");
+
+    int count = 0;
+    //Transfer iov struct data into buf
+    for(int i = 0; i < iovcnt; i++){
+        memcpy(buf + count, iov[i].iov_base, iov[i].len);
+        count += iov[i].len;
+    }
+    if(numWritten = write(fd, buf, count) == -1){
+        errExit("write");
+    }
+
+    free(buf);
+    return numWritten;
+}
+```
+
+### Thoughts
+Originally I used a `char` buffer, but then I realized that `memcpy` was failing due to the fact that `iov` member structures have generalized `void` pointers rather than any other type used to represent bytes.
+
+One additional note is I first wrote the programs without the extra buffer, by just calling `read` and `write` for every member of `iov`. This, however, ignores the main reason why the functions exist in the first place, and that is to provide an atomized version of `read`/ `write` when using multiple buffers. This means that the entirety of the data must be read or written in a single step, meaning we need to concatinate the data first prior to any `read`/ `write` operations taking place.
+
+# Note
+All programs use `std=c99` as well as the following headers/libraries, created by Michael Kerrisk for the book.
+
+|NAME/LINK|Description|
+|-|-|
+|[tlpi_hdr.h](https://man7.org/tlpi/code/online/dist/lib/tlpi_hdr.h.html)|Contains the majority of the includes as well as min/max macros|
+|[error_functions.h](https://man7.org/tlpi/code/online/dist/lib/error_functions.h.html)| Headers for different error functions which can be called upon checking a system call|
+|[error_functions.c](https://man7.org/tlpi/code/online/dist/lib/error_functions.c.html)| Implementation for the error functions|
+|[ename.c.inc](https://man7.org/tlpi/code/online/dist/lib/ename.c.inc.html)|Array of strings to converts `errno` numeric values to text|
+|[gen_num.h](https://man7.org/tlpi/code/online/dist/lib/get_num.h.html)|Header file for functions that convert numbers to strings for easy printing of non-standard types (example: `mode_t`)|
+|[gen_num.c](https://man7.org/tlpi/code/online/dist/lib/get_num.c.html)|Implementation of the conversion functions|
+
