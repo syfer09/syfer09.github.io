@@ -1,0 +1,276 @@
+---
+layout: default
+title: Chapter 6 and 7
+date: 2025-08-14 16:00:00 +0000
+categories: jekyll update
+permalink: /tlpic6-7
+---
+# Chapters 6 and 7
+# Exercises Chapter 6
+## E6.1
+### Statement
+Compile the program in Listing 6-1 (`mem_segments.c`), and list its size using `ls –l`.  Although the program contains an array (`mbuf`) that is around 10 MB in size, the executable file is much smaller than this. Why is this?
+
+#### mem_segments.c
+```
+/* mem_segments.c
+   A program that does nothing in particular, but the comments indicate
+   which memory segments each type of variable is allocated in.
+*/
+#include <stdio.h>
+#include <stdlib.h>
+
+char globBuf[65536];            /* Uninitialized data segment */
+int primes[] = { 2, 3, 5, 7 };  /* Initialized data segment */
+
+static int
+square(int x)                   /* Allocated in frame for square() */
+{
+    int result;                 /* Allocated in frame for square() */
+
+    result = x * x;
+    return result;              /* Return value passed via register */
+}
+
+static void
+doCalc(int val)                 /* Allocated in frame for doCalc() */
+{
+    printf("The square of %d is %d\n", val, square(val));
+
+    if (val < 1000) {
+        int t;                  /* Allocated in frame for doCalc() */
+
+        t = val * val * val;
+        printf("The cube of %d is %d\n", val, t);
+    }
+}
+
+int
+main(int argc, char *argv[])    /* Allocated in frame for main() */
+{
+    static int key = 9973;      /* Initialized data segment */
+    static char mbuf[10240000]; /* Uninitialized data segment */
+    char *p;                    /* Allocated in frame for main() */
+
+    p = malloc(1024);           /* Points to memory in heap segment */
+
+    doCalc(key);
+
+    exit(EXIT_SUCCESS);
+}
+```
+
+### Solution
+Output of `ls -l`
+
+```
+-rwxr-xr-x 1 syfer syfer 22256 Aug 14 15:04 mem_segments
+-rw-r--r-- 1 syfer syfer  1288 Aug 14 15:04 mem_segments.c
+```
+
+Because `mbuf` is an uninitialized data segment, there is nothing to store in memory. It is part of uninitialized data segment and is only allocated upon running the program.
+
+### Thoughts
+## E6.2
+### Statement
+Write a program to see what happens if we try to `longjmp()` into a function that has already returned
+
+### Solution
+#### My code
+
+```
+// Filename: jump_fail.c
+// Purpose: Demonstrates what happnes if we try to jump into a function after it has already returned
+// Author: syfer
+// Date: August 14th, 2025
+
+#include <stdio.h>
+#include <setjmp.h>
+
+static jmp_buf env;
+
+static void createJump();
+static void testfunc();
+static void pushJump(int i);
+
+int main(){
+
+    printf("Before create jump\n");
+    createJump();
+
+    printf("After create jump\n");
+
+    printf("Before push jump\n");
+    pushJump(1);
+    printf("After push jump\n");
+
+    printf("Before push jump again\n");
+    pushJump(2);
+
+    printf("After push jump again\n");
+    return 0;
+}
+
+static void createJump(){
+    setjmp(env);
+}
+
+void pushJump(int i){
+    longjmp(env, i);
+}
+```
+
+#### Book solution
+```
+/* bad_longjmp.c
+
+   Demonstrate the incorrect use of longjmp() to jump into a function
+   that has already returned. As a consequence the program is killed by
+   a SIGSEGV signal (Segmentation fault).
+*/
+#include <setjmp.h>
+#include "tlpi_hdr.h"
+
+static jmp_buf env;     /* Global buffer for saving environment */
+
+static void
+doJump(void)
+{
+    printf("Entered doJump\n");
+    longjmp(env, 2);
+    printf("Exiting doJump\n");
+}
+
+static void
+setJump2(void)
+{
+    printf("Entered setJump2\n");
+    setjmp(env);
+    printf("Exiting setJump2\n");
+}
+
+static void
+setJump(void)
+{
+    printf("Entered setJump\n");
+    setJump2();
+    printf("Exiting setJump\n");
+}
+
+int
+main(int argc, char *argv[])
+{
+    setJump();
+    doJump();
+    printf("Back at main\n");
+
+    exit(EXIT_SUCCESS);
+}
+```
+
+### Thoughts
+The code above is meant to produce a segmentation fault by showing that the memory allocated by a function is deallocated upon returning from it, meaning we attempt to jump to a unknown location in memory. 
+
+For some reason my code does not work. In fact, it works as the book states it shouldn't. From what I can see, the `createJump()` is called and then returns after it has completed, meaning that the condition to jump to a returned function should have been met. And yet the code jumps there anyways as if it is calling the function itself.
+
+Looking at the solution provided by the book, we see that their version of `createJump` is nested by being called from another function other than main. Changing my code in this manner produces the correct result. The question still remains, however, why we need to "double" return here for it to work.
+
+## E6.3
+### Statement
+Implement `setenv()` and `unsetenv()` using `getenv()`, `putenv()`, and, where necessary, code that directly modifies `environ`. Your version of `unsetenv()` should check to see whether there are multiple definitions of an environment variable, and remove them all (which is what the `glibc` version of `unsetenv()` does).
+
+### Solution
+#### setenv
+```
+int my_setenv(const char *name, const char *value, int overwrite){
+    extern char **environ;
+
+    // if bad usage, null string, empty string or putting the equals sign in, we return -1
+    if(name == NULL || name[0] == '\0' || strchr(name,'=') != NULL)
+        return -1;
+    char *res;
+    // check to see if name is already set
+    if(getenv(name) != NULL && overwrite == 0)
+        return 0;
+    unsetenv(name);
+    // '=' and '\0' are the +2 since strlen does not include the null terminator 
+    res = malloc(strlen(name) + strlen(value) + 2); 
+
+    if (res == NULL)
+        return -1;
+    strcpy(res, name);
+    strcat(res, "=");
+    strcat(res, value);
+
+    if(putenv(name) == 0)
+        return 0;
+    else
+        return -1;
+}
+```
+
+#### unsetenv
+```
+int my_unsetenv(const char *name){
+    extern char **environ;
+
+    // if bad usage, null string, empty string or putting the equals sign in, we return -1
+    if(name == NULL || name[0] == '\0' || strchr(name,'=') != NULL)
+        return -1;
+    // Don't increment if found since we shift the next value into the found value to remove it,
+    // and the next value could also be name
+    for(char **ptr = environ; ptr!=NULL) {
+        if(strcmp(*ptr,name) == 0){
+            // move elements back one if found to remove
+            for(char **ptr2 = ptr; ptr2 != NULL;ptr2++)
+                *ptr2 = *(ptr2 + 1);
+        }else
+            ptr++;
+    }
+    return 0;
+}
+```
+
+# Exercises Chapter 7
+## E7.1
+### Statement
+Modify the program in Listing 7-1 (`free_and_sbrk.c`) to print out the current value of the program break after each execution of `malloc()`. Run the program specifying a small allocation block size. This will demonstrate that `malloc()` doesn’t employ `sbrk()` to adjust the program break on each call, but instead periodically allocates larger chunks of memory from which it passes back small pieces to the caller.
+
+### Solution
+(Snippet of the general output when running `./free_and_sbrk 1000 1000 2`)
+```
+Malloc counter 530, program break is now:           0x55d0cc0f4000
+Malloc counter 531, program break is now:           0x55d0cc0f4000
+Malloc counter 532, program break is now:           0x55d0cc0f4000
+Malloc counter 533, program break is now:           0x55d0cc0f4000
+Malloc counter 534, program break is now:           0x55d0cc115000
+Malloc counter 535, program break is now:           0x55d0cc115000
+Malloc counter 536, program break is now:           0x55d0cc115000
+Malloc counter 537, program break is now:           0x55d0cc115000
+Malloc counter 538, program break is now:           0x55d0cc115000
+Malloc counter 539, program break is now:           0x55d0cc115000
+```
+
+### Thoughts
+We can see that `malloc` will periodically allocate larger checks as it continues to allocate smaller pieces.
+
+## E7.2
+### Statement
+Implement `malloc()` and `free()`.
+
+### Solution
+This exercise is complicated enough to warrant its own post, see [here]().
+### Thoughts
+
+# Note
+All programs use `std=c99` as well as the following headers/libraries, created by Michael Kerrisk for the book.
+
+|NAME/LINK|Description|
+|-|-|
+|[tlpi_hdr.h](https://man7.org/tlpi/code/online/dist/lib/tlpi_hdr.h.html)|Contains the majority of the includes as well as min/max macros. I added `<stdbool>` and removed the boolean macro. Converting to C23 will be as simple as removing that include|
+|[error_functions.h](https://man7.org/tlpi/code/online/dist/lib/error_functions.h.html)| Headers for different error functions which can be called upon checking a system call|
+|[error_functions.c](https://man7.org/tlpi/code/online/dist/lib/error_functions.c.html)| Implementation for the error functions|
+|[ename.c.inc](https://man7.org/tlpi/code/online/dist/lib/ename.c.inc.html)|Array of strings to converts `errno` numeric values to text|
+|[gen_num.h](https://man7.org/tlpi/code/online/dist/lib/get_num.h.html)|Header file for functions that convert numbers to strings for easy printing of non-standard types (example: `mode_t`)|
+|[gen_num.c](https://man7.org/tlpi/code/online/dist/lib/get_num.c.html)|Implementation of the conversion functions|
+
