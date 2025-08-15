@@ -6,15 +6,24 @@ layout: default
 ---
 # Technical Journal
 
-## Competitive Coding Summaries
+## Miscellaneous Posts
 [Codeforces Round 1024 (Div 3) (2025-08-10)](/round1024div3summary)
+
+[Meow (2025-05-21)](/meow)
+
+[First Track (2025-06-03)](/intro)
+
+[Second Track (2025-06-20)](/intro2)
+
+[Malloc Implementation (2025-08-14)](/malloc)
 
 ## The Linux Programming Interface (Michael Kerrisk)
 [Chapter 3 and 4 (2025-08-12)](/tlpic3-4)
 
-[Chapter 5](/tlpic5)
+[Chapter 5 (2025-08-13)](/tlpic5)
 
-[Chapter 6 and 7](/tlpic6-7)
+[Chapter 6 and 7 (2025-08-14)](/tlpic6-7)
+
 
 ## Learning C (K. N. King)
 [Chapter 2 (2025-07-22)](/learningc2)
@@ -57,13 +66,6 @@ layout: default
 
 [Chapter 22 (2025-08-11)](/learningc22);
 
-## HTB Boxes that I've solved
-
-[Meow (2025-05-21)](/meow)
-
-[First Track (2025-06-03)](/intro)
-
-[Second Track (2025-06-20)](/intro2)
 
 ## Notes
 [Personal pentesting notes](/pentestnotes)

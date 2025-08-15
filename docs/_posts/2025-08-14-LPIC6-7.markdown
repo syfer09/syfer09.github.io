@@ -259,7 +259,7 @@ We can see that `malloc` will periodically allocate larger checks as it continue
 Implement `malloc()` and `free()`.
 
 ### Solution
-This exercise is complicated enough to warrant its own post, see [here]().
+This exercise is complicated enough to warrant its own post, see [here](/malloc).
 ### Thoughts
 
 # Note
