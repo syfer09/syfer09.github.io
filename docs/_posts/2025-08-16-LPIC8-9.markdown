@@ -1,0 +1,374 @@
+---
+layout: default
+title: Chapter 8 and 9
+date: 2025-08-16 16:00:00 +0000
+categories: jekyll update
+permalink: /lpic8-9
+---
+
+# Chapters 8 and 9
+# Exercises
+## E8.1
+### Statement
+When we execute the following code, we find that it displays the same number twice, even though the two users have different IDs in the password file. Why is this?
+
+`printf("%ld %ld\n", (long) (getpwnam("avr")->pw_uid), (long) (getpwnam("tsr")->pw_uid));`
+
+### Solution
+Both of the calls get executed before the `printf` string gets printed. Since the results of each call are stored in the *same* statically allocated buffer, the calls end up overwriting each other.
+
+### Thoughts
+## E8.2
+### Statement
+Implement `getpwnam()` using `setpwent()`, `getpwent()`, and `endpwent()`.
+
+### Solution
+
+```
+// Filename: getpwnnam.c
+// Purpose: Implements the system call getpwnnam
+// Author: syfer
+// Date: August 16th 2025
+
+#define _DEFAULT_SOURCE
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <pwd.h>
+#include <errno.h>
+
+struct passwd *my_getpwnam(const char *name);
+
+int main(int argc, char *argv[]){
+
+    struct passwd *test;
+
+    if(argc != 2){
+        printf("Error bad usage, usage: %s name\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    test = my_getpwnam(argv[1]);
+
+    if(test == NULL){
+        if(errno == 0){
+            printf("User %s does not exist\n", argv[1]);
+            exit(EXIT_SUCCESS);
+        }
+        else{
+            printf("my_getpwnam failed");
+            exit(EXIT_FAILURE);
+        }
+    }
+    printf("User name: %s\n", test->pw_name);
+    printf("Encrypted password: %s\n", test->pw_passwd);
+    printf("User ID: %ld\n", (long) test->pw_uid);
+    printf("Group ID: %ld\n", (long) test->pw_gid);
+    printf("Comment: %s\n", test->pw_gecos);
+    printf("Home directory: %s\n", test->pw_dir);
+    printf("Login shell: %s\n", test->pw_shell); 
+
+    return 0;
+}
+
+struct passwd *my_getpwnam(const char *name){
+    struct passwd *ret;
+
+    setpwent();
+    for(ret = getpwent(); ret != NULL && strcmp(name, ret->pw_name) != 0; ret = getpwent())
+        ;
+    endpwent();
+    return ret;
+}
+```
+
+## E9.1
+### Statement
+Assume in each of the following cases that the initial set of process user IDs is `real=1000 effective=0 saved=0 file-system=0`. What would be the state of the user IDs after the following calls?
+
+a) `setuid(2000);`
+
+b) `setreuid(–1, 2000);` 
+
+c) `seteuid(2000);`
+
+d) `setfsuid(2000);`
+
+e) `setresuid(–1, 2000, 3000);`
+
+### Solution
+
+(a) `real=2000 effective=2000 saved=2000 file-system=2000`
+
+(b) `real=1000 effective=2000 saved=2000 file-system=2000`
+
+(c) `real=1000 effective=2000 saved=0 file-system=2000`
+
+(d) `real=1000 effective=0 saved=0 file-system=2000`
+
+(e) `real=1000 effective=2000 saved=3000 file-system=2000`
+
+### Thoughts
+## E9.2
+### Statement
+Is a process with the following user IDs privileged? Explain your answer.
+
+`real=0 effective=1000 saved=1000 file-system=1000`
+
+### Solution
+No, the process is technically unprivileged. Although owned by root, the process will look towards the effective ID to determine privilege.
+
+### Thoughts
+## E9.3
+### Statement
+Implement `initgroups()` using `setgroups()` and library functions for retrieving information from the password and group files (Section 8.4). Remember that a process must be privileged in order to be able to call `setgroups()`.
+
+### Solution
+
+```
+// Filename: initgroups.c
+// Purpose: Implements the initgroups(3) system call using setgroups() and other library functions
+// Author: syfer
+// Date: August 17th, 2025
+
+#define _DEFAULT_SOURCE
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <unistd.h>
+#include <pwd.h>
+#include <grp.h>
+#include <errno.h>
+#include <sys/param.h>
+
+#define MAX_GROUPS (NGROUPS_MAX + 1)
+
+char *groupNameFromId(gid_t gid);
+gid_t groupIdFromName(const char *name);
+int getGroups(const char *user, gid_t *groups);
+int my_initgroups(const char *user, gid_t group);
+
+int main(int argc, char *argv[]){
+
+    char *user, *group;
+    gid_t id, supGroups[MAX_GROUPS];
+    int nGroups, check;
+
+
+    if(argc != 3){
+        printf("Error bad usage\n");
+        exit(EXIT_FAILURE);
+    }
+
+    user = argv[1];
+    group = argv[2];
+
+    check = groupIdFromName(group);
+
+    if(check == -1){
+        printf("Error group not found\n");
+        exit(EXIT_FAILURE);
+    }else
+        id = check;
+
+
+
+    if(my_initgroups(user, id) == -1){
+        printf("Error initgroups failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    nGroups = getGroups(user, supGroups);
+    if(nGroups == -1){
+        printf("getGroups failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for(int i = 0; i < nGroups; i++){
+        group = groupNameFromId(supGroups[i]);
+        printf("%s\n", group);
+
+    }
+
+    return 0;
+}
+
+/* Return name corresponding to 'gid', or NULL on error */
+char *groupNameFromId(gid_t gid) {
+    struct group *grp;
+
+    grp = getgrgid(gid);
+    return (grp == NULL) ? NULL : grp->gr_name;
+}
+
+ /* Return GID corresponding to 'name', or -1 on error */
+gid_t groupIdFromName(const char *name) {
+    struct group *grp;
+    gid_t g;
+    char *endptr;
+
+    if (name == NULL || *name == '\0')  /* On NULL or empty string */
+        return -1;                      /* return an error */
+
+    g = strtol(name, &endptr, 10);      /* As a convenience to caller */
+    if (*endptr == '\0')                /* allow a numeric string */
+        return g;
+
+    grp = getgrnam(name);
+    if (grp == NULL)
+        return -1;
+
+    return grp->gr_gid;
+}
+
+int getGroups(const char *user, gid_t *groups){
+    struct group *g;
+    int i = 0;
+
+    setgrent(); // start at beginning 
+
+    for(g = getgrent(); g != NULL; g = getgrent()){
+
+        // go through each group memeber and compare to username
+        for(char **p = g->gr_mem; *p != NULL; p++){
+            if(strcmp(user, *p) == 0){
+                if(i < MAX_GROUPS){
+                    groups[i++] = g->gr_gid;
+                    break;
+                }else{
+                    return -1;
+                }
+            }
+        }
+    }
+
+    endgrent();
+    return i;
+}
+
+int my_initgroups(const char *user, gid_t group){
+    gid_t curGroups[MAX_GROUPS];
+    int nGroups;
+
+    curGroups[0] = group;
+
+    nGroups = getGroups(user, &curGroups[1]);
+    if(nGroups == -1)
+        return -1;
+    return setgroups(nGroups + 1, curGroups);
+}
+```
+
+## E9.4
+### Statement
+If a process whose user IDs all have the value `X` executes a set-user-ID program whose user ID, `Y`, is nonzero, then the process credentials are set as follows:
+
+`real=X effective=Y saved=Y`
+
+(We ignore the file-system user ID, since it tracks the effective user ID.) Show the `setuid()`, `seteuid()`, `setreuid()`, and `setresuid()` calls, respectively, that would be used to perform the following operations:
+
+a) Suspend and resume the set-user-ID identity (i.e., switch the effective user ID to the value of the real user ID and then back to the saved set-user-ID).
+
+b) Permanently drop the set-user-ID identity (i.e., ensure that the effective user ID and the saved set-user-ID are set to the value of the real user ID).
+
+(This exercise also requires the use of `getuid()` and `geteuid()` to retrieve the process’s real and effective user IDs.) Note that for certain of the system calls listed above, some of these operations can’t be performed.
+
+### Solution
+Prior to everything we save the effective user ID to resume privileges once we drop it:
+
+`eid = geteuid();`
+
+#### setuid
+Note that we cannot drop privileges permanently.
+
+```
+setuid(getuid()); // to real
+setuid(eid); // and back
+```
+
+#### seteuid
+Note that we cannot drop privileges permanently.
+
+```
+seteuid(getuid()); // to real
+setuid(eid); // and back
+```
+
+#### setreuid
+
+```
+setreuid(-1, getuid()); //drop
+setreuid(-1, eid); // back
+setreuid(getuid(), getuid()); // drop permanently by chaing the suid
+```
+
+#### setresuid
+
+```
+setresuid(-1, getuid(), -1); //drop
+setresuid(-1, eid, -1); // back
+setresuid(getuid(), getuid(), getuid()); //drop permanently by changing the suid
+```
+
+## E9.5
+### Statement
+Repeat the previous exercise for a process executing a set-user-ID-root program, which has the following initial set of process credentials:
+
+`real=X effective=0 saved=0`
+
+### Solution
+Prior to everything we save the effective user ID to resume privileges once we drop it:
+
+`eid = geteuid(); //which is 0`
+
+#### setuid
+Note that we cannot suspend or resume privileges with `setuid` since the first call would overwrite it.
+
+```
+setuid(getuid()); // permanently drop privledges
+```
+
+#### seteuid
+Note that we cannot drop privileges permanently.
+
+```
+seteuid(getuid()); // to real
+setuid(eid); // and back
+```
+
+#### setreuid
+
+```
+setreuid(-1, getuid()); //drop
+setreuid(-1, eid); // back
+setreuid(getuid(), getuid()); // drop permanently by chaing the suid
+```
+
+#### setresuid
+
+```
+setresuid(-1, getuid(), -1); //drop
+setresuid(-1, eid, -1); // back
+setresuid(getuid(), getuid(), getuid()); //drop permanently by changing the suid
+```
+
+### Thoughts
+
+Lots of confusing rules. Not sure I'll ever be returning to these system calls, but if I ever find myself in a situation that I might need to I guess I'll be pleasantly surprised.
+
+# Note
+All programs use `std=c99` as well as the following headers/libraries, created by Michael Kerrisk for the book.
+
+|NAME/LINK|Description|
+|-|-|
+|[tlpi_hdr.h](https://man7.org/tlpi/code/online/dist/lib/tlpi_hdr.h.html)|Contains the majority of the includes as well as min/max macros. I added `<stdbool>` and removed the boolean macro. Converting to C23 will be as simple as removing that include|
+|[error_functions.h](https://man7.org/tlpi/code/online/dist/lib/error_functions.h.html)| Headers for different error functions which can be called upon checking a system call|
+|[error_functions.c](https://man7.org/tlpi/code/online/dist/lib/error_functions.c.html)| Implementation for the error functions|
+|[ename.c.inc](https://man7.org/tlpi/code/online/dist/lib/ename.c.inc.html)|Array of strings to converts `errno` numeric values to text|
+|[gen_num.h](https://man7.org/tlpi/code/online/dist/lib/get_num.h.html)|Header file for functions that convert numbers to strings for easy printing of non-standard types (example: `mode_t`)|
+|[gen_num.c](https://man7.org/tlpi/code/online/dist/lib/get_num.c.html)|Implementation of the conversion functions|
+

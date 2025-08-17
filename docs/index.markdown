@@ -24,6 +24,7 @@ layout: default
 
 [Chapter 6 and 7 (2025-08-14)](/tlpic6-7)
 
+[Chapter 8 and 9 (2025-08-16)](/tlpic8-9)
 
 ## Learning C (K. N. King)
 [Chapter 2 (2025-07-22)](/learningc2)
