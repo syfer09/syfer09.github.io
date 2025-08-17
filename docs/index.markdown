@@ -24,9 +24,9 @@ layout: default
 
 [Chapter 6 and 7 (2025-08-14)](/tlpic6-7)
 
-[Chapter 8 and 9 (2025-08-16)](/tlpic8-9)
+[Chapter 8 and 9 (2025-08-16)](/lpic8-9)
 
-## Learning C (K. N. King)
+## C Programming, A Modern Approach (K. N. King)
 [Chapter 2 (2025-07-22)](/learningc2)
 
 [Chapter 3 (2025-07-23)](/learningc3)
@@ -63,9 +63,9 @@ layout: default
 
 [Chapter 19 (shortened)(2025-08-08)](/learningc19)
 
-[Chapter 20 (2025-08-08)](/learningc20);
+[Chapter 20 (2025-08-08)](/learningc20)
 
-[Chapter 22 (2025-08-11)](/learningc22);
+[Chapter 22 (2025-08-11)](/learningc22)
 
 
 ## Notes
